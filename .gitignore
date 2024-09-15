@@ -1,0 +1,5 @@
+bin/
+obj/
+Suni.sln
+.env
+Suni.csproj
