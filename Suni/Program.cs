@@ -72,12 +72,12 @@ namespace SunBot
 
             //////MISCELLANEOUS commands
             Commands.RegisterCommands<SunPrefixCommands.Miscellaneous>(); //prefix
-            //SlashCommandsConfig.RegisterCommands<SunSlashCommands.Miscellaneous>(); //slash (deleted for while)
+            SlashCommandsConfig.RegisterCommands<SunSlashCommands.Miscellaneous>();
             SlashCommandsConfig.RegisterCommands<SunContextCommands.Miscellaneous>(); //menu context
 
             //////IMAGECOMMANDS commands
             Commands.RegisterCommands<SunPrefixCommands.ImageCommands>(); //prefix
-            SlashCommandsConfig.RegisterCommands<SunCommands.Slash.ImageCommands>(); //slash
+            SlashCommandsConfig.RegisterCommands<SunSlashCommands.ImageCommands>(); //slash
             
             //errored slash/prefix errored (debugging for canary!)
             Commands.CommandErrored += ErroredFunctions.CommandsErrored_Handler;

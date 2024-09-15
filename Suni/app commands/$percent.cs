@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 
 using DSharpPlus.SlashCommands;
 
-namespace SunCommands.Slash
+namespace SunSlashCommands
 {
     public partial class ImageCommands : ApplicationCommandModule
     {

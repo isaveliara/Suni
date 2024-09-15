@@ -1,0 +1,25 @@
+using System.Linq;
+using System.Threading.Tasks;
+using DSharpPlus;
+using DSharpPlus.Entities;
+
+using DSharpPlus.SlashCommands;
+
+namespace SunSlashCommands
+{
+    public partial class Miscellaneous : ApplicationCommandModule
+    {
+        [SlashCommand("calculate","Calcule uma expressão")]
+        public async Task SLASHCommandShip(InteractionContext ctx,
+        [Option("Expression","Ex: 2x=12-0")] string expression)
+        {
+            string result = SunFunctions.Functions.calculateExpression(expression);
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle($"{expression}")
+                .WithDescription($"{result}");
+            
+            await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                .AddEmbed(embed));
+        }
+    }
+}
