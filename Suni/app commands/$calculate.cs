@@ -13,13 +13,15 @@ namespace SunSlashCommands
         public async Task SLASHCommandShip(InteractionContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
-            string result = SunFunctions.Functions.calculateExpression(expression);
+            var (image, result) = await SunFunctions.Functions.calculateExpression(expression);
+
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"{expression}")
                 .WithDescription($"{result}");
             
             await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
-                .AddEmbed(embed));
+                .AddEmbed(embed)
+                .AddFile("result.png", image));
         }
     }
 }

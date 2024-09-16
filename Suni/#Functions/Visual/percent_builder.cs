@@ -19,7 +19,7 @@ namespace SunImageModels
         {
             var avatar1 = await Basics.getRgba32FromUrl(url1); var avatar2 = await Basics.getRgba32FromUrl(url2);
             avatar1 = Basics.CircleFromOthers(avatar1, 250); avatar2 = Basics.CircleFromOthers(avatar2, 250);
-            var result = Image.Load<Rgba32>("./-assets/images/shipBackGround.png");
+            var result = Image.Load<Rgba32>("./assets/images/shipBackGround.png");
 
             result.Mutate(ctx =>
             {
@@ -29,7 +29,7 @@ namespace SunImageModels
                 ctx.Fill(Color.Red, new RectangleF(100, 350, (500 * (percent / 100f)), 25));
                 
                 var collection = new FontCollection();
-                var family = collection.Add("./-assets/fonts/Roboto-Light.ttf");
+                var family = collection.Add("./assets/fonts/Roboto-Light.ttf");
                 var font = family.CreateFont(27, FontStyle.Regular);
 
                 ctx.DrawText($"{percent}%", font, Color.White, new PointF(100 + (500 * (percent / 100f))+5, 350));

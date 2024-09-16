@@ -16,16 +16,18 @@ using DSharpPlus.SlashCommands;
 
 namespace SunBot
 {
-    internal class DotenvItems
+    public class DotenvItems
     {
-        internal string sunitoken;
+        internal string SuniToken;
+        public string BaseUrlApi;
 
         public DotenvItems()
         {
             //load
             Env.Load();
             //var
-            sunitoken = Environment.GetEnvironmentVariable("SUNITOKEN");
+            SuniToken = Environment.GetEnvironmentVariable("SUNITOKEN");
+            BaseUrlApi = Environment.GetEnvironmentVariable("BASEURLAPI");
         }
     }
 
@@ -42,7 +44,7 @@ namespace SunBot
             var discordConfig = new DiscordConfiguration()
             {
                 Intents = DiscordIntents.All,
-                Token = new DotenvItems().sunitoken,
+                Token = new DotenvItems().SuniToken,
                 ShardId = 0,
                 ShardCount = 2,
                 AutoReconnect = true,

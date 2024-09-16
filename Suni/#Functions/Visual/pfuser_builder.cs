@@ -22,8 +22,8 @@ namespace SunImageModels
         public static async Task<MemoryStream> BuildProfileUI(string urlAvatar, string banner, string name, ulong money, List<string> badges)
         {
             var avatar = await Basics.getRgba32FromUrl(urlAvatar); avatar = Basics.CircleFromOthers(avatar, 250);
-            using var background = Image.Load<Rgba32>($"Visual/images/banners/{banner.Split('-')[1]}.png");
-            using Image<Rgba32> style = Image.Load<Rgba32>($"Visual/images/banners/{banner.Split('-')[0]}.png");
+            using var background = Image.Load<Rgba32>($"./assets/images/banners/{banner.Split('-')[1]}.png");
+            using Image<Rgba32> style = Image.Load<Rgba32>($"./assets/images/banners/{banner.Split('-')[0]}.png");
             switch (banner.Split('-')[0])
             {
                 case "night" or "nightwhite" or "nightwhitesolid":
@@ -35,8 +35,8 @@ namespace SunImageModels
 
                     //texts
                     FontCollection fontCollection = new FontCollection();
-                    FontFamily fontFamily = fontCollection.Add("Visual/fonts/Roboto-Light.ttf");
-                    FontFamily fontFamily2 = fontCollection.Add("Visual/fonts/Roboto-Light.ttf");
+                    FontFamily fontFamily = fontCollection.Add("./assets/fonts/Roboto-Light.ttf");
+                    FontFamily fontFamily2 = fontCollection.Add("./assets/fonts/Roboto-Light.ttf");
                     Font fonteGrande = fontFamily.CreateFont(60);
                     Font fonteGrossa = fontFamily2.CreateFont(25);
 

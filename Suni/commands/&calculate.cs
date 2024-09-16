@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -8,17 +9,19 @@ namespace SunPrefixCommands
 {
     public partial class Miscellaneous : BaseCommandModule
     {
-        [Command("calculate")]
+        [Command("exp")]
         public async Task PREFIXCommandShip(CommandContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
-            string result = SunFunctions.Functions.calculateExpression(expression);
+            var (image, result) = await SunFunctions.Functions.calculateExpression(expression);
+
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"{expression}")
                 .WithDescription($"{result}");
             
             await ctx.RespondAsync(new DiscordMessageBuilder()
-                .AddEmbed(embed));
+                .AddEmbed(embed)
+                .AddFile("result.png", image));
         }
     }
 }
