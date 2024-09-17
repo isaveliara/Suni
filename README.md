@@ -1,27 +1,34 @@
 # Suni
- A simple C# bot for Discord's API
 
+Um bot simples feito em C# para o Discord
 
-# Welcome!
+## Olá!
 
-**Suni** is a versatile bot designed to bring customizable tools to your server. Whether you're looking to add some interactive features or streamline server management, Suni has a variety of commands to enhance your community.
-
-Explore some of the commands on the [simulate page](https://yluniar.squareweb.app/simulate) to see Suni in action!
+A **Suni** é super flexível, feita para trazer ferramentas personalizáveis para o seu servidor. Se você quer adicionar suas funcionalidades interativas ou facilitar a administração, a Suni tem um monte de comandos para deixar seu servidor mais divertido e engajado.
 
 ---
 
-## Features
+## O Que Ela Pode Fazer
 
-Suni comes packed with useful features, including customizable commands and powerful tools that allow you to interact in new ways on your server.
+A Suni vem cheio de recursos, incluindo comandos personalizáveis e ferramentas úteis que permitem interagir com o seu servidor de novas maneiras.
 
-- like, &calc <exp>
-will provide a visual representation of the solution/expression provided
+- `&calc <exp>`: Dá uma representação visual da solução ou expressão que você fornecer.
+- `&npt command <cmd>` : Roda um código npt adicionado em seu servidor, como por exemplo, &npt command request-ticket; Cria um canal de ticket para o ativador.
+
+---
+
+## Novidades
+
+Atualmente, estou trabalhando em uma funcionalidade chamada `npt`, que vai permitir executar códigos de script como um bot paralelo dentro da própia Suni. Você vai poder acionar esses scripts com um comando curto, e até mesmo os membros do seu servidor poderão usá-los conforme suas restrições.
+
+exemplo de uso:
+```ansi
+\033[38;5;246m--definitions--\033[0m
+\033[38;5;198monlycase\033[0m(\033[38;5;83m@get<has_permission_admin>\033[0m) \033[38;5;198m->\033[0m \033[38;5;116mkit\033[0m \033[38;5;244m// Cancela a execução do código se o usuário não possuir admin\033[0m
+\033[38;5;246m--end--\033[0m
+\033[38;5;198mnpt::\033[0m \033[38;5;116mbanAsync\033[0m(\033[38;5;118m"25d"\033[0m) \033[38;5;198m->\033[0m \033[38;5;116mmessageFirstWord\033[0m \033[38;5;244m// capacita banimento por id e nome de usuário\033[0m
+```
 
 ---
 
-## New Commands
-
-Check out the executable commands for **[npt](https://sunnet.squareweb.app/sar_docs)**, designed to add triggers for actions in events, and more...
-
----
-If youre ready to add the bot to your server, head over to [the website](https://sunnet.squareweb.app) for all the details.
+A Suni ainda está em desenvolvimento, mas logo terei a versão beta pronta para lançamento. Até mais!
