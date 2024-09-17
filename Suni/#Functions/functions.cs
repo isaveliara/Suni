@@ -4,11 +4,23 @@ The translation sys. could be here, but I got lazy and decided to wait until squ
 */
 
 using System;
+using System.Collections.Generic;
 
 namespace SunFunctions
 {
     public partial class Functions
     {
+        public static IEnumerable<int> Dice(int sides = 6, int number = 1)
+        {
+            if (sides == 0 || number == 0) throw new Exception("Invalid usage of dice. 'sides' and 'number' must be greater than 0.");            
+            Random random = new Random();
+
+            for (int p = 0; p < number; p++)
+            {
+                yield return random.Next(1, sides + 1);
+            }
+        }
+        
         public static string HelloWorld()
             =>
                 "Hello World!";
