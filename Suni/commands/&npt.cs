@@ -14,7 +14,7 @@ namespace SunPrefixCommands
     public partial class Miscellaneous : BaseCommandModule
     {
         [Command("npt")]
-        public async Task PREFIXCommandNpt(CommandContext ctx, [Option("act","npt act")] NptActions act)
+        public async Task PREFIXCommandNpt(CommandContext ctx, [Option("act","npt act")] string act)
         {
             string c = ctx.Message.Content;
 
@@ -23,8 +23,27 @@ namespace SunPrefixCommands
             if (match.Success)
                 code = match.Groups[1].Value;
             
+            NptActions action;
+            switch (act.ToLower())
+            {
+                case "run":
+                    action = NptActions.RunAct;
+                    break;
+                case "test":
+                    action = NptActions.TestAct;
+                    break;
+                case "info":
+                    action = NptActions.InfoAct;
+                    break;
+                case "parse":
+                    action = NptActions.ParseAct;
+                    break;
+                default:
+                    await ctx.RespondAsync("Invalid action provided. Use 'run', 'test' or 'info'");
+                    return;
+            }
             
-            var response = SunFunctions.Functions.NPTEXECUTE(act, ctx, code);
+            var response = SunFunctions.Functions.NPTEXECUTE(action, ctx, code);
             await ctx.RespondAsync(new DiscordMessageBuilder()
                 .WithContent(response));
             
@@ -34,10 +53,10 @@ namespace SunPrefixCommands
 
     public enum NptActions
     {
-        run,
-        test,
-        info,
-        parse
+        RunAct,
+        TestAct,
+        InfoAct,
+        ParseAct
     }
 }
 
