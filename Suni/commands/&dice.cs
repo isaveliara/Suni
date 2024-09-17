@@ -13,7 +13,7 @@ namespace SunPrefixCommands
     public partial class Miscellaneous : BaseCommandModule
     {
         [Command("dice")]
-        public async Task PREFIXCommandShip(CommandContext ctx,
+        public async Task PREFIXCommandDice(CommandContext ctx,
         [Option("sides","sides")] byte sides = 6,
         [Option("number","number for roll")] int number = 1)
         {
