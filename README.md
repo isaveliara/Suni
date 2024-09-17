@@ -22,11 +22,13 @@ A Suni vem cheio de recursos, incluindo comandos personalizáveis e ferramentas 
 Atualmente, estou trabalhando em uma funcionalidade chamada `npt`, que vai permitir executar códigos de script como um bot paralelo dentro da própia Suni. Você vai poder acionar esses scripts com um comando curto, e até mesmo os membros do seu servidor poderão usá-los conforme suas restrições.
 
 exemplo de uso:
-```ansi
-\033[38;5;246m--definitions--\033[0m
-\033[38;5;198monlycase\033[0m(\033[38;5;83m@get<has_permission_admin>\033[0m) \033[38;5;198m->\033[0m \033[38;5;116mkit\033[0m \033[38;5;244m// Cancela a execução do código se o usuário não possuir admin\033[0m
-\033[38;5;246m--end--\033[0m
-\033[38;5;198mnpt::\033[0m \033[38;5;116mbanAsync\033[0m(\033[38;5;118m"25d"\033[0m) \033[38;5;198m->\033[0m \033[38;5;116mmessageFirstWord\033[0m \033[38;5;244m// capacita banimento por id e nome de usuário\033[0m
+```markdown
+```text
+--definitions--
+**onlycase(@get<has_permission_admin>)** -> **kit** // Cancela a execução do código se o usuário não possuir admin
+--end--
+**npt::** **banAsync("25d")** -> **messageFirstWord** // capacita banimento por id e nome de usuário
+```
 ```
 
 ---
