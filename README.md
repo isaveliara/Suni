@@ -23,12 +23,10 @@ Atualmente, estou trabalhando em uma funcionalidade chamada `npt`, que vai permi
 
 exemplo de uso:
 ```markdown
-```text
 --definitions--
 **onlycase(@get<has_permission_admin>)** -> **kit** // Cancela a execução do código se o usuário não possuir admin
 --end--
 **npt::** **banAsync("25d")** -> **messageFirstWord** // capacita banimento por id e nome de usuário
-```
 ```
 
 ---
