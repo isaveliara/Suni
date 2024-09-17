@@ -12,7 +12,7 @@ namespace SunFunctions
     {
         public static IEnumerable<int> Dice(int sides = 6, int number = 1)
         {
-            if (sides == 0 || number == 0) throw new Exception("Invalid usage of dice. 'sides' and 'number' must be greater than 0.");            
+            if (sides < 1 || number < 1) throw new Exception("Invalid usage of dice. 'sides' and 'number' must be greater than 0.");            
             Random random = new Random();
 
             for (int p = 0; p < number; p++)
