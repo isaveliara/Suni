@@ -1,34 +1,34 @@
 # Suni
 
-Um bot simples feito em C# para o Discord
+A simple C# bot for Discord
 
-## Olá!
+## Hello!
 
-A **Suni** é super flexível, feita para trazer ferramentas personalizáveis para o seu servidor. Se você quer adicionar suas funcionalidades interativas ou facilitar a administração, a Suni tem um monte de comandos para deixar seu servidor mais divertido e engajado.
-
----
-
-## O Que Ela Pode Fazer
-
-A Suni vem cheio de recursos, incluindo comandos personalizáveis e ferramentas úteis que permitem interagir com o seu servidor de novas maneiras.
-
-- `&calc <exp>`: Dá uma representação visual da solução ou expressão que você fornecer.
-- `&npt command <cmd>` : Roda um código npt adicionado em seu servidor, como por exemplo, &npt command request-ticket; Cria um canal de ticket para o ativador.
+**Suni** is super flexible, designed to bring customizable tools to your server. Whether you want to add interactive features or make administration easier, Suni has a ton of commands to make your server more fun and engaging.
 
 ---
 
-## Novidades
+## What It Can Do
 
-Atualmente, estou trabalhando em uma funcionalidade chamada `npt`, que vai permitir executar códigos de script como um bot paralelo dentro da própia Suni. Você vai poder acionar esses scripts com um comando curto, e até mesmo os membros do seu servidor poderão usá-los conforme suas restrições.
+Suni comes packed with features, including customizable commands and useful tools that allow you to interact with your server in new ways.
 
-exemplo de uso:
+- `&calc <exp>`: Gives a visual representation of the solution or expression you provide.
+- `&npt command <cmd>` : Run an npt code added to your server (can be used by any member)
+
+---
+
+## What's New
+
+I'm currently working on a feature called `npt`, which will allow you to run script code as a parallel bot within Suni itself.  You will be able to trigger these scripts with a short command, and even members of your server will be able to use them according to your restrictions.
+
+usage example:
 ```markdown
 --definitions--
-**onlycase(@get<has_permission_admin>)** -> **kit** // Cancela a execução do código se o usuário não possuir admin
+**onlycase(@get<has_permission_admin>)** -> **kit** // Cancels code execution if user does not have admin
 --end--
-**npt::** **banAsync("25d")** -> **messageFirstWord** // capacita banimento por id e nome de usuário
+**npt::** **banAsync("25d")** -> **messageFirstWord** // enables banning by id and username
 ```
 
 ---
 
-A Suni ainda está em desenvolvimento, mas logo terei a versão beta pronta para lançamento. Até mais!
+Suni is still in development, but I will have the beta version ready for release soon. See you soon!
