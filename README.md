@@ -1,27 +1,34 @@
 # Suni
- A simple C# bot for Discord's API
 
+A simple C# bot for Discord
 
-# Welcome!
+## Hello!
 
-**Suni** is a versatile bot designed to bring customizable tools to your server. Whether you're looking to add some interactive features or streamline server management, Suni has a variety of commands to enhance your community.
-
-Explore some of the commands on the [simulate page](https://yluniar.squareweb.app/simulate) to see Suni in action!
+**Suni** is super flexible, designed to bring customizable tools to your server. Whether you want to add interactive features or make administration easier, Suni has a ton of commands to make your server more fun and engaging.
 
 ---
 
-## Features
+## What It Can Do
 
-Suni comes packed with useful features, including customizable commands and powerful tools that allow you to interact in new ways on your server.
+Suni comes packed with features, including customizable commands and useful tools that allow you to interact with your server in new ways.
 
-- like, &calc <exp>
-will provide a visual representation of the solution/expression provided
+- `&calc <exp>`: Gives a visual representation of the solution or expression you provide.
+- `&npt command <cmd>` : Run an npt code added to your server (can be used by any member)
+
+---
+
+## What's New
+
+I'm currently working on a feature called `npt`, which will allow you to run script code as a parallel bot within Suni itself.  You will be able to trigger these scripts with a short command, and even members of your server will be able to use them according to your restrictions.
+
+usage example:
+```markdown
+--definitions--
+**onlycase(@get<has_permission_admin>)** -> **kit** // Cancels code execution if user does not have admin
+--end--
+**npt::** **banAsync("25d")** -> **messageFirstWord** // enables banning by id and username
+```
 
 ---
 
-## New Commands
-
-Check out the executable commands for **[npt](https://sunnet.squareweb.app/sar_docs)**, designed to add triggers for actions in events, and more...
-
----
-If youre ready to add the bot to your server, head over to [the website](https://sunnet.squareweb.app) for all the details.
+Suni is still in development, but I will have the beta version ready for release soon. See you soon!

@@ -80,6 +80,9 @@ namespace SunBot
             //////IMAGECOMMANDS commands
             Commands.RegisterCommands<SunPrefixCommands.ImageCommands>(); //prefix
             SlashCommandsConfig.RegisterCommands<SunSlashCommands.ImageCommands>(); //slash
+
+            //////Minigame commands
+            Commands.RegisterCommands<SunPrefixCommands.GameCommands>(); //prefix
             
             //errored slash/prefix errored (debugging for canary!)
             Commands.CommandErrored += ErroredFunctions.CommandsErrored_Handler;
