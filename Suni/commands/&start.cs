@@ -38,11 +38,11 @@ namespace SunPrefixCommands
                 (int rate, int rateVariance) = (t.Rate, t.RateVariance);
                 Random random = new Random();
 
-                //-1 makes infinite
+                //-1 makes questions infinite
                 for (int x = 0; x != numQuestions; x++)
                 {
                     int tryingGetResponse = 1;
-                    QuizQuestionData QuizquestionData; //define
+                    QuizQuestionData QuizquestionData;
                     while (true)
                     {
                         QuizquestionData = await GetQuizQuestion(theme);
@@ -79,15 +79,19 @@ namespace SunPrefixCommands
                     {
                         var userResponse = await GetUserResponseWithCountdown(ctx, rate, rateVariance, QuizquestionData.Answers);
                         if (userResponse == null)
-                        {//conflict
-                            await ctx.Channel.SendMessageAsync($"Sem respostas. Partida finalizada com {currentPoints} pontos!");
-                            await ctx.Channel.SendMessageAsync($"Esperado as respostas '{string.Join("",QuizquestionData.Answers)}'.");
-                            return;
+                        {
+                            await ctx.Channel.SendMessageAsync($"Esperado as respostas '{string.Join(" | ",QuizquestionData.Answers)}'."); //only for debug
+                            if (attempts == -1)
+                            {
+                                await ctx.Channel.SendMessageAsync($"Sem respostas. Partida finalizada com {currentPoints} pontos!");
+                                return;
+                            }
+                            continue;
                         }
                     
                         await ctx.Channel.SendMessageAsync(QuizquestionData.Response.Replace("&{getanswer}", userResponse));
                         currentPoints += QuizquestionData.Worth;
-                        ////correctAnswer = true;
+                        break;
                     }
                 }
             }
@@ -168,12 +172,13 @@ namespace SunPrefixCommands
 
             private static bool IsCorrectAnswer(string userResponse, List<string> validAnswers)
             {
+                userResponse = userResponse.ToLower();
                 foreach (var answer in validAnswers)
-                    if (Regex.IsMatch(userResponse, answer, RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(userResponse, answer.ToLower(), RegexOptions.IgnoreCase))
                         return true;
                 
                 return false;
-            }
+            }   
 
             private static async Task<string> GetUserResponseWithCountdown(CommandContext ctx, int rate, int rateVariance, List<string> QuizquestionData)
             {
@@ -253,7 +258,7 @@ namespace SunPrefixCommands
             QuestionData = (JObject)data["response"];
         }
 
-        internal string Title => (string)QuestionData["title"];
+        internal string Title => (string)QuestionData["build"]["title"];
         internal string Description => (string)QuestionData["build"]["description"];
         internal string Color => (string)QuestionData["build"]["color"];
         internal string Footer => (string)QuestionData["build"]["footer"];
