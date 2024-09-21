@@ -39,10 +39,10 @@ namespace SunPrefixCommands
                     {
                         QuizquestionData = await GetQuizQuestion(theme);
                         if (QuizquestionData == null)
-                            {
+                        {
                             await ctx.Channel.SendMessageAsync("Falha ao fazer request! :warning:\nRetrying...");
                             await Task.Delay(500);
-                            }
+                        }
                         else
                             break;
                         if (tryingGetResponse == 0)
