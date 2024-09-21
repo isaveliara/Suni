@@ -23,11 +23,19 @@ namespace SunPrefixCommands
             [Command("quiz")] [Cooldown(1, 60, CooldownBucketType.Guild)] //set cooldown to avoid rate-limit
             public async Task PREFIXCommandStartQuiz(CommandContext ctx, [Option("theme","Tema para jogar")] string theme = "default")
             {
-                int currentPoints, numWins = currentPoints = 0;
-                int numQuestions = -1;
-                int attempts = 1;
-                ////bool revealAnswerOnFail = false; //maybe set this on api ////await ctx.RespondAsync($"A resposta correta era: **{QuizquestionData.Answers[0]}**");
-                (int rate, int rateVariance) = (10, 5);
+                //trying to find the theme
+                var t = await TryFindTheme(theme);
+                if (t == null){
+                    await ctx.RespondAsync($"Não foi possível encontrar o tema '{theme}' ou falha ao conectar com a api! :x:");
+                    return;
+                }
+                await ctx.Channel.SendMessageAsync($"Começando minigame com o tema {theme}..");
+
+                int currentPoints = 0; //increment this
+                int numQuestions = -1; //infinite
+                int attempts = t.Attempts;//confg
+                bool revealAnswerOnFail = t.RevealAnswerOnFail; ////await ctx.RespondAsync($"A resposta correta era: **{QuizquestionData.Answers[0]}**");
+                (int rate, int rateVariance) = (t.Rate, t.RateVariance);
                 Random random = new Random();
 
                 //-1 makes infinite
@@ -67,27 +75,55 @@ namespace SunPrefixCommands
                     await ctx.RespondAsync(embed);
                     ////bool correctAnswer = false;
 
-                    for (int y = 0; y !=  attempts; y++)
+                    for (int y = 0; y !=  attempts; y++)//-1
                     {
-                        var userResponse = await GetUserResponse(ctx, rate, rateVariance);
+                        var userResponse = await GetUserResponseWithCountdown(ctx, rate, rateVariance, QuizquestionData.Answers);
                         if (userResponse == null)
-                        {
-                            await ctx.Channel.SendMessageAsync("Sem respostas. Partida finalizada!");  return;
+                        {//conflict
+                            await ctx.Channel.SendMessageAsync($"Sem respostas. Partida finalizada com {currentPoints} pontos!");
+                            await ctx.Channel.SendMessageAsync($"Esperado as respostas '{string.Join("",QuizquestionData.Answers)}'.");
+                            return;
                         }
-
-                        if (IsCorrectAnswer(userResponse, QuizquestionData.Answers))
-                        {
-                            await ctx.Channel.SendMessageAsync(QuizquestionData.Response.Replace("&{getanswer}", userResponse));
-                            currentPoints += QuizquestionData.Worth;
-                            ////correctAnswer = true;
-                            break;
-                        }
-                        int timewait = rate + random.Next(-rateVariance, rateVariance);
-                        await ctx.Channel.SendMessageAsync($"Próxima pergunta em {timewait} segundos!");
-                        await Task.Delay(timewait * 1000);
+                    
+                        await ctx.Channel.SendMessageAsync(QuizquestionData.Response.Replace("&{getanswer}", userResponse));
+                        currentPoints += QuizquestionData.Worth;
+                        ////correctAnswer = true;
                     }
                 }
-                Console.WriteLine("debug");//debug
+            }
+
+            private async Task<ThemeData> TryFindTheme(string theme)
+            {
+                string baseUrl = new SunBot.DotenvItems().BaseUrlApi;
+                string apiUrl = $"{baseUrl}/quiz/theme/{theme}";
+
+                try
+                {
+                    var client = new RestClient(apiUrl);
+                    var request = new RestRequest();
+                    var response = await client.ExecuteAsync(request);
+                    Console.WriteLine(response.Content);//
+
+                    if (response.IsSuccessful)
+                    {
+                        var themeData = new QuizThemeData(JObject.Parse(response.Content));
+                        return new ThemeData
+                        {
+                            NumQuestions = themeData.NumQuestions,
+                            RevealAnswerOnFail = themeData.RevealAnswerOnFail,
+                            Attempts = themeData.Attempts,
+                            NumWins = themeData.NumWins,
+                            Rate = themeData.Rate,
+                            RateVariance = themeData.RateVariance
+                        };
+                    }
+                    else Console.WriteLine($"Erro: {response.StatusCode} - {response.ErrorMessage}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"failed to get the theme:\n{ex}");
+                }
+                return null;
             }
 
             private static async Task<QuizQuestionData> GetQuizQuestion(string theme)
@@ -100,22 +136,23 @@ namespace SunPrefixCommands
                     var client = new RestClient(apiUrl);
                     var request = new RestRequest();
                     var response = await client.ExecuteAsync(request);
+                    Console.WriteLine(response.Content);//
 
                     if (response.IsSuccessful)
                     {
-                        var ados = new Ados(JObject.Parse(response.Content));
+                        var quizData = new QuizData(JObject.Parse(response.Content));
                         return new QuizQuestionData
                         {
                             Build = new BuildQuizEmbedData
                             {
-                                Title = ados.Title,
-                                Description = ados.Description,
-                                Color = ados.Color,
-                                Footer = ados.Footer
+                                Title = quizData.Title,
+                                Description = quizData.Description,
+                                Color = quizData.Color,
+                                Footer = quizData.Footer
                             },
-                            Response = ados.ResponseText,
-                            Answers = ados.Answers.ToObject<List<string>>(),
-                            Worth = ados.Worth
+                            Response = quizData.ResponseText,
+                            Answers = quizData.Answers.ToObject<List<string>>(),
+                            Worth = quizData.Worth
                         };
                     }
                     else
@@ -138,25 +175,85 @@ namespace SunPrefixCommands
                 return false;
             }
 
-            private static async Task<string> GetUserResponse(CommandContext ctx, int rate, int rateVariance)
+            private static async Task<string> GetUserResponseWithCountdown(CommandContext ctx, int rate, int rateVariance, List<string> QuizquestionData)
             {
-                var interactivity = ctx.Client.GetInteractivity();
-                var userMessage = await interactivity.WaitForMessageAsync(x => x.Channel.Id == ctx.Channel.Id, TimeSpan.FromSeconds(rate + new Random().Next(-rateVariance, rateVariance)));
-                return userMessage.Result?.Content;
-            }
+                int seconds = rate + new Random().Next(-rateVariance, rateVariance);
+                int interval = 10; //10s
 
+                //init message
+                var countdownMessage = await ctx.Channel.SendMessageAsync($"{seconds} segundos restantes...");
+
+                var interactivity = ctx.Client.GetInteractivity();
+                DateTime endTime = DateTime.Now.AddSeconds(seconds);
+                string userResponse = null;
+
+                while (DateTime.Now < endTime)
+                {
+                    var remainingTime = (endTime - DateTime.Now).TotalSeconds;
+
+                    var userMessageTask = interactivity.WaitForMessageAsync(
+                        x => x.Channel.Id == ctx.Channel.Id
+                            && IsCorrectAnswer(x.Content, QuizquestionData),
+
+                        TimeSpan.FromSeconds(Math.Min(interval, remainingTime))
+                    );
+
+                    var result = await Task.WhenAny(userMessageTask, Task.Delay(interval * 1000));
+                    if (userMessageTask == result && userMessageTask.Result.Result != null)
+                    {
+                        userResponse = userMessageTask.Result.Result.Content;
+                        break;
+                    }
+
+                    remainingTime = (endTime - DateTime.Now).TotalSeconds;
+                    if (remainingTime > 0)
+                    {
+                        await countdownMessage.ModifyAsync($"{Math.Ceiling(remainingTime)} segundos restantes para responder...");
+                    }
+                }
+                if (userResponse == null)
+                {
+                    await ctx.Channel.SendMessageAsync("Tempo esgotado! :x:");
+                }
+                return userResponse;
+            }
         }
     }
-    internal class Ados
+    internal class QuizThemeData
+    {
+        internal JObject ThemeData { get; private set; }
+        public QuizThemeData(JObject data)
+        {
+            ThemeData = (JObject)data["response"]["quiz_info"];
+        }
+        internal int NumQuestions => (int)ThemeData["numQuestions"];
+        internal bool RevealAnswerOnFail => (bool)ThemeData["revealAnswerOnFail"];
+        internal int Attempts => (int)ThemeData["chances"];
+        internal int NumWins => (int)ThemeData["numWins"];
+        internal int Rate => (int)ThemeData["rate"];
+        internal int RateVariance => (int)ThemeData["rateVariance"];
+    }
+
+    internal class ThemeData
+    {
+        internal int NumQuestions { get; set; }
+        internal bool RevealAnswerOnFail { get; set; }
+        internal int Attempts { get; set; }
+        internal int NumWins { get; set; }
+        internal int Rate { get; set; }
+        internal int RateVariance { get; set; }
+    }
+
+    internal class QuizData
     {
         internal JObject QuestionData { get; private set; }
         
-        public Ados(JObject data)
+        public QuizData(JObject data)
         {
             QuestionData = (JObject)data["response"];
         }
 
-        internal string Title => (string)QuestionData["build"]["title"];
+        internal string Title => (string)QuestionData["title"];
         internal string Description => (string)QuestionData["build"]["description"];
         internal string Color => (string)QuestionData["build"]["color"];
         internal string Footer => (string)QuestionData["build"]["footer"];
