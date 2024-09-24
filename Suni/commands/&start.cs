@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -31,7 +33,8 @@ namespace SunPrefixCommands
                 }
                 await ctx.Channel.SendMessageAsync($"Começando minigame com o tema {theme}..");
 
-                int currentPoints = 0; //increment this
+                Dictionary<ulong, int> usersPoints = new Dictionary<ulong, int>();
+
                 int numQuestions = -1; //infinite
                 int attempts = t.Attempts;//confg
                 bool revealAnswerOnFail = t.RevealAnswerOnFail; ////await ctx.RespondAsync($"A resposta correta era: **{QuizquestionData.Answers[0]}**");
@@ -71,28 +74,46 @@ namespace SunPrefixCommands
                             Text = QuizquestionData.Build.Footer
                         }
                     };
-
-                    await ctx.RespondAsync(embed);
-                    ////bool correctAnswer = false;
+                    
+                    await ctx.RespondAsync(embed); //message with question
 
                     for (int y = 0; y !=  attempts; y++)//-1
                     {
-                        var userResponse = await GetUserResponseWithCountdown(ctx, rate, rateVariance, QuizquestionData.Answers);
+                        //the main function
+                        var (userResponse, whoResponder) = await GetUserResponseWithCountdown(ctx, rate, rateVariance, QuizquestionData.Answers);
                         if (userResponse == null)
                         {
+                            //debug
                             await ctx.Channel.SendMessageAsync($"Esperado as respostas '{string.Join(" | ",QuizquestionData.Answers)}'."); //only for debug
                             if (attempts == -1)
                             {
-                                await ctx.Channel.SendMessageAsync($"Sem respostas. Partida finalizada com {currentPoints} pontos!");
+                                await ctx.Channel.SendMessageAsync($"Sem respostas. Partida finalizada!");
                                 return;
                             }
                             continue;
                         }
-                    
-                        await ctx.Channel.SendMessageAsync(QuizquestionData.Response.Replace("&{getanswer}", userResponse));
-                        currentPoints += QuizquestionData.Worth;
+                        usersPoints[whoResponder] = usersPoints.ContainsKey(whoResponder)
+                            ? usersPoints[whoResponder] + QuizquestionData.Worth //true
+                            : QuizquestionData.Worth; //false
+                        
+
+                        var scoreBoard = new StringBuilder();
+                        var top10 = usersPoints
+                            .OrderByDescending(us => us.Value)
+                            .Take(10);
+                        
+                        foreach (var u in top10) scoreBoard.AppendLine($"<@{u.Key}> : **{u.Value}** pontos com **&<userAnswers>** respostas");
+                        
+                        await ctx.Channel.SendMessageAsync(new DiscordMessageBuilder()
+                            .AddEmbed(new DiscordEmbedBuilder()
+                                .WithTitle("Placar")
+                                .WithDescription(scoreBoard.ToString())
+                            )); //sends scoreboard
+                        //sends time for next question
+                        await ctx.Channel.SendMessageAsync($"{QuizquestionData.Response.Replace("&{getanswer}", userResponse)}\n:small_blue_diamond: Próxima pergunta em: **{(rate + new Random().Next(-rateVariance, rateVariance))>>2} segundos**");
                         break;
                     }
+                    await Task.Delay((rate + new Random().Next(-rateVariance, rateVariance)) * 500);
                 }
             }
 
@@ -180,10 +201,11 @@ namespace SunPrefixCommands
                 return false;
             }   
 
-            private static async Task<string> GetUserResponseWithCountdown(CommandContext ctx, int rate, int rateVariance, List<string> QuizquestionData)
+            private static async Task<(string, ulong)> GetUserResponseWithCountdown(CommandContext ctx, int rate, int rateVariance, List<string> QuizquestionData)
             {
                 int seconds = rate + new Random().Next(-rateVariance, rateVariance);
                 int interval = 10; //10s
+                ulong returnWhoResponder = 0;
 
                 //init message
                 var countdownMessage = await ctx.Channel.SendMessageAsync($"{seconds} segundos restantes...");
@@ -207,6 +229,7 @@ namespace SunPrefixCommands
                     if (userMessageTask == result && userMessageTask.Result.Result != null)
                     {
                         userResponse = userMessageTask.Result.Result.Content;
+                        returnWhoResponder = userMessageTask.Result.Result.Author.Id;
                         break;
                     }
 
@@ -220,7 +243,7 @@ namespace SunPrefixCommands
                 {
                     await ctx.Channel.SendMessageAsync("Tempo esgotado! :x:");
                 }
-                return userResponse;
+                return (userResponse, returnWhoResponder);
             }
         }
     }
