@@ -10,11 +10,11 @@ namespace SunContextCommands
     public partial class Miscellaneous : ApplicationCommandModule
     {
         
-        [ContextMenu(ApplicationCommandType.MessageContextMenu, "found Binary Code")]
-        public async Task MENUCONTEXTFoundBinaryText(ContextMenuContext ctx)
+        [ContextMenu(ApplicationCommandType.MessageContextMenu, "found Morse Code")]
+        public async Task MENUCONTEXTFoundMorseText(ContextMenuContext ctx)
         {
             var e = new SunFunctions.Functions();
-            var (translatedText, translations) = e.Get8bitPart(ctx.TargetMessage.Content);
+            var (translatedText, translations) = e.GetMorsePart(ctx.TargetMessage.Content);
 
             string translationsShow = "";
             int index = 0;
