@@ -20,7 +20,7 @@ namespace SunPrefixCommands
     public partial class GameCommands : BaseCommandModule
     {
         [Group("start")]
-        public class StartPrefixCommandGroup : BaseCommandModule
+        public class StartPrefixCommandsGroup : BaseCommandModule
         {
             [Command("quiz")] [Cooldown(1, 60, CooldownBucketType.Guild)] //set cooldown to avoid rate-limit
             public async Task PREFIXCommandStartQuiz(CommandContext ctx, [Option("theme","Tema para jogar")] string theme = "default")

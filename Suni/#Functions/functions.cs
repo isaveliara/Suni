@@ -5,6 +5,9 @@ The translation sys. could be here, but I got lazy and decided to wait until squ
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 namespace SunFunctions
 {
@@ -39,6 +42,36 @@ namespace SunFunctions
                    90 => "Ownn... Esse seria o casal mais fofinho que eu já vi",
                    _ => "?"
             };
+        
+        
+        public static string GetSuniStatistics()
+        {
+            var statistics = new StringBuilder();
+            var client = SunBot.Sun.Client;
+            var process = Process.GetCurrentProcess();
+
+            statistics.AppendLine("Ambiente: DEVELOPMENT\n");
+
+            statistics.AppendLine($"Servidores conectados: {client.Guilds.Count}");
+            statistics.AppendLine($"Usuários em cache: {client.Guilds.Values.Sum(g=> g.MemberCount)}");
+            statistics.AppendLine($"Shards: {client.ShardCount}");
+            statistics.AppendLine($"Id do Shard: {client.ShardId}\n");
+
+            statistics.AppendLine($"Memória usada: {process.WorkingSet64 / (1024 * 1024)}mb");
+            statistics.AppendLine($"Memória livre: {GC.GetTotalMemory(false) / (1024 * 1024)}mb");
+            statistics.AppendLine($"Uso da CPU: {GetCpuUsage()}");
+
+            return statistics.ToString();
+        }
+        private static double GetCpuUsage()
+        {
+            var process = Process.GetCurrentProcess();
+            var totalCpuTime = process.TotalProcessorTime.TotalMilliseconds;
+            var uptime = (DateTime.Now - process.StartTime).TotalMilliseconds;
+            var cpuUsage = (totalCpuTime / uptime) * 100;
+            return cpuUsage;
+        }
+        
         //others
     }
 }

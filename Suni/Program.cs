@@ -19,8 +19,9 @@ namespace SunBot
 {
     public class DotenvItems
     {
-        internal string SuniToken;
-        public string BaseUrlApi;
+        internal readonly string SuniToken;
+        public readonly string BaseUrlApi;
+        internal readonly object BaseUrl;
 
         public DotenvItems()
         {
@@ -29,6 +30,7 @@ namespace SunBot
             //var
             SuniToken = Environment.GetEnvironmentVariable("SUNITOKEN");
             BaseUrlApi = Environment.GetEnvironmentVariable("BASEURLAPI");
+            BaseUrl = Environment.GetEnvironmentVariable("BASEURL");
         }
     }
 
