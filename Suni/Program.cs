@@ -11,6 +11,7 @@ using System;
 using System.Threading.Tasks;
 
 using DSharpPlus.SlashCommands;
+using System.Threading;
 
 //using Microsoft.Extensions.Logging;
 
@@ -69,6 +70,10 @@ namespace SunBot
             };
             //
             Commands = Client.UseCommandsNext(commandsConfig); //using configs
+
+            //interaction
+            Client.ComponentInteractionCreated += HandlerFunctions.Components.InteractionEventHandler;
+            Client.ModalSubmitted += HandlerFunctions.Components.ModalsHandler;
             
             var SlashCommandsConfig = Client.UseSlashCommands();
 
@@ -89,8 +94,14 @@ namespace SunBot
             SlashCommandsConfig.SlashCommandErrored += ErroredSlashFunctions.SlashCommandsErrored_Handler;
             SlashCommandsConfig.ContextMenuErrored += ErroredSlashFunctions.MenuContextCommandsErrored_Handler;
 
+            Timer task = new Timer(ExecuteTask, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
             await Client.ConnectAsync();
             await Task.Delay(-1);
+        }
+
+        private static void ExecuteTask(object state)
+        {
+            Console.WriteLine("task!");
         }
 
         private static Task Client_Ready(DiscordClient sender, ReadyEventArgs args)
