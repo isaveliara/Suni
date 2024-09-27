@@ -22,7 +22,7 @@ namespace SunPrefixCommands
         [Group("start")]
         public class StartPrefixCommandsGroup : BaseCommandModule
         {
-            [Command("quiz")] [Cooldown(1, 60, CooldownBucketType.Guild)] //set cooldown to avoid rate-limit
+            [Command("quiz")] [Cooldown(1, 60, CooldownBucketType.Channel)] //set cooldown to avoid rate-limit
             public async Task PREFIXCommandStartQuiz(CommandContext ctx, [Option("theme","Tema para jogar")] string theme = "default")
             {
                 //trying to find the theme
@@ -33,7 +33,7 @@ namespace SunPrefixCommands
                 }
                 await ctx.Channel.SendMessageAsync($"Começando minigame com o tema {theme}..");
 
-                Dictionary<ulong, int> usersPoints = new Dictionary<ulong, int>();
+                Dictionary<ulong, (int, int)> usersPoints = new Dictionary<ulong, (int, int)>();
 
                 int numQuestions = -1; //infinite
                 int attempts = t.Attempts;//confg
@@ -92,9 +92,17 @@ namespace SunPrefixCommands
                             }
                             continue;
                         }
-                        usersPoints[whoResponder] = usersPoints.ContainsKey(whoResponder)
-                            ? usersPoints[whoResponder] + QuizquestionData.Worth //true
-                            : QuizquestionData.Worth; //false
+                        
+                        if (usersPoints.ContainsKey(whoResponder)){
+                            var has = usersPoints[whoResponder];
+                            usersPoints[whoResponder] = (has.Item1 + QuizquestionData.Worth, has.Item2+1);
+                        }
+                        else
+                            usersPoints[whoResponder] = (QuizquestionData.Worth, 1);
+
+                        //usersPoints[whoResponder] = usersPoints.ContainsKey(whoResponder)
+                        //    ? usersPoints[whoResponder] + QuizquestionData.Worth //true
+                        //    : QuizquestionData.Worth; //false
                         
 
                         var scoreBoard = new StringBuilder();
@@ -102,7 +110,7 @@ namespace SunPrefixCommands
                             .OrderByDescending(us => us.Value)
                             .Take(10);
                         
-                        foreach (var u in top10) scoreBoard.AppendLine($"<@{u.Key}> : **{u.Value}** pontos com **&<userAnswers>** respostas");
+                        foreach (var u in top10) scoreBoard.AppendLine($"<@{u.Key}> : **{u.Value.Item1}** pontos com **{u.Value.Item2}** respostas");
                         
                         await ctx.Channel.SendMessageAsync(new DiscordMessageBuilder()
                             .AddEmbed(new DiscordEmbedBuilder()
