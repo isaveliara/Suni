@@ -26,6 +26,9 @@ namespace SunPrefixCommands
         [Command("npt")]
         public async Task PREFIXCommandNpt(CommandContext ctx, [Option("act","npt action")] string act)
         {
+            if (ctx.Member.PermissionsIn(ctx.Channel).HasPermission(Permissions.Administrator) == false)
+                return;
+            
             string c = ctx.Message.Content;
 
             string code = "";
@@ -59,10 +62,12 @@ namespace SunPrefixCommands
             {
                 string response = "```OUTPUT of SuniNPT code is here:";
                 ScriptParser parser = new ScriptParser();
-                var result = parser.ParseScript(code);
+                var result = await parser.ParseScriptAsync(code, ctx);
+
                 foreach (var debug in result.debugs)
                     response += $"\n    {debug}";
                 response += "\n\nDEBUG:\n";
+
                 foreach (var output in result.outputs)
                     response += $"\n    {output}";
 
@@ -91,7 +96,7 @@ namespace ScriptInterpreter
         private List<string> _debugs = new List<string>();
         private List<string> _outputs = new List<string>();
 
-        public (List<string> debugs, List<string> outputs, ExecutionResult result) ParseScript(string script)
+        public async Task<(List<string> debugs, List<string> outputs, ExecutionResult result)> ParseScriptAsync(string script, CommandContext ctx)
         {
             var lines = script.Split(new[] { "\n", "\r\n" }, StringSplitOptions.None);
             bool inDefinitionsBlock = false;
@@ -103,7 +108,7 @@ namespace ScriptInterpreter
                 if (trimmedLine == "--definitions--"){
                     inDefinitionsBlock = true;
                     continue;
-                }else if (trimmedLine == "--end--")
+                }else if (trimmedLine == "--ends--")
                 {
                     inDefinitionsBlock = false;
                     continue;
@@ -141,7 +146,7 @@ namespace ScriptInterpreter
                 //    return (_debugs, ExecutionResult.SunTchola);//remove
                 
                 //if its not any key-word, execute as object
-                ExecuteLine(trimmedLine); //responsable for executing the objects in :: format
+                await ExecuteLineAsync(trimmedLine, ctx); //responsable for executing the objects in :: format
             }
 
             //end of parse
@@ -171,7 +176,7 @@ namespace ScriptInterpreter
         }
 
         //executing line
-        private void ExecuteLine(string line)
+        private async Task ExecuteLineAsync(string line, CommandContext ctx)
         {
             //e.g: 'sys::Object("arg1", "arg2", 99) -> Pointer'
             var objMatch = Regex.Match(line, @"(\w+)::(\w+)\(([^)]*)\)\s*->\s*(\w+)");
@@ -182,7 +187,28 @@ namespace ScriptInterpreter
                 string arguments = objMatch.Groups[3].Value;
                 string pointer = objMatch.Groups[4].Value;
 
-                _debugs.Add($"Executing {className}::{methodName} with args: {arguments}, pointer: {pointer}");
+                _debugs.Add($"Executing {className}:: {methodName} with args: {arguments}, pointer: {pointer}");
+                try
+                {
+                    Console.WriteLine(methodName.ToLower());
+                    switch (methodName.ToLower())//////////////////////////////////////
+                    {
+                        case "log":
+                            ulong argChannel = ulong.Parse(pointer);
+                            string argMessage = arguments;
+                            await NptEntitie.Log(ctx, argChannel, argMessage);
+                            break;
+                        default:
+                            _debugs.Add($"FAILED TO EXECUTE {methodName}: UNKNOW OBJECT");
+                            _outputs.Add($"FAILED TO EXECUTE {methodName}: UNKNOW OBJECT");
+                            return;
+                    }
+                }
+                catch (Exception)
+                {
+                    _debugs.Add($"FAILED TO EXECUTE {methodName}: invalid args");
+                    _outputs.Add($"FAILED TO EXECUTE {methodName}: UNKNOW OBJECT");
+                }
             }
             else if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line))
             {
@@ -228,11 +254,25 @@ namespace ScriptInterpreter
     //npt entities
     public static class NptEntitie
     {
-        public static string BanAsync(string duration, string reason)
+        public static async Task<string> Log(CommandContext ctx, ulong channelId, string message)
+        {
+            var channel = await ctx.Client.GetChannelAsync(channelId);
+            if (channel.GuildId != ctx.Guild.Id)
+            {
+                return "FAILED: this channel is not from this server!";
+            }
+            
+            await ctx.Channel.SendMessageAsync(message); //sends
+
+            return $"Log in channel {ctx.Channel.Name} with message: {message}";
+        }
+
+        public static string Ban(string duration, string reason)
         {
             return $"just pretend:: Ban applied for {duration} with reason: {reason}";
         }
-        public static string MuteAsync(string duration, string reason)
+
+        public static string Mute(string duration, string reason)
         {
             return $"just pretend:: Mute applied for {duration} with reason: {reason}";
         }
@@ -241,7 +281,7 @@ namespace ScriptInterpreter
     //testing the program
     class Program2test
     {
-        static void Main2Test(string[] args)
+        static async void Main2Test(string[] args)
         {
             string script = @"
                 --definitions--
@@ -253,7 +293,7 @@ namespace ScriptInterpreter
             ";
 
             ScriptParser parser = new ScriptParser();
-            var result = parser.ParseScript(script);
+            var result = await parser.ParseScriptAsync(script, null);
 
             Console.WriteLine("DEBUG:");
             foreach (var debug in result.debugs)
