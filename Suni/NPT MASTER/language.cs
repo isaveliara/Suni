@@ -209,27 +209,43 @@ namespace ScriptInterpreter
     {
         public static async Task<Diagnostics> Controler(string methodName, List<string> args, string pointer, CommandContext ctx)
         {
+            //set a try-catch here for controller of args and detailed exception inf
             Diagnostics result;
-            switch (methodName)
-            {
-                case "log":
-                    ulong argChannel = ulong.Parse(pointer);
-                    string argMessage = args[0];
-                    result = await NptEntitie.Log(ctx, argChannel, argMessage);
-
-                    return result;
-                default:
-                    return Diagnostics.NotFoundObjectException;
+            try{
+                switch (methodName)
+                {
+                    case "log": //npt::log(My Message) -> 1234567891011121314
+                        ulong argChannel = ulong.Parse(pointer);
+                        string argMessage = string.Join('\0',args);//why?
+                        result = await NptEntitie.Log(ctx, argChannel, argMessage);
+                        break;
+                    case "react": //npt::react(:x:) -> <message id>
+                    
+                    default:
+                        result = Diagnostics.NotFoundObjectException;
+                        break;
+                }
             }
+            catch (Exception)
+            {
+                result = Diagnostics.UnknowException;
+            }
+            return result;
         }
         //log in channel
         public static async Task<Diagnostics> Log(CommandContext ctx, ulong channelId, string message){
-            var channel = await ctx.Client.GetChannelAsync(channelId);
-            if (channel.GuildId != ctx.Guild.Id)
-                return Diagnostics.NPTInvalidChannelException;
-            
-            await ctx.Channel.SendMessageAsync(message); //sends
-            return Diagnostics.Success;
+            try{
+                if (!ctx.Guild.Channels.ContainsKey(channelId))
+                    return Diagnostics.NPTInvalidChannelException;
+                
+                var channel = await ctx.Client.GetChannelAsync(channelId);
+                await channel.SendMessageAsync(message); //sends
+                return Diagnostics.Success;
+            }
+            catch (Exception){
+                Console.WriteLine("waht");
+                return Diagnostics.NPTMissingPermissionsException;
+            }
         }
 
         //discord actions handler
