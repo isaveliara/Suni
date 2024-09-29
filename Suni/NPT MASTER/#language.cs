@@ -8,7 +8,7 @@ using System.Linq;
 namespace ScriptInterpreter
 {
     //class for parser and execution
-    public class ScriptParser
+    public partial class ScriptParser
     {
         private bool _canExecute = true;
         private Dictionary<string, string> _constants = new Dictionary<string, string>();
@@ -181,79 +181,6 @@ namespace ScriptInterpreter
         private string GetConstant(string varname)
         {
             return _constants.ContainsKey(varname) ? _constants[varname] : null;
-        }
-
-        //objects that interact with the class itself
-        public Diagnostics MASTERControler(string method, List<string> args, string pointer)
-        {
-            switch (method)
-            {
-                case "outputadd": //master::outputadd() -> hello world
-                    _outputs.Add(pointer);
-                    break;
-                case "outputset": //master::outputset() -> hello world
-                    _outputs = new List<string>{pointer};
-                    break;
-                case "outputclean"://master::outputadd() -> null
-                    _outputs = new List<string>();
-                    break;
-                default:
-                    return Diagnostics.NotFoundObjectException;
-            }
-            return Diagnostics.Success;
-        }
-    }
-
-    //npt entities
-    public static class NptEntitie
-    {
-        public static async Task<Diagnostics> Controler(string methodName, List<string> args, string pointer, CommandContext ctx)
-        {
-            //set a try-catch here for controller of args and detailed exception inf
-            Diagnostics result;
-            try{
-                switch (methodName)
-                {
-                    case "log": //npt::log(My Message) -> 1234567891011121314
-                        ulong argChannel = ulong.Parse(pointer);
-                        string argMessage = string.Join('\0',args);//why?
-                        result = await NptEntitie.Log(ctx, argChannel, argMessage);
-                        break;
-                    case "react": //npt::react(:x:) -> <message id>
-                    
-                    default:
-                        result = Diagnostics.NotFoundObjectException;
-                        break;
-                }
-            }
-            catch (Exception)
-            {
-                result = Diagnostics.UnknowException;
-            }
-            return result;
-        }
-        //log in channel
-        public static async Task<Diagnostics> Log(CommandContext ctx, ulong channelId, string message){
-            try{
-                if (!ctx.Guild.Channels.ContainsKey(channelId))
-                    return Diagnostics.NPTInvalidChannelException;
-                
-                var channel = await ctx.Client.GetChannelAsync(channelId);
-                await channel.SendMessageAsync(message); //sends
-                return Diagnostics.Success;
-            }
-            catch (Exception){
-                Console.WriteLine("waht");
-                return Diagnostics.NPTMissingPermissionsException;
-            }
-        }
-
-        //discord actions handler
-        public static Diagnostics Ban(string duration, string reason){
-            return Diagnostics.UnfinishedFeatureException;
-        }
-        public static Diagnostics Mute(string duration, string reason){
-            return Diagnostics.UnfinishedFeatureException;
         }
     }
 }
