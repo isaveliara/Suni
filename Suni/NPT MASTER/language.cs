@@ -3,28 +3,10 @@ using DSharpPlus.CommandsNext;
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ScriptInterpreter
 {
-    //enum for status
-    public enum Diagnostics
-    {
-        //simple
-        Success, EarlyTermination, RaisedException,
-        //pre-check exceptions
-        MissingONLYCASERequirement, CannotSetConstantException,
-        //class/object errors
-        NotFoundObjectException, NotFoundClassException, InvalidArgsException,
-        //syntax errors
-        UnrecognizedLineException, InvalidSyntaxException, InvalidKeywordDetectedException,
-        //language errors
-        UnfinishedFeatureException, UnknowException,
-        //npt errors
-        InvalidChannelNPTException,
-    }
-
     //class for parser and execution
     public class ScriptParser
     {
@@ -165,7 +147,6 @@ namespace ScriptInterpreter
                 }
                 catch (Exception)
                 {
-                    _debugs.Add($"Failed to execute '{methodName}': invalid args");
                     _outputs.Add($"Failed to execute '{methodName}': invalid args");
                     result = Diagnostics.InvalidArgsException;
                 }
@@ -176,7 +157,6 @@ namespace ScriptInterpreter
             }
             else //if its none, UnrecognizedLineException
             {
-                _debugs.Add($"Unrecognized line: {line}");
                 _outputs.Add($"Unrecognized line: {line}");
                 result = Diagnostics.UnrecognizedLineException;
             }
@@ -242,11 +222,11 @@ namespace ScriptInterpreter
                     return Diagnostics.NotFoundObjectException;
             }
         }
-        //log in channel (good for events-actions)
+        //log in channel
         public static async Task<Diagnostics> Log(CommandContext ctx, ulong channelId, string message){
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel.GuildId != ctx.Guild.Id)
-                return Diagnostics.InvalidChannelNPTException;
+                return Diagnostics.NPTInvalidChannelException;
             
             await ctx.Channel.SendMessageAsync(message); //sends
             return Diagnostics.Success;
@@ -260,37 +240,15 @@ namespace ScriptInterpreter
             return Diagnostics.UnfinishedFeatureException;
         }
     }
-
-    //testing the program
-    class Program2test
-    {
-        static async void Main2Test(string[] args)
-        {
-            string script = @"
-                --definitions--
-                @set<ban_duration, '27days'>
-                --end--
-
-                npt::BanAsync(@get<ban_duration>, 'Fez alguma coisa') -> 12345678910
-                sys::Object('arg1', 'arg2', 99) -> Pointer
-            ";
-
-            ScriptParser parser = new ScriptParser();
-            var result = await parser.ParseScriptAsync(script, null);
-
-            Console.WriteLine("DEBUG:");
-            foreach (var debug in result.debugs)
-            {
-                Console.WriteLine($"    {debug}");
-            }
-            Console.WriteLine("\n--OUTPUT--\n");
-            foreach (var output in result.outputs)
-            {
-                Console.WriteLine($"    {output}");
-            }
-
-            Console.WriteLine();
-            Console.WriteLine($"Result Program: {result.result}\n[Finished]");
-        }
-    }
 }
+
+//test
+
+//string script = @"
+//    --definitions--
+//    @set<ban_duration, '27days'>
+//    --end--
+//
+//    npt::BanAsync(@get<ban_duration>, 'Fez alguma coisa') -> 12345678910
+//    sys::Object('arg1', 'arg2', 99) -> Pointer
+//    ";

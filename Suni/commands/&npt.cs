@@ -32,7 +32,7 @@ namespace SunPrefixCommands
             string c = ctx.Message.Content;
 
             string code = "";
-            Match match = Regex.Match(ctx.Message.Content, @"```(.+?)```", RegexOptions.Singleline);
+            Match match = Regex.Match(c, @"```(.+?)```", RegexOptions.Singleline);
             if (match.Success)
             {
                 code = match.Groups[1].Value;
@@ -60,14 +60,24 @@ namespace SunPrefixCommands
             }
             if (action == NptActions.RunAct)
             {
+                //formalize
+                var (parsedcode, resultf) = new ScriptFormalizer.JoinScript().JoinHere(code, ctx);
+                if (resultf != Diagnostics.Success)
+                {
+                    await ctx.RespondAsync($"Cannot formalize the provided script! :x:\nDetalhes: {resultf}");
+                    return;
+                }
+
+                //building response
                 string response = "```OUTPUT of SuniNPT code is here:";
                 ScriptParser parser = new ScriptParser();
-                var result = await parser.ParseScriptAsync(code, ctx);
-
+                var result = await parser.ParseScriptAsync(parsedcode, ctx);
+                //first output
                 foreach (var output in result.outputs)
                     response += $"\n    {output}";
                 response += "\n\nDEBUG:\n";
 
+                //debug
                 foreach (var debug in result.debugs)
                     response += $"\n    {debug}";
                 
