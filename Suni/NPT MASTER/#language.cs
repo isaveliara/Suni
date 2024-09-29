@@ -48,7 +48,7 @@ namespace ScriptInterpreter
                 if (trimmedLine.StartsWith('@'))
                 {
                     var keyWordName = trimmedLine.Substring(1);
-                    switch (keyWordName.Replace(' ', '\0'))
+                    switch (keyWordName.Replace(" ", ""))
                     {
                         //toggle _canExecute
                         case "disableexecuting":
@@ -130,7 +130,7 @@ namespace ScriptInterpreter
                 try
                 {
                     Console.WriteLine(methodName.ToLower());//debug
-                    switch (className.ToLower())//////////////////////////////////////
+                    switch (className.ToLower().Replace(" ", ""))//////////////////////////////////////
                     {
                         case "npt":
                             result = await NptEntitie.Controler(methodName, args.ToList(), pointer, ctx);

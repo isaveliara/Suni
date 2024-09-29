@@ -24,7 +24,6 @@ namespace ScriptInterpreter
                 return Diagnostics.Success;
             }
             catch (Exception){
-                Console.WriteLine("waht");
                 return Diagnostics.NPTMissingPermissionsException;
             }
         }
