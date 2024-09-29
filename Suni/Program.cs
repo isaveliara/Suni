@@ -72,10 +72,6 @@ namespace SunBot
             };
             //
             Commands = Client.UseCommandsNext(commandsConfig); //using configs
-
-            //interaction
-            Client.ComponentInteractionCreated += HandlerFunctions.Components.InteractionEventHandler;
-            Client.ModalSubmitted += HandlerFunctions.Components.ModalsHandler;
             
             var SlashCommandsConfig = Client.UseSlashCommands();
 
@@ -91,10 +87,24 @@ namespace SunBot
             //////Minigame commands
             Commands.RegisterCommands<SunPrefixCommands.GameCommands>(); //prefix
             
-            //errored slash/prefix errored (debugging for canary!)
+
+            //<EVENTS>//
+            //role events handler
+            //Client.GuildRoleCreated += HandlerFunctions.Listeners.NEW.Role;
+            Client.GuildMemberUpdated += HandlerFunctions.Listeners.Handler.FatherMemberUpdated;
+            //Client.GuildRoleUpdated += HandlerFunctions.Listeners.UPDATE.Role;
+            //Client.GuildRoleCreated += HandlerFunctions.Listeners.DEL.Role;
+            
+            //interaction handler
+            Client.ComponentInteractionCreated += HandlerFunctions.Components.InteractionEventHandler;
+            Client.ModalSubmitted += HandlerFunctions.Components.ModalsHandler;
+
+            //errored slash/prefix handler (debugging for canary!)
             Commands.CommandErrored += ErroredFunctions.CommandsErrored_Handler;
             SlashCommandsConfig.SlashCommandErrored += ErroredSlashFunctions.SlashCommandsErrored_Handler;
             SlashCommandsConfig.ContextMenuErrored += ErroredSlashFunctions.MenuContextCommandsErrored_Handler;
+
+            //<resume>//
 
             Timer task = new Timer(ExecuteTask, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
             await Client.ConnectAsync();

@@ -74,7 +74,7 @@ namespace SunPrefixCommands
                 if (result.result == Diagnostics.Success)
                     response += $"```\n\nResult Program: **{result.result}**\n[Finished] :white_check_mark:";
                 else
-                    response += $"```\n\nResult Program: **{result.result}**\n[Finished] :x:";
+                    response += $"```\n\nOcorreu um erro ao executar o código:\n**{result.result}**\n[Finished] :x:";
 
                 await ctx.RespondAsync(response);
             }

@@ -11,19 +11,18 @@ namespace ScriptInterpreter
     //enum for status
     public enum Diagnostics
     {
-        Success,
-        EarlyTermination,
-        RaisedException,
-
-        NotFoundObjectException,
-        InvalidSyntaxException,
-        InvalidArgsException,
-        UnknowException,
-        CannotSetConstantException,
-        MissingONLYCASERequirement,
-        UnrecognizedLineException,
+        //simple
+        Success, EarlyTermination, RaisedException,
+        //pre-check exceptions
+        MissingONLYCASERequirement, CannotSetConstantException,
+        //class/object errors
+        NotFoundObjectException, NotFoundClassException, InvalidArgsException,
+        //syntax errors
+        UnrecognizedLineException, InvalidSyntaxException, InvalidKeywordDetectedException,
+        //language errors
+        UnfinishedFeatureException, UnknowException,
+        //npt errors
         InvalidChannelNPTException,
-        NotFoundClassException,
     }
 
     //class for parser and execution
@@ -62,40 +61,46 @@ namespace ScriptInterpreter
                 }   ///process script after --definitions--
                 else if (trimmedLine.StartsWith("--"))
                     continue; //comentary
+                
+                //KEY WORDS DETECTION
+                if (trimmedLine.StartsWith('@'))
+                {
+                    var keyWordName = trimmedLine.Substring(1);
+                    switch (keyWordName.Replace(' ', '\0'))
+                    {
+                        //toggle _canExecute
+                        case "disableexecuting":
+                            _canExecute = false;
+                            continue;
+                        case "enableexecuting":
+                            _canExecute = true;
+                            continue;
 
-                //toggle _canExecute
-                else if (trimmedLine.StartsWith("@disableexecuting"))
-                {
-                    _canExecute = false;
-                }
-                else if (trimmedLine.StartsWith("@enableexecuting"))
-                {
-                    _canExecute = true;
+                        case "kit":
+                            if (!_canExecute) continue;
+                            return (_debugs, _outputs, Diagnostics.EarlyTermination); //add info for why/where kited
+                        case "raiseException":
+                            if (!_canExecute) continue;
+                            return (_debugs, _outputs, Diagnostics.RaisedException); //add info for why/where kited
+                        
+                        case "if": case "else": return (_debugs, _outputs, Diagnostics.UnfinishedFeatureException);
+
+                        default: //no one
+                            return (_debugs, _outputs, Diagnostics.InvalidKeywordDetectedException);
+                    }
                 }
                 //test if _canExecute line for continue without executing
-                if (!_canExecute)
-                    continue;
+                if (!_canExecute) continue;
 
-                ///ACTIONS:
-
-                //key-words
-                if (trimmedLine.StartsWith("@kit"))
-                    return (_debugs, _outputs, Diagnostics.EarlyTermination); //add info for why/where kited
-                
-                else if (trimmedLine.StartsWith("@raiseExceptionEnds"))
-                    return (_debugs, _outputs, Diagnostics.RaisedException); //add info for why/where kited
-                
                 //if its not any key-word, execute as object
                 var executedLineResult = await ExecuteLineAsync(trimmedLine, ctx); //responsable for executing the objects in :: format
                 
-                //exceptions handler
+                //exception handler of object execution result
                 if (executedLineResult != Diagnostics.Success)
-                {
-                    return (_debugs, _outputs, executedLineResult);
-                }
+                    return (_debugs, _outputs, executedLineResult); //implement inf.
             }
 
-            //end of parse
+            //natural end of parse
             return (_debugs, _outputs, Diagnostics.Success);
         }
 
@@ -169,7 +174,7 @@ namespace ScriptInterpreter
             {
                 _debugs.Add("Whitespace line.");
             }
-            else
+            else //if its none, UnrecognizedLineException
             {
                 _debugs.Add($"Unrecognized line: {line}");
                 _outputs.Add($"Unrecognized line: {line}");
@@ -232,12 +237,10 @@ namespace ScriptInterpreter
                     string argMessage = args[0];
                     result = await NptEntitie.Log(ctx, argChannel, argMessage);
 
-                    if (result != Diagnostics.Success) return result;
-                    break;
+                    return result;
                 default:
                     return Diagnostics.NotFoundObjectException;
             }
-            return Diagnostics.Success;
         }
         //log in channel (good for events-actions)
         public static async Task<Diagnostics> Log(CommandContext ctx, ulong channelId, string message){
@@ -250,11 +253,11 @@ namespace ScriptInterpreter
         }
 
         //discord actions handler
-        public static string Ban(string duration, string reason){
-            return $"just pretend:: Ban applied for {duration} with reason: {reason}";
+        public static Diagnostics Ban(string duration, string reason){
+            return Diagnostics.UnfinishedFeatureException;
         }
-        public static string Mute(string duration, string reason){
-            return $"just pretend:: Mute applied for {duration} with reason: {reason}";
+        public static Diagnostics Mute(string duration, string reason){
+            return Diagnostics.UnfinishedFeatureException;
         }
     }
 
