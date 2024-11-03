@@ -9,10 +9,10 @@ namespace HandlerFunctions
 {
     public class Components
     {
-        internal static async Task InteractionEventHandler(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        internal static async Task InteractionEventHandler(DiscordClient sender, ComponentInteractionCreatedEventArgs e)
         {
             //dropdown--
-            if (e.Id == "dropDownList" && e.Interaction.Data.ComponentType == ComponentType.StringSelect)
+            if (e.Id == "dropDownList" && e.Interaction.Data.ComponentType == DiscordComponentType.StringSelect)
             {
                 Console.WriteLine("stringselect");
                 var options = e.Values;
@@ -21,7 +21,7 @@ namespace HandlerFunctions
                     switch (option)
                     {
                         case "option1":
-                            await e.Interaction.CreateResponseAsync(InteractionResponseType.Pong);
+                            await e.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Pong);
                             return;
                         default:
                             await e.Interaction.DeferAsync();
@@ -43,7 +43,7 @@ namespace HandlerFunctions
                         .WithContent(originalContent)
                         .AddEmbed(originalEmbed);
                         
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, copiedMessage);
+                    await e.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, copiedMessage);
                     return;
                 default:
                     await e.Interaction.DeferAsync();
@@ -51,12 +51,12 @@ namespace HandlerFunctions
             }
         }
 
-        internal static async Task ModalsHandler(DiscordClient sender, ModalSubmitEventArgs e)
+        internal static async Task ModalsHandler(DiscordClient sender, ModalSubmittedEventArgs e)
         {
-            if (e.Interaction.Type == InteractionType.ModalSubmit)
+            if (e.Interaction.Type == DiscordInteractionType.ModalSubmit)
             {
                 var values = e.Values;
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                await e.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                     .WithContent($"{e.Interaction.User.Username} submited {values.Values.First()}"));
             }
         }

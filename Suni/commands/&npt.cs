@@ -26,7 +26,7 @@ namespace SunPrefixCommands
         [Command("npt")]
         public async Task PREFIXCommandNpt(CommandContext ctx, [Option("act","npt action")] string act)
         {
-            if (ctx.Member.PermissionsIn(ctx.Channel).HasPermission(Permissions.Administrator) == false)
+            if (ctx.Member.PermissionsIn(ctx.Channel).HasPermission(DiscordPermissions.Administrator) == false)
                 return;
             
             string c = ctx.Message.Content;

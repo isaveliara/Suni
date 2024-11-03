@@ -19,7 +19,7 @@ namespace SunSlashCommands
                 .WithTitle($"{expression}")
                 .WithDescription($"{result}");
             
-            await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await ctx.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 .AddEmbed(embed)
                 .AddFile("result.png", image));
         }

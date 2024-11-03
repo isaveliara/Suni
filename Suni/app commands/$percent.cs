@@ -29,7 +29,7 @@ namespace SunSlashCommands
             var embed = new DiscordEmbedBuilder()
                 .WithDescription($"{ResultadoShipMsg}");
             //await ctx.Interaction.DeferAsync();
-            await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await ctx.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 .WithContent($":heart: | O nome do casal seria {casalNome}\n:heart: | Com uma probabilidade de {percent}")
                 .AddEmbed(embed).AddFile("file.png", streamImage));
         }

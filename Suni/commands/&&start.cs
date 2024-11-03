@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 
 namespace SunPrefixCommands
-{
+{/*
     public partial class GameCommands : BaseCommandModule
     {
         [Group("start")]
@@ -313,7 +313,7 @@ namespace SunPrefixCommands
         internal string Description { get; set; }
         internal string Color { get; set; }
         internal string Footer { get; set; }
-    }
+    }*/
 }
 
 ////ignore this

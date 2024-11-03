@@ -8,7 +8,7 @@ namespace HandlerFunctions.Listeners
 {
     public class RECEIVE
     {
-        internal static async Task Role(GuildMemberUpdateEventArgs e)
+        internal static async Task Role(GuildMemberUpdatedEventArgs e)
         {
             var client = new RestClient(new SunBot.DotenvItems().BaseUrlApi);
             var request = new RestRequest($"/listeners/{e.Guild.Id}/receive/role", Method.Get);
@@ -18,7 +18,7 @@ namespace HandlerFunctions.Listeners
     }
     public class TAKE
     {
-        internal static async Task Role(GuildMemberUpdateEventArgs e)
+        internal static async Task Role(GuildMemberUpdatedEventArgs e)
         {
             var client = new RestClient(new SunBot.DotenvItems().BaseUrlApi);
             var request = new RestRequest($"/listeners/{e.Guild.Id}/take/role", Method.Get);
