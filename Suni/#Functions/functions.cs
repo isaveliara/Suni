@@ -47,15 +47,14 @@ namespace SunFunctions
         public static string GetSuniStatistics()
         {
             var statistics = new StringBuilder();
-            var client = SunBot.Sun.Client;
+            var client = SunBot.Sun.SuniClient;
             var process = Process.GetCurrentProcess();
 
             statistics.AppendLine("Ambiente: DEVELOPMENT\n");
 
             statistics.AppendLine($"Servidores conectados: {client.Guilds.Count}");
             statistics.AppendLine($"Usuários em cache: {client.Guilds.Values.Sum(g=> g.MemberCount)}");
-            statistics.AppendLine($"Shards: {client.ShardCount}");
-            statistics.AppendLine($"Id do Shard: {client.ShardId}\n");
+            statistics.AppendLine($"Shards: {client.AllShardsConnected}");
 
             statistics.AppendLine($"Memória usada: {process.WorkingSet64 / (1024 * 1024)}mb");
             statistics.AppendLine($"Memória livre: {GC.GetTotalMemory(false) / (1024 * 1024)}mb");
