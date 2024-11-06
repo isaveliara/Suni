@@ -36,13 +36,12 @@ namespace SunBot
 
     public sealed class Sun
     {
-        public static DiscordClient Client { get; private set; }
+        public static DiscordClient SuniClient { get; private set; }
         public static CommandsNextExtension Commands { get; private set; }
         public static int Fun { get; private set; }
 
         static async Task Main()
         {
-            
             //configure
             var discordConfig = new DiscordConfiguration()
             {
@@ -54,12 +53,11 @@ namespace SunBot
                 //MinimumLogLevel = LogLevel.Debug
             };
             //applying
-            Client = new DiscordClient(discordConfig);
+            SuniClient = new DiscordClient(discordConfig);
             //set default timeout for interactions
-            Client.UseInteractivity(new InteractivityConfiguration(){Timeout=TimeSpan.FromSeconds(100)});
+            SuniClient.UseInteractivity(new InteractivityConfiguration(){Timeout=TimeSpan.FromSeconds(100)});
             
-            //
-            Client.Ready += Client_Ready;
+            SuniClient.Ready += Client_Ready;
             
             //other config
             var commandsConfig = new CommandsNextConfiguration()
@@ -70,10 +68,9 @@ namespace SunBot
                 IgnoreExtraArguments = true,
                 EnableDefaultHelp = true
             };
-            //
-            Commands = Client.UseCommandsNext(commandsConfig); //using configs
+            Commands = SuniClient.UseCommandsNext(commandsConfig); //using configs
             
-            var SlashCommandsConfig = Client.UseSlashCommands();
+            var SlashCommandsConfig = SuniClient.UseSlashCommands();
 
             //////MISCELLANEOUS commands
             Commands.RegisterCommands<SunPrefixCommands.Miscellaneous>(); //prefix
@@ -87,27 +84,22 @@ namespace SunBot
             //////Minigame commands
             Commands.RegisterCommands<SunPrefixCommands.GameCommands>(); //prefix
             
-
             //<EVENTS>//
             //role events handler
-            //Client.GuildRoleCreated += HandlerFunctions.Listeners.NEW.Role;
-            Client.GuildMemberUpdated += HandlerFunctions.Listeners.Handler.FatherMemberUpdated;
-            //Client.GuildRoleUpdated += HandlerFunctions.Listeners.UPDATE.Role;
-            //Client.GuildRoleCreated += HandlerFunctions.Listeners.DEL.Role;
+            SuniClient.GuildMemberUpdated += HandlerFunctions.Listeners.Handler.FatherMemberUpdated;
             
             //interaction handler
-            Client.ComponentInteractionCreated += HandlerFunctions.Components.InteractionEventHandler;
-            Client.ModalSubmitted += HandlerFunctions.Components.ModalsHandler;
+            SuniClient.ComponentInteractionCreated += HandlerFunctions.Components.InteractionEventHandler;
+            SuniClient.ModalSubmitted += HandlerFunctions.Components.ModalsHandler;
 
             //errored slash/prefix handler (debugging for canary!)
             Commands.CommandErrored += ErroredFunctions.CommandsErrored_Handler;
             SlashCommandsConfig.SlashCommandErrored += ErroredSlashFunctions.SlashCommandsErrored_Handler;
             SlashCommandsConfig.ContextMenuErrored += ErroredSlashFunctions.MenuContextCommandsErrored_Handler;
-
             //<resume>//
 
             Timer task = new Timer(ExecuteTask, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
-            await Client.ConnectAsync();
+            await SuniClient.ConnectAsync();
             await Task.Delay(-1);
         }
 
