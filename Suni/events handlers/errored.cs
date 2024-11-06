@@ -18,7 +18,7 @@ namespace HandlerFunctions{
     public class ErroredSlashFunctions
     {
         public static async Task SlashCommandsErrored_Handler(SlashCommandsExtension sender, SlashCommandErrorEventArgs e){
-            await e.Context.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await e.Context.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 .AsEphemeral(true)
                 .AddEmbed(new DiscordEmbedBuilder()
                     .WithColor(DiscordColor.Magenta)
@@ -28,7 +28,7 @@ namespace HandlerFunctions{
 
         internal static async Task MenuContextCommandsErrored_Handler(SlashCommandsExtension sender, ContextMenuErrorEventArgs e)
         {
-            await e.Context.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await e.Context.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 .AsEphemeral(true)
                 .AddEmbed(new DiscordEmbedBuilder()
                     .WithColor(DiscordColor.Magenta)
@@ -77,7 +77,7 @@ namespace HandlerFunctions{
                 switch (falha)
                 {
                     case RequirePermissionsAttribute ex:
-                        return $"Você não possui as permissões necessárias!";
+                        return $"Você não possui as permissões necessárias! ({string.Join(',', ex.Permissions)})";
                     case RequireGuildAttribute:
                         return $"Este comando só pode ser executado em servidores!";
                     case RequireDirectMessageAttribute:

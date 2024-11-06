@@ -9,7 +9,7 @@ namespace HandlerFunctions.Listeners
 {
     public partial class Handler
     {
-        internal static async Task FatherMemberUpdated(DiscordClient sender, GuildMemberUpdatedEventArgs  e)
+        internal static async Task FatherMemberUpdated(DiscordClient sender, GuildMemberUpdateEventArgs  e)
         {
             if (e.RolesBefore.Count < e.RolesAfter.Count)
             {
