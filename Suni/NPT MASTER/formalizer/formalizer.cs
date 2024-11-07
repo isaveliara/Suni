@@ -11,7 +11,7 @@ namespace ScriptFormalizer
         {
             var (result, resultp) = SetPlaceHolders(code, ctx);
             if (resultp != Diagnostics.Success)
-                return (null, Diagnostics.UnknowException); //maybe do something if a invalid placeholder exists? &{}
+                return (null, Diagnostics.UnknowException);
             
             var (formalized, resultf) = Formalizer(result);
             if (resultf != Diagnostics.Success)
