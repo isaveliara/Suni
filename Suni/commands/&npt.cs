@@ -60,18 +60,18 @@ namespace SunPrefixCommands
             }
             if (action == NptActions.RunAct)
             {
-                //formalize
+                /*//formalize
                 var (parsedcode, resultf) = new ScriptFormalizer.JoinScript().JoinHere(code, ctx);
                 if (resultf != Diagnostics.Success)
                 {
                     await ctx.RespondAsync($"Cannot formalize the provided script! :x:\nDetalhes: {resultf}");
                     return;
-                }
+                }*/
 
                 //building response
                 string response = "```OUTPUT of SuniNPT code is here:";
                 ScriptParser parser = new ScriptParser();
-                var result = await parser.ParseScriptAsync(parsedcode, ctx);
+                var result = await parser.ParseScriptAsync(code, ctx);
                 //first output
                 foreach (var output in result.outputs)
                     response += $"\n    {output}";

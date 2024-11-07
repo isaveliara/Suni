@@ -14,6 +14,8 @@ namespace SunSlashCommands
         [Option("User1","Usuário 1")] DiscordUser user2,
         [Option("User2","Usuário 2")] DiscordUser user1 = null)
         {
+            await ctx.Interaction.DeferAsync();//defer>
+
             user2 ??= ctx.User; if (user1 == null) user1 = ctx.User;//defaults
             
             int percent = (user1.Username + user2.Username).Where(char.IsLetter).Sum(letra => char.ToLower(letra));
@@ -29,7 +31,7 @@ namespace SunSlashCommands
             var embed = new DiscordEmbedBuilder()
                 .WithDescription($"{ResultadoShipMsg}");
             //await ctx.Interaction.DeferAsync();
-            await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await ctx.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()//defer<
                 .WithContent($":heart: | O nome do casal seria {casalNome}\n:heart: | Com uma probabilidade de {percent}")
                 .AddEmbed(embed).AddFile("file.png", streamImage));
         }

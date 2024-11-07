@@ -7,17 +7,17 @@ namespace ScriptFormalizer
 {
     public class JoinScript
     {
-        public (string, Diagnostics) JoinHere(string code, CommandContext ctx)
+        public (List<string>, Diagnostics) JoinHere(string code, CommandContext ctx)
         {
-            var (formalized, resultf) = Formalizer(code);
-            if (resultf != Diagnostics.Success)
-                return (null, Diagnostics.InvalidSyntaxException); //formalize includes testing syntax
-
-            var (result, resultp) = SetPlaceHolders(formalized, ctx);
+            var (result, resultp) = SetPlaceHolders(code, ctx);
             if (resultp != Diagnostics.Success)
                 return (null, Diagnostics.UnknowException); //maybe do something if a invalid placeholder exists? &{}
             
-            return (result, Diagnostics.Success);
+            var (formalized, resultf) = Formalizer(result);
+            if (resultf != Diagnostics.Success)
+                return (null, Diagnostics.InvalidSyntaxException);
+
+            return (formalized, Diagnostics.Success);
         }
 
         private (string, Diagnostics) SetPlaceHolders(string script, CommandContext ctx)
@@ -63,7 +63,64 @@ namespace ScriptFormalizer
             return (sb.ToString(), Diagnostics.Success);
         }
 
-        private (string, Diagnostics) Formalizer(string code)
-                => (code, Diagnostics.Success);
+        private (List<string>, Diagnostics) Formalizer(string code)
+        {
+            //split the lines of script into list
+
+            bool isString = false;
+            List<string> lines = new List<string>();
+            string currentLine = "";
+
+            for (int i = 0; i < code.Length; i++)
+            {
+                //toggle string mode when encountering a quote
+                char currentChar = code[i];
+                if (currentChar == '"'){
+                    isString = !isString;//toggle
+                    currentLine += currentChar;
+                    continue;
+                }
+
+                //comments (--) outside of strings
+                if (!isString && currentChar == '-' && i + 1 < code.Length && code[i + 1] == '-')
+                {
+                    //skip rest of line until "\n"
+                    while (i < code.Length && code[i] != '\n')
+                            i++;
+                    
+                    continue;
+                }
+
+                //split on "." outside of strings
+                if (!isString && currentChar == '.'){
+                    if (!string.IsNullOrWhiteSpace(currentLine)) //add line
+                            lines.Add(currentLine.Trim());
+                    
+                    currentLine = "";
+                    continue;
+                }
+
+                //split on newline "\n" outside of strings
+                if (!isString && currentChar == '\n'){
+                    if (!string.IsNullOrWhiteSpace(currentLine)) //add line
+                            lines.Add(currentLine.Trim());
+                    
+                    currentLine = "";
+                    continue;
+                }
+
+                //add character to current segment
+                currentLine += currentChar;
+            }
+
+            //add any remaining text as the last line
+            if (!string.IsNullOrWhiteSpace(currentLine))
+                    lines.Add(currentLine.Trim());
+            
+            //display (DEBUGGING)
+            System.Console.WriteLine($">\n    ]{string.Join("\n    ]", lines)}\n<");
+            
+            return (lines, Diagnostics.Success);
+        }
     }
 }

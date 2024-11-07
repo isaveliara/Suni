@@ -17,17 +17,23 @@ namespace ScriptInterpreter
 
         public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(string script, CommandContext ctx)
         {
-            var lines = script.Split(new[] { "\n", "\r\n" }, StringSplitOptions.None);
+            //formalize
+            var (lines, re) = new ScriptFormalizer.JoinScript().JoinHere(script, ctx);
+            if (re != Diagnostics.Success)
+                    return (_debugs, _outputs, re);
+
+            //TODO: formalizer transform script into list. Use for instead of foreach, in the indexing itself
+            //byte indentLevel = 0;
             bool inDefinitionsBlock = false;
 
             foreach (var line in lines)
             {
                 string trimmedLine = line.Trim();
 
-                if (trimmedLine == "--definitions--"){
+                if (trimmedLine == "#definitions"){
                     inDefinitionsBlock = true;
                     continue;
-                }else if (trimmedLine == "--ends--")
+                }else if (trimmedLine == "#ends")
                 {
                     inDefinitionsBlock = false;
                     continue;
@@ -40,9 +46,7 @@ namespace ScriptInterpreter
                         return (_debugs, _outputs, parseDEFINITIONSResult);
                     
                     continue;
-                }   ///process script after --definitions--
-                else if (trimmedLine.StartsWith("--"))
-                    continue; //comentary
+                }   ///process script after #definitions #ends
                 
                 //KEY WORDS DETECTION
                 if (trimmedLine.StartsWith('@'))
