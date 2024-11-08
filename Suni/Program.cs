@@ -99,6 +99,10 @@ namespace SunBot
             //<resume>//
 
             Timer task = new Timer(ExecuteTask, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
+            var db = new SunFunctions.DB.Methods();
+            db.Setup();
+
+            //connect
             await SuniClient.ConnectAsync();
             await Task.Delay(-1);
         }
