@@ -13,7 +13,8 @@ namespace ScriptInterpreter
         NotFoundObjectException, NotFoundClassException, InvalidArgsException,
 
         //syntax errors
-        UnrecognizedLineException, InvalidSyntaxException, InvalidKeywordDetectedException,
+        UnrecognizedLineException, InvalidSyntaxException, InvalidKeywordException,
+        OutOfRangeException,
 
         //language errors
         UnfinishedFeatureException, UnknowException,

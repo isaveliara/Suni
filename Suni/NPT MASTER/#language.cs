@@ -10,7 +10,7 @@ namespace ScriptInterpreter
     //class for parser and execution
     public partial class ScriptParser
     {
-        private bool _canExecute = true;
+        bool _canExecute = true;
         private Dictionary<string, string> _constants = new Dictionary<string, string>();
         private List<string> _debugs = new List<string>();
         private List<string> _outputs = new List<string>();
@@ -22,25 +22,24 @@ namespace ScriptInterpreter
             if (re != Diagnostics.Success)
                     return (_debugs, _outputs, re);
 
-            //TODO: formalizer transform script into list. Use for instead of foreach, in the indexing itself
             //byte indentLevel = 0;
             bool inDefinitionsBlock = false;
 
-            foreach (var line in lines)
+            for (int i = 0; i < lines.Count; i++)
             {
-                string trimmedLine = line.Trim();
+                var line = lines[i];
 
-                if (trimmedLine == "#definitions"){
+                if (line == "#definitions"){
                     inDefinitionsBlock = true;
                     continue;
-                }else if (trimmedLine == "#ends")
+                }else if (line == "#ends")
                 {
                     inDefinitionsBlock = false;
                     continue;
                 }
                 //process --definitions-- block
                 else if (inDefinitionsBlock){
-                    var parseDEFINITIONSResult = ParseDefinition(trimmedLine);
+                    var parseDEFINITIONSResult = ParseDefinition(line);
 
                     if (parseDEFINITIONSResult != Diagnostics.Success)
                         return (_debugs, _outputs, parseDEFINITIONSResult);
@@ -49,37 +48,58 @@ namespace ScriptInterpreter
                 }   ///process script after #definitions #ends
                 
                 //KEY WORDS DETECTION
-                if (trimmedLine.StartsWith('@'))
+                if (line.StartsWith('@'))
                 {
-                    var keyWordName = trimmedLine.Substring(1);
-                    switch (keyWordName.Replace(" ", ""))
-                    {
-                        //toggle _canExecute
-                        case "disableexecuting":
-                            _canExecute = false;
-                            continue;
-                        case "enableexecuting":
-                            _canExecute = true;
-                            continue;
+                    var keyWordName = line.Substring(1);
 
+                    //toggle _canExecute
+                    if (keyWordName=="disableExe"){
+                        _canExecute = false;
+                        continue;
+                    }
+                    else if (keyWordName=="enableExe"){
+                        _canExecute = true;
+                        continue;
+                    }
+                    if (!_canExecute) continue;
+
+                    //now, we skip if _canExecute is false.
+
+                    //instructions keywords (>>)
+                    if (keyWordName.StartsWith("goto>>")){
+                        if (int.TryParse(keyWordName.Substring(6), out int targetLineIndex))
+                        {
+                            if (targetLineIndex >= 0 && targetLineIndex < lines.Count)
+                            {
+                                lines.RemoveAt(i); //remove the goto line to avoid infinite loop
+                                i = targetLineIndex - 1;
+                                continue;
+                            }
+                            else
+                                return(_debugs, _outputs, Diagnostics.OutOfRangeException); //line index out of bounds
+                        }
+                        else
+                            return(_debugs, _outputs, Diagnostics.OutOfRangeException); //invalid line index
+                    }
+
+                    //other
+                    switch (keyWordName)
+                    {
                         case "kit":
-                            if (!_canExecute) continue;
                             return (_debugs, _outputs, Diagnostics.EarlyTermination); //add info for why/where kited
-                        case "raiseException":
-                            if (!_canExecute) continue;
+                        case "raizeEx":
                             return (_debugs, _outputs, Diagnostics.RaisedException); //add info for why/where kited
-                        
-                        case "if": case "else": return (_debugs, _outputs, Diagnostics.UnfinishedFeatureException);
 
                         default: //no one
-                            return (_debugs, _outputs, Diagnostics.InvalidKeywordDetectedException);
+                            return (_debugs, _outputs, Diagnostics.InvalidKeywordException);
                     }
                 }
+                
                 //test if _canExecute line for continue without executing
                 if (!_canExecute) continue;
 
                 //if its not any key-word, execute as object
-                var executedLineResult = await ExecuteLineAsync(trimmedLine, ctx); //responsable for executing the objects in :: format
+                var executedLineResult = await ExecuteLineAsync(line, ctx); //responsable for executing the objects in :: format
                 
                 //exception handler of object execution result
                 if (executedLineResult != Diagnostics.Success)
@@ -139,8 +159,8 @@ namespace ScriptInterpreter
                         case "npt":
                             result = await NptEntitie.Controler(methodName, args.ToList(), pointer, ctx);
                             break;
-                        case "master":
-                            result = MASTERControler(methodName, args.ToList(), pointer);
+                        case "std":
+                            result = STDControler(methodName, args.ToList(), pointer);
                             break;
                         default:
                             _debugs.Add($"Failed to execute '{className}': Unknow class");

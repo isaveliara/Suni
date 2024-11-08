@@ -1,7 +1,10 @@
+
+//this class is directly in the ScriptParser, to interact with it.
+
 //usages:
-//master::outputset() -> Hello World!
-//master::outputadd() -> Adding a Hello World!
-//master::outputclean() -> null
+//std::outputset() -> Hello World!
+//std::outputadd() -> Adding a Hello World!
+//std::outputclean() -> null
 
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -16,17 +19,17 @@ namespace ScriptInterpreter
     public partial class ScriptParser
     {
         //objects that interact with the class itself
-        public Diagnostics MASTERControler(string method, List<string> args, string pointer)
+        public Diagnostics STDControler(string method, List<string> args, string pointer)
         {
             switch (method)
             {
-                case "outputadd": //master::outputadd() -> hello world
+                case "outputadd": //std::outputadd() -> hello world
                     _outputs.Add(pointer);
                     break;
-                case "outputset": //master::outputset() -> hello world
+                case "outputset": //std::outputset() -> hello world
                     _outputs = new List<string>{pointer};
                     break;
-                case "outputclean"://master::outputadd() -> null
+                case "outputclean"://std::outputadd() -> null
                     _outputs = new List<string>();
                     break;
                 default:
