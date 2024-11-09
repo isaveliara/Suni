@@ -5,7 +5,7 @@ using DSharpPlus;
 using DSharpPlus.EventArgs;
 using RestSharp;
 
-namespace HandlerFunctions.Listeners
+namespace Sun.HandlerFunctions.Listeners
 {
     public partial class Handler
     {
@@ -14,7 +14,7 @@ namespace HandlerFunctions.Listeners
             if (e.RolesBefore.Count < e.RolesAfter.Count)
             {
                 //receive
-                await HandlerFunctions.Listeners.RECEIVE.Role(e);
+                await Sun.HandlerFunctions.Listeners.RECEIVE.Role(e);
                 /*
                 var newRole = e.RolesAfter.Except(e.RolesBefore);
                 foreach (var role in newRole)

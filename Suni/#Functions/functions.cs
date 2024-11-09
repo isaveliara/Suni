@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace SunFunctions
+namespace Sun.Functions
 {
     public partial class Functions
     {
@@ -47,7 +47,7 @@ namespace SunFunctions
         public static string GetSuniStatistics()
         {
             var statistics = new StringBuilder();
-            var client = SunBot.Sun.SuniClient;
+            var client = Sun.Bot.SunClassBot.SuniClient;
             var process = Process.GetCurrentProcess();
 
             statistics.AppendLine("Ambiente: DEVELOPMENT\n");

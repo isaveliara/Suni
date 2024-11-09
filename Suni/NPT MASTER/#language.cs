@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ScriptInterpreter
+namespace Sun.NPT.ScriptInterpreter
 {
     //class for parser and execution
     public partial class ScriptParser

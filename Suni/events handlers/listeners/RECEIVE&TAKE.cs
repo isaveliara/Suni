@@ -4,13 +4,13 @@ using DSharpPlus;
 using DSharpPlus.EventArgs;
 using RestSharp;
 
-namespace HandlerFunctions.Listeners
+namespace Sun.HandlerFunctions.Listeners
 {
     public class RECEIVE
     {
         internal static async Task Role(GuildMemberUpdateEventArgs e)
         {
-            var client = new RestClient(new SunBot.DotenvItems().BaseUrlApi);
+            var client = new RestClient(new Sun.Bot.DotenvItems().BaseUrlApi);
             var request = new RestRequest($"/listeners/{e.Guild.Id}/receive/role", Method.Get);
             var response = await client.PostAsync(request);
             Console.WriteLine(response.Content);
@@ -20,7 +20,7 @@ namespace HandlerFunctions.Listeners
     {
         internal static async Task Role(GuildMemberUpdateEventArgs e)
         {
-            var client = new RestClient(new SunBot.DotenvItems().BaseUrlApi);
+            var client = new RestClient(new Sun.Bot.DotenvItems().BaseUrlApi);
             var request = new RestRequest($"/listeners/{e.Guild.Id}/take/role", Method.Get);
             var response = await client.PostAsync(request);
             Console.WriteLine(response.Content);

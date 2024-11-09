@@ -6,16 +6,16 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 
 using DotNetEnv;
-using HandlerFunctions;
+using Sun.HandlerFunctions;
 using System;
 using System.Threading.Tasks;
-
+using Sun.PrefixCommands;
 using DSharpPlus.SlashCommands;
 using System.Threading;
 
 //using Microsoft.Extensions.Logging;
 
-namespace SunBot
+namespace Sun.Bot
 {
     public class DotenvItems
     {
@@ -34,7 +34,7 @@ namespace SunBot
         }
     }
 
-    public sealed class Sun
+    public sealed class SunClassBot
     {
         public static DiscordClient SuniClient { get; private set; }
         public static CommandsNextExtension Commands { get; private set; }
@@ -73,16 +73,16 @@ namespace SunBot
             var SlashCommandsConfig = SuniClient.UseSlashCommands();
 
             //////MISCELLANEOUS commands
-            Commands.RegisterCommands<SunPrefixCommands.Miscellaneous>(); //prefix
-            SlashCommandsConfig.RegisterCommands<SunSlashCommands.Miscellaneous>();
-            SlashCommandsConfig.RegisterCommands<SunContextCommands.Miscellaneous>(); //menu context
+            Commands.RegisterCommands<Sun.PrefixCommands.Miscellaneous>(); //prefix
+            SlashCommandsConfig.RegisterCommands<Sun.SlashCommands.Miscellaneous>();
+            SlashCommandsConfig.RegisterCommands<Sun.ContextCommands.Miscellaneous>(); //menu context
 
             //////IMAGECOMMANDS commands
-            Commands.RegisterCommands<SunPrefixCommands.ImageCommands>(); //prefix
-            SlashCommandsConfig.RegisterCommands<SunSlashCommands.ImageCommands>(); //slash
+            Commands.RegisterCommands<Sun.PrefixCommands.ImageCommands>(); //prefix
+            SlashCommandsConfig.RegisterCommands<Sun.SlashCommands.ImageCommands>(); //slash
 
             //////Minigame commands
-            Commands.RegisterCommands<SunPrefixCommands.GameCommands>(); //prefix
+            Commands.RegisterCommands<Sun.PrefixCommands.GameCommands>(); //prefix
             
             //<EVENTS>//
             //role events handler
@@ -99,7 +99,7 @@ namespace SunBot
             //<resume>//
 
             Timer task = new Timer(ExecuteTask, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
-            var db = new SunFunctions.DB.Methods();
+            var db = new Sun.Functions.DB.Methods();
             db.Setup();
 
             //connect

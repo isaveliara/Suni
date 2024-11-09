@@ -3,7 +3,7 @@ using DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
 
-namespace ScriptInterpreter
+namespace Sun.NPT.ScriptInterpreter
 {
     public static partial class NptEntitie
     {

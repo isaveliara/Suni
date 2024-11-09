@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 
-namespace SunPrefixCommands
+namespace Sun.PrefixCommands
 {
     public partial class Miscellaneous : BaseCommandModule
     {
@@ -12,14 +14,50 @@ namespace SunPrefixCommands
             [Command("statistics")] [Aliases("nerd")]
             public async Task PREFIXCommandStatistcs(CommandContext ctx)
             {
-                var stat = SunFunctions.Functions.GetSuniStatistics();
+                var stat = Sun.Functions.Functions.GetSuniStatistics();
                 await ctx.RespondAsync(stat);
             }
 
             [Command("inf")] [Aliases("info")]
             public async Task PREFIXCommandInfo(CommandContext ctx)
+                =>
+                    await ctx.RespondAsync($"Você pode ver meus detalhes em meu [website]({new Sun.Bot.DotenvItems().BaseUrl})!");
+        }
+    }
+}
+namespace Sun.SlashCommands
+{
+    public partial class Miscellaneous : ApplicationCommandModule
+    {
+
+        [SlashCommandGroup("suni","...")]
+        public class SunSlashCommandsGroup : ApplicationCommandModule
+        {
+            [SlashCommand("statistics","...")] [Aliases("nerd")]
+            public async Task PREFIXCommandStatistcs(InteractionContext ctx)
             {
-                await ctx.RespondAsync($"Você pode ver meus detalhes em meu [website]({new SunBot.DotenvItems().BaseUrl})!");
+                var stat = Sun.Functions.Functions.GetSuniStatistics();
+                await ctx.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
+                            new DSharpPlus.Entities.DiscordInteractionResponseBuilder()
+                                .WithContent(stat));
+            }
+
+            [SlashCommand("informação","minhas informações"),
+                NameLocalization(Localization.AmericanEnglish, "information"),
+                DescriptionLocalization(Localization.AmericanEnglish, "informations about suni"),
+                NameLocalization(Localization.Russian, "xing-ling"),
+                DescriptionLocalization(Localization.Russian, "xing-ling description")]
+            public async Task PREFIXCommandInfo(InteractionContext ctx)
+            {
+                await ctx.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
+                            new DSharpPlus.Entities.DiscordInteractionResponseBuilder()
+                                .WithContent($"Você pode ver meus detalhes em meu [website]({new Sun.Bot.DotenvItems().BaseUrl})!"));
+
+                System.Console.WriteLine($"o {ctx.Interaction.User.Locale}");
+                var db = new Sun.Functions.DB.Methods();
+                db.InsertUser(ctx.User.Id, ctx.User.Username, ctx.User.AvatarUrl,
+                              primaryLang: Sun.Functions.DB.LanguageStatusTypes.FROM_CLIENT,
+                              commandNu: 1, lastActive: System.DateTime.Now);
             }
         }
     }

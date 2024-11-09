@@ -1,4 +1,4 @@
-namespace ScriptInterpreter
+namespace Sun.NPT.ScriptInterpreter
 {
     //enum for status
     public enum Diagnostics

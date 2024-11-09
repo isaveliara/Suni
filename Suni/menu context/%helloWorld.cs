@@ -5,9 +5,9 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.SlashCommands;
 
-using SunFunctions;
+using Sun.Functions;
 
-namespace SunContextCommands
+namespace Sun.ContextCommands
 {
     public partial class Miscellaneous : ApplicationCommandModule
     {

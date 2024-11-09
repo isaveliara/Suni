@@ -5,7 +5,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
-namespace HandlerFunctions
+namespace Sun.HandlerFunctions
 {
     public class Components
     {

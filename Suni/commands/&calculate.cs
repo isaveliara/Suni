@@ -5,7 +5,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace SunPrefixCommands
+namespace Sun.PrefixCommands
 {
     public partial class Miscellaneous : BaseCommandModule
     {
@@ -13,7 +13,7 @@ namespace SunPrefixCommands
         public async Task PREFIXCommandDice(CommandContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
-            var (image, result) = await SunFunctions.Functions.calculateExpression(expression);
+            var (image, result) = await Sun.Functions.Functions.calculateExpression(expression);
 
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"{expression}")

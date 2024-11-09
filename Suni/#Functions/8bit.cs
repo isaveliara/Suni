@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace SunFunctions
+namespace Sun.Functions
 {
     public partial class Functions
     {

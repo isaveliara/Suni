@@ -4,14 +4,14 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using SunFunctions;
+using Sun.Functions;
 using System;
 using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
-using ScriptInterpreter;
+using Sun.NPT.ScriptInterpreter;
 
-namespace SunPrefixCommands
+namespace Sun.PrefixCommands
 {
     public partial class Miscellaneous
     {

@@ -1,9 +1,9 @@
 using DSharpPlus.CommandsNext;
 using System.Collections.Generic;
 using System.Text;
-using ScriptInterpreter;
+using Sun.NPT.ScriptInterpreter;
 
-namespace ScriptFormalizer
+namespace Sun.NPT.ScriptFormalizer
 {
     public class JoinScript
     {

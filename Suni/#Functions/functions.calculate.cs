@@ -8,19 +8,19 @@ using System.IO;
 using System.Threading.Tasks;
 using RestSharp;
 
-namespace SunFunctions
+namespace Sun.Functions
 {
     //bruh
     public partial class Functions
     {
         public static async Task<(MemoryStream, string)> calculateExpression(string exp)
         {
-            var client = new RestClient(new SunBot.DotenvItems().BaseUrlApi);
+            var client = new RestClient(new Sun.Bot.DotenvItems().BaseUrlApi);
             var request = new RestRequest($"/calc/{exp}", Method.Get);
             byte[] response = await client.DownloadDataAsync(request);
             if (response == null || response.Length == 0)
             {
-                var  erroredImg = await SunImageModels.Basics.ErroredImage();
+                var  erroredImg = await Sun.ImageModels.Basics.ErroredImage();
                 return (erroredImg, "failed to conect with api. Trying to solve this calc in basic form:\n:x: not implemented");
             }
             

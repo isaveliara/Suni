@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.SlashCommands;
 
-namespace SunContextCommands
+namespace Sun.ContextCommands
 {
     public partial class Miscellaneous : ApplicationCommandModule
     {
@@ -13,7 +13,7 @@ namespace SunContextCommands
         [ContextMenu(ApplicationCommandType.MessageContextMenu, "found Binary Code")]
         public async Task MENUCONTEXTFoundBinaryText(ContextMenuContext ctx)
         {
-            var (translatedText, translations) = new SunFunctions.Functions().Get8bitPart(ctx.TargetMessage.Content);
+            var (translatedText, translations) = new Sun.Functions.Functions().Get8bitPart(ctx.TargetMessage.Content);
 
             string translationsShow = "";
             int index = 0;

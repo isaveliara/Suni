@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.SlashCommands;
 
-namespace SunContextCommands
+namespace Sun.ContextCommands
 {
     public partial class Miscellaneous : ApplicationCommandModule
     {
@@ -13,7 +13,7 @@ namespace SunContextCommands
         [ContextMenu(ApplicationCommandType.MessageContextMenu, "found Morse Code")]
         public async Task MENUCONTEXTFoundMorseText(ContextMenuContext ctx)
         {
-            var (translatedText, translations) = new SunFunctions.Functions().GetMorsePart(ctx.TargetMessage.Content);
+            var (translatedText, translations) = new Sun.Functions.Functions().GetMorsePart(ctx.TargetMessage.Content);
 
             string translationsShow = "";
             int index = 0;

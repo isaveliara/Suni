@@ -1,7 +1,7 @@
 using System;
 using System.Data.SQLite;
 
-namespace SunFunctions.DB
+namespace Sun.Functions.DB
 {
     public partial class Methods
     {
@@ -10,15 +10,15 @@ namespace SunFunctions.DB
                         string flags = "", string badges = "user", string eventData = "",
                         LanguageStatusTypes primaryLang = LanguageStatusTypes.FROM_CLIENT,
                         UserStatusTypes status = UserStatusTypes.client,
-                        int xp = 0, int reputation = 0, ulong commandNu = 0, DateTime? lastActive = null)
+                        int xp = 0, int reputation = 0, ulong commandNu = 0, DateTime? lastActive = null, bool DBInsertOrIgnore = true)
         {
             lastActive = lastActive ?? DateTime.Now;
+            string value = DBInsertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
 
             using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
             {
                 connection.Open();
-                string insertUserQuery = @"
-                    INSERT INTO users (user_id, username, avatar_url, married_with, balance, flags, badges,
+                string insertUserQuery = value + @" INTO users (user_id, username, avatar_url, married_with, balance, flags, badges,
                                        event_data, primary_lang, status, xp, reputation, commandNu, last_active)
                     VALUES (@userId, @username, @avatarUrl, @marriedWith, @balance, @flags, @badges,
                             @eventData, @primaryLang, @status, @xp, @reputation, @commandNu, @lastActive);

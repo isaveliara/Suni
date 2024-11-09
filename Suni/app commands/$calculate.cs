@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 
 using DSharpPlus.SlashCommands;
 
-namespace SunSlashCommands
+namespace Sun.SlashCommands
 {
     public partial class Miscellaneous : ApplicationCommandModule
     {
@@ -13,7 +13,7 @@ namespace SunSlashCommands
         public async Task SLASHCommandDice(InteractionContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
-            var (image, result) = await SunFunctions.Functions.calculateExpression(expression);
+            var (image, result) = await Functions.Functions.calculateExpression(expression);
 
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"{expression}")

@@ -5,10 +5,10 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using SunFunctions;
+using Sun.Functions;
 using System;
 
-namespace SunPrefixCommands
+namespace Sun.PrefixCommands
 {
     public partial class Miscellaneous : BaseCommandModule
     {
@@ -30,7 +30,7 @@ namespace SunPrefixCommands
                         .WithContent($"erro ao calcular! :x:"));  return;
             }
 
-            var dice = Functions.Dice((int)sides, number).ToList();
+            var dice = Sun.Functions.Functions.Dice((int)sides, number).ToList();
             var stringdice = string.Join(" , ", dice);
             int result = dice.Sum();
 

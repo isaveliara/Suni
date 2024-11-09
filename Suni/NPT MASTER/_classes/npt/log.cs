@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using System;
 
-namespace ScriptInterpreter
+namespace Sun.NPT.ScriptInterpreter
 {
     //npt entities
     public static partial class NptEntitie

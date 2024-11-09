@@ -11,7 +11,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace SunImageModels
+namespace Sun.ImageModels
 {
     public partial class CreateImage
     {

@@ -15,7 +15,7 @@ using DSharpPlus.SlashCommands;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
-namespace SunPrefixCommands
+namespace Sun.PrefixCommands
 {
     public partial class GameCommands : BaseCommandModule
     {
@@ -127,7 +127,7 @@ namespace SunPrefixCommands
 
             private async Task<ThemeData> TryFindTheme(string theme)
             {
-                string baseUrl = new SunBot.DotenvItems().BaseUrlApi;
+                string baseUrl = new Sun.Bot.DotenvItems().BaseUrlApi;
                 string apiUrl = $"{baseUrl}/quiz/theme/{theme}";
 
                 try
@@ -161,7 +161,7 @@ namespace SunPrefixCommands
 
             private static async Task<QuizQuestionData> GetQuizQuestion(string theme)
             {
-                string baseUrl = new SunBot.DotenvItems().BaseUrlApi;
+                string baseUrl = new Sun.Bot.DotenvItems().BaseUrlApi;
                 string apiUrl = $"{baseUrl}/quiz/question/{theme}";
 
                 try

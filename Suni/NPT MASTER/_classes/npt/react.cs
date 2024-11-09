@@ -9,7 +9,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using System;
 
-namespace ScriptInterpreter
+namespace Sun.NPT.ScriptInterpreter
 {
     //npt entities
     public static partial class NptEntitie

@@ -5,7 +5,7 @@ using DSharpPlus;
 using DSharpPlus.EventArgs;
 
 
-namespace HandlerFunctions.Listeners
+namespace Sun.HandlerFunctions.Listeners
 {
     public partial class UPDATE
     {

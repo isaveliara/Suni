@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 
 using DSharpPlus.SlashCommands;
 
-namespace SunSlashCommands
+namespace Sun.SlashCommands
 {
     public partial class ImageCommands : ApplicationCommandModule
     {
@@ -23,10 +23,10 @@ namespace SunSlashCommands
 
             string casalNome=user1.Username.Substring(0,user1.Username.Length/2)+user2.Username.Substring(user2.Username.Length/2);
             
-            string ResultadoShipMsg = SunFunctions.Functions.GetShipMessage(percent, user1.Username, user2.Username);
+            string ResultadoShipMsg = Sun.Functions.Functions.GetShipMessage(percent, user1.Username, user2.Username);
 
-            var resultImage = await SunImageModels.CreateImage.BuildShip(user1.GetAvatarUrl(ImageFormat.Png, 256), user2.GetAvatarUrl(ImageFormat.Png, 256), (byte)percent);
-            using var streamImage = await SunImageModels.Basics.ToStream(resultImage);
+            var resultImage = await Sun.ImageModels.CreateImage.BuildShip(user1.GetAvatarUrl(ImageFormat.Png, 256), user2.GetAvatarUrl(ImageFormat.Png, 256), (byte)percent);
+            using var streamImage = await Sun.ImageModels.Basics.ToStream(resultImage);
 
             var embed = new DiscordEmbedBuilder()
                 .WithDescription($"{ResultadoShipMsg}");

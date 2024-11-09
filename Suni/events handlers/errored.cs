@@ -14,7 +14,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 
 
-namespace HandlerFunctions{
+namespace Sun.HandlerFunctions{
     public class ErroredSlashFunctions
     {
         public static async Task SlashCommandsErrored_Handler(SlashCommandsExtension sender, SlashCommandErrorEventArgs e){
