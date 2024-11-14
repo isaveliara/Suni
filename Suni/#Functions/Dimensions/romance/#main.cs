@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
+
+namespace Sun.Dimensions.Romance
+{
+    public partial class Methods
+    {
+        
+        private const int MarriageInitialCost = 10000;//20000;
+        private const int DailyMarriageCost = 0;//200;
+
+        public static bool MarryAUsers(ulong userId1, ulong userId2, bool splitFinances)
+        {
+            var db = new Functions.DB.Methods();
+            using (var connection = new SQLiteConnection($"Data Source={db.dbFilePath};Version=3;"))
+            {
+                connection.Open();
+
+                //check and try remove
+                int halfCost = MarriageInitialCost / 2;
+                bool deductedUser1 = db.CheckAndDeductBalance((long)userId1, halfCost);
+                bool deductedUser2 = db.CheckAndDeductBalance((long)userId2, halfCost);
+
+                if (!deductedUser1 || !deductedUser2)
+                {
+                    Console.WriteLine("Saldo insuficiente para um ou ambos os usuários.");
+                    return false;
+                }
+
+                string updateMarriageStatus = @"
+                    UPDATE users 
+                    SET married_with = @partnerId,
+                        flags = @flags
+                    WHERE user_id = @userId;";
+
+                string flags = splitFinances ? "spl" : "";//update this
+
+                using (var command = new SQLiteCommand(updateMarriageStatus, connection))
+                {
+                    command.Parameters.AddWithValue("@partnerId", userId2);
+                    command.Parameters.AddWithValue("@userId", userId1);
+                    command.Parameters.AddWithValue("@flags", flags);
+                    command.ExecuteNonQuery();
+
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("@partnerId", userId1);
+                    command.Parameters.AddWithValue("@userId", userId2);
+                    command.Parameters.AddWithValue("@flags", flags);
+                    command.ExecuteNonQuery();
+                }
+
+                Console.WriteLine($"Users {userId1} and {userId2} are mared! Cust applide");
+                return true;
+            }
+        }
+        
+        /*
+        internal static bool MarryAUser(ulong userId, ulong otherUserId, bool sharing)
+        {
+            
+            //finally
+            var updatedFields = new Dictionary<string, object>
+            {
+                { "married_with", otherUserId },
+                { "", sharing ? "1" : "0" } //primitive flags
+            };
+
+            var dbMethods = new Functions.DB.Methods();
+            dbMethods.UpdateUser(userId, updatedFields);
+            dbMethods.UpdateUser(otherUserId, updatedFields);
+
+            return true;
+        }*/
+    }
+    public partial class Sla : ApplicationCommandModule
+    {
+        
+    }
+
+    public partial class Pre : BaseCommandModule
+    {
+
+    }
+}

@@ -78,8 +78,8 @@ namespace Sun.Bot
             SlashCommandsConfig.RegisterCommands<Sun.ContextCommands.Miscellaneous>(); //menu context
 
             //////IMAGECOMMANDS commands
-            Commands.RegisterCommands<Sun.PrefixCommands.ImageCommands>(); //prefix
-            SlashCommandsConfig.RegisterCommands<Sun.SlashCommands.ImageCommands>(); //slash
+            Commands.RegisterCommands<Sun.Dimensions.Romance.Pre>(); //prefix
+            SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Romance.Sla>(); //slash
 
             //////Minigame commands
             Commands.RegisterCommands<Sun.PrefixCommands.GameCommands>(); //prefix
@@ -109,7 +109,7 @@ namespace Sun.Bot
 
         private static void ExecuteTask(object state)
         {
-            Console.WriteLine("task!");
+            Console.WriteLine("task! - Executed at " + DateTime.Now);
         }
 
         private static Task Client_Ready(DiscordClient sender, ReadyEventArgs args)

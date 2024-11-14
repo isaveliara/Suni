@@ -56,7 +56,7 @@ namespace Sun.SlashCommands
                 System.Console.WriteLine($"o {ctx.Interaction.User.Locale}");
                 var db = new Sun.Functions.DB.Methods();
                 db.InsertUser(ctx.User.Id, ctx.User.Username, ctx.User.AvatarUrl,
-                              primaryLang: Sun.Functions.DB.LanguageStatusTypes.FROM_CLIENT,
+                              primaryLang: Sun.Globalization.SuniSupportedLanguages.FROM_CLIENT,
                               commandNu: 1, lastActive: System.DateTime.Now);
             }
         }

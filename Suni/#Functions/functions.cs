@@ -19,9 +19,7 @@ namespace Sun.Functions
             Random random = new Random();
 
             for (int p = 0; p < number; p++)
-            {
                 yield return random.Next(1, sides + 1);
-            }
         }
         
         public static string HelloWorld()

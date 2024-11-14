@@ -156,11 +156,14 @@ namespace Sun.NPT.ScriptInterpreter
                     Console.WriteLine(methodName.ToLower());//debug
                     switch (className.ToLower().Replace(" ", ""))//////////////////////////////////////
                     {
-                        case "npt":
+                        case "npt": //async.
                             result = await NptEntitie.Controler(methodName, args.ToList(), pointer, ctx);
                             break;
-                        case "std":
+                        case "std": //n. async.
                             result = STDControler(methodName, args.ToList(), pointer);
+                            break;
+                        case "suni": //async.
+                            result = await SuniEntitie.Controler(methodName, args.ToList(), pointer, ctx);
                             break;
                         default:
                             _debugs.Add($"Failed to execute '{className}': Unknow class");

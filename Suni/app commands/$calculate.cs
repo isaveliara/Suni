@@ -10,7 +10,7 @@ namespace Sun.SlashCommands
     public partial class Miscellaneous : ApplicationCommandModule
     {
         [SlashCommand("calculate","Calcule uma expressão")]
-        public async Task SLASHCommandDice(InteractionContext ctx,
+        public async Task SLASHCommandCalc(InteractionContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
             var (image, result) = await Functions.Functions.calculateExpression(expression);

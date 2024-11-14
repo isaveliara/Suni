@@ -28,13 +28,9 @@ namespace Sun.Functions
             for (int i = 0; i < morseCharacters.Length; i++)
             {
                 if (morseCodeDictionary.TryGetValue(morseCharacters[i], out char translatedChar))
-                {
                     translatedCharacters[i] = translatedChar;
-                }
                 else
-                {
                     translatedCharacters[i] = '?'; //unknown char
-                }
             }
 
             return new string(translatedCharacters);

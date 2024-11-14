@@ -10,7 +10,7 @@ namespace Sun.PrefixCommands
     public partial class Miscellaneous : BaseCommandModule
     {
         [Command("exp")]
-        public async Task PREFIXCommandDice(CommandContext ctx,
+        public async Task PREFIXCommandCalc(CommandContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
             var (image, result) = await Sun.Functions.Functions.calculateExpression(expression);
