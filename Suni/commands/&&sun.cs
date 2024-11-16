@@ -45,15 +45,15 @@ namespace Sun.SlashCommands
             [SlashCommand("informação","minhas informações"),
                 NameLocalization(Localization.AmericanEnglish, "information"),
                 DescriptionLocalization(Localization.AmericanEnglish, "informations about suni"),
-                NameLocalization(Localization.Russian, "xing-ling"),
-                DescriptionLocalization(Localization.Russian, "xing-ling description")]
+                NameLocalization(Localization.Russian, "информация"),
+                DescriptionLocalization(Localization.Russian, "моя информация")]
             public async Task PREFIXCommandInfo(InteractionContext ctx)
             {
                 await ctx.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
                             new DSharpPlus.Entities.DiscordInteractionResponseBuilder()
                                 .WithContent($"Você pode ver meus detalhes em meu [website]({new Sun.Bot.DotenvItems().BaseUrl})!"));
 
-                System.Console.WriteLine($"o {ctx.Interaction.User.Locale}");
+                System.Console.WriteLine($"the locale: {ctx.Interaction.Locale}");
                 var db = new Sun.Functions.DB.Methods();
                 db.InsertUser(ctx.User.Id, ctx.User.Username, ctx.User.AvatarUrl,
                               primaryLang: Sun.Globalization.SuniSupportedLanguages.FROM_CLIENT,

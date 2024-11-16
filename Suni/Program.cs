@@ -73,6 +73,7 @@ namespace Sun.Bot
             var SlashCommandsConfig = SuniClient.UseSlashCommands();
 
             //////MISCELLANEOUS commands
+            SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Utilities.Sla>(); //slash
             Commands.RegisterCommands<Sun.PrefixCommands.Miscellaneous>(); //prefix
             SlashCommandsConfig.RegisterCommands<Sun.SlashCommands.Miscellaneous>();
             SlashCommandsConfig.RegisterCommands<Sun.ContextCommands.Miscellaneous>(); //menu context

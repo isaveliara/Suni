@@ -151,7 +151,7 @@ namespace Sun.Functions.DB
             }
         }
 
-        //updates the selected fields
+        //updates the selected user fields
 
         public void UpdateUser(ulong userId, Dictionary<string, object> updatedFields)
         {

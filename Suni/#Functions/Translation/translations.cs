@@ -13,11 +13,11 @@ namespace Sun.Globalization
             if (string.IsNullOrWhiteSpace(lang))
                 return SuniSupportedLanguages.PT; //default
             
-            return lang switch
+            return lang.ToLower() switch
             {
-                "pt" or "pt-BR" => SuniSupportedLanguages.PT,
-                "en" or "en-US" or "en-GB" => SuniSupportedLanguages.EN,
-                "ru" or "ru-RU" => SuniSupportedLanguages.RU,
+                "pt" or "pt-br" => SuniSupportedLanguages.PT,
+                "en" or "en-us" or "en-gb" => SuniSupportedLanguages.EN,
+                "ru" or "ru-ru" => SuniSupportedLanguages.RU,
                 _ => SuniSupportedLanguages.PT //default
             };
         }

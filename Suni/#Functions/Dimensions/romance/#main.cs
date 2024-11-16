@@ -7,11 +7,11 @@ using DSharpPlus.SlashCommands;
 
 namespace Sun.Dimensions.Romance
 {
-    public partial class Methods
+    public partial class RomanceMethods
     {
         
-        private const int MarriageInitialCost = 10000;//20000;
-        private const int DailyMarriageCost = 0;//200;
+        private const int MarriageInitialCost = 10000;
+        private const int DailyMarriageCost = 200;
 
         public static bool MarryAUsers(ulong userId1, ulong userId2, bool splitFinances)
         {
@@ -37,7 +37,7 @@ namespace Sun.Dimensions.Romance
                         flags = @flags
                     WHERE user_id = @userId;";
 
-                string flags = splitFinances ? "spl" : "";//update this
+                string flags = splitFinances ? "spl" : "";//TODO: update this flag sys.
 
                 using (var command = new SQLiteCommand(updateMarriageStatus, connection))
                 {
@@ -57,32 +57,5 @@ namespace Sun.Dimensions.Romance
                 return true;
             }
         }
-        
-        /*
-        internal static bool MarryAUser(ulong userId, ulong otherUserId, bool sharing)
-        {
-            
-            //finally
-            var updatedFields = new Dictionary<string, object>
-            {
-                { "married_with", otherUserId },
-                { "", sharing ? "1" : "0" } //primitive flags
-            };
-
-            var dbMethods = new Functions.DB.Methods();
-            dbMethods.UpdateUser(userId, updatedFields);
-            dbMethods.UpdateUser(otherUserId, updatedFields);
-
-            return true;
-        }*/
-    }
-    public partial class Sla : ApplicationCommandModule
-    {
-        
-    }
-
-    public partial class Pre : BaseCommandModule
-    {
-
     }
 }

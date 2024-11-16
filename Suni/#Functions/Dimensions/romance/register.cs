@@ -6,6 +6,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 
 namespace Sun.Dimensions.Romance
@@ -14,21 +15,21 @@ namespace Sun.Dimensions.Romance
 
     public partial class Pre : BaseCommandModule
     {
-        [Command("marry")]
+        [Command("marry")] [Cooldown(maxUses:1, resetAfter:10, CooldownBucketType.User)]
         public async Task PREFIXCommandMarry(CommandContext ctx,
         [Option("user","user to marry")] DiscordUser user)
         {
             //isnt bot:
             if (user.IsBot)
             {
-                await ctx.RespondAsync($"{ctx.User.Username} bobinho, você não pode se casar com bots!");
+                await ctx.RespondAsync($"{ctx.User.Username} bobinho, não pode se casar com bots!");
                 return;
             }
 
             //isnt same user:
             if (user.Id == ctx.User.Id)
             {
-                await ctx.RespondAsync($"{ctx.User.Username} bobinho, você não pode se casar contigo mesmo!");
+                await ctx.RespondAsync($"{ctx.User.Username} bobinho, não pode se casar contigo mesmo!");
                 return;
             }
             
@@ -48,12 +49,18 @@ namespace Sun.Dimensions.Romance
             
             await msg.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":heart:"));
 
-            //wait for you acceptance.     
-            
-            //ignoring that u didn't accept it yet, i know whats best for u.
+            //wait for you acceptance.
+            var interactivity = ctx.Client.GetInteractivity();
+                var result = await interactivity.WaitForReactionAsync(x =>
+                    x.Message == ctx.Message &&
+                    x.User == user &&
+                    x.Emoji == DiscordEmoji.FromName(ctx.Client, ":heart:"), TimeSpan.FromSeconds(25));
 
             //executing:
-            bool re = Romance.Methods.MarryAUsers(ctx.User.Id, user.Id, true);
+            //reacted?
+            if (result.TimedOut) return;
+            
+            bool re = RomanceMethods.MarryAUsers(ctx.User.Id, user.Id, true);
             if (!re)
             {
                 await ctx.RespondAsync($":x: | {ctx.User.Mention} {user.Mention} É necessário 20.000 para poder formar um casal, e em seus fundos não alcançam esse dinheiro!");
@@ -62,7 +69,7 @@ namespace Sun.Dimensions.Romance
 
             await ctx.RespondAsync(new DiscordMessageBuilder()
                 .WithAllowedMentions(new List<IMention> { UserMention.All })
-                .WithContent($"{ctx.User.Mention}, {user.Mention}, vocês estão casados agora! Felicidades para vocês dois.."));
+                .WithContent($"{ctx.User.Mention}, {user.Mention}, vocês estão casados agora! Felicidades para os dois.."));
         }
     }
 }
