@@ -19,36 +19,41 @@ namespace Sun.Dimensions.Romance
         public async Task PREFIXCommandMarry(CommandContext ctx,
         [Option("user","user to marry")] DiscordUser user)
         {
+            byte error = 0;
+            //string message_error = null;
             //isnt bot:
             if (user.IsBot)
-            {
-                await ctx.RespondAsync($"{ctx.User.Username} bobinho, não pode se casar com bots!");
-                return;
-            }
+                error = 1;
 
             //isnt same user:
             if (user.Id == ctx.User.Id)
-            {
-                await ctx.RespondAsync($"{ctx.User.Username} bobinho, não pode se casar contigo mesmo!");
-                return;
-            }
+                error = 2;
 
             //users are already married
             if (new Sun.Functions.DB.DBMethods().AreUsersMarried(ctx.User.Id, user.Id)){
-                await ctx.RespondAsync($"Eitaa...\nUm de vocês já estão casados! :x:");
+                //message_error = $"";
+                error = 3;
+            }
+
+            var language = Functions.DB.DBMethods.tryFoundUserLang(ctx.User.Id, lang: null, userName:ctx.User.Username, avatar:ctx.User.AvatarUrl);
+            var tr = new Globalization.Using(language);
+            (string message_error, string embedTItle, string embedDescription, string content, string noMoney, string success) = tr.Commands.GetMarryMessages(error, ctx.User.Mention, user.Mention);
+
+            //some error:
+            if (message_error != null)
+            {
+                await ctx.Channel.SendMessageAsync($"{ctx.User.Mention} {message_error} :x:");
+                return;
             }
             
             //creating
             DiscordEmbed embed = new DiscordEmbedBuilder()
-                .WithTitle("O amor está no ar...")
-                .WithDescription($"{ctx.User.Mention} te enviou uma proprosta de casamento!" +
-                        "\nReaja com :heart: para aceitar.." +
-                        "\nLembre-se: casar custará **200 moedas** (metade pra cada usuário) **todos** os dias, e mais **20k de moedas** (metade pra cada usuário também) como **inicialização**! "
-                        );
+                .WithTitle(embedTItle)
+                .WithDescription(embedDescription);
 
             var msg = await ctx.RespondAsync(new DiscordMessageBuilder()
                 .WithAllowedMentions(new List<IMention> { UserMention.All })
-                .WithContent($"{user.Mention} parece que você recebeu uma proprosta...")
+                .WithContent(content)
                 .AddEmbed(embed)
                 );
             
@@ -58,13 +63,13 @@ namespace Sun.Dimensions.Romance
             bool re = RomanceMethods.MarryAUsers(ctx.User.Id, user.Id, true);
             if (!re)
             {
-                await ctx.RespondAsync($":x: | {ctx.User.Mention} {user.Mention} É necessário 20.000 para poder formar um casal, e em seus fundos não alcançam esse dinheiro!");
+                await ctx.RespondAsync(noMoney);
                 return;
             }
 
             await ctx.RespondAsync(new DiscordMessageBuilder()
                 .WithAllowedMentions(new List<IMention> { UserMention.All })
-                .WithContent($"{ctx.User.Mention}, {user.Mention}, vocês estão casados agora! Felicidades para os dois.."));
+                .WithContent(success));
         }
     }
 }

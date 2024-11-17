@@ -48,9 +48,15 @@ namespace Sun.Globalization
 
             //Group of messages for a command
 
-            public (string, string) GetUserinfoMessages()
+            public (string message_error, string embedTItle, string embedDescription, string content, string noMoney, string success) GetMarryMessages(byte error_id, string ctxUserMention, string userMention)
             {
-                return (null, null);
+                return (_messages[$"Marry_E{error_id}"], //0-3 errors
+                        _messages["Marry_embedTitle"], //"O amor está no ar..."
+                        string.Format(_messages["Marry_embedDescription"], ctxUserMention), //$"{0} te enviou uma proprosta de casamento!\nReaja com :heart: para aceitar..\nLembre-se: casar custará **200 moedas** (metade pra cada usuário) **todos** os dias, e mais **20k de moedas** (metade pra cada usuário também) como **inicialização**!"
+                        string.Format(_messages["Marry_messageContent"], userMention), //$"{0} parece que você recebeu uma proprosta..."
+                        string.Format(_messages["Marry_noMoney"], ctxUserMention, userMention), //$":x: | {0} {1} É necessário 20.000 para poder formar um casal, e em seus fundos não alcançam esse dinheiro!"
+                        string.Format(_messages["Marry_messageContent_OnSuccess"], ctxUserMention, userMention) //$"{0}, {1}, vocês estão casados agora! Felicidades para os dois.."
+                );
             }
 
             public (string, string) GetShipMessages(int percent, string u1, string u2)
@@ -74,6 +80,7 @@ namespace Sun.Globalization
 
             //.===TRANSLATIONS===.
 
+
             //pt
             private Dictionary<string, string> GetPortugueseMessages()
                 => new()
@@ -88,6 +95,17 @@ namespace Sun.Globalization
                     { "Ship_89_1", "O coração de {0} aquece por {1}" },
                     { "Ship_89_2", "O coração de {1} aquece por {0}" },
                     { "Ship_90", "Ownn... Esse seria o casal mais fofinho que eu já vi" },
+
+                    //marry
+                    { "Marry_E0", null },
+                    { "Marry_E1", "bobinho, não pode se casar com bots!" },
+                    { "Marry_E2", "bobinho, não pode se casar contigo mesmo!" },
+                    { "Marry_E3", "bobinho, não pode se casar com usuários já casados!" },
+                    { "Marry_embedTitle", "O amor está no ar..." },
+                    { "Marry_embedDescription", "{0} te enviou uma proprosta de casamento!\nReaja com :heart: para aceitar..\nLembre-se: casar custará **200 moedas** (metade pra cada usuário) **todos** os dias, e mais **20k de moedas** (metade pra cada usuário também) como **inicialização**!" },
+                    { "Marry_messageContent", "{0} parece que você recebeu uma proprosta..." },
+                    { "Marry_noMoney", ":x: | {0} {1} É necessário 20.000 para poder formar um casal, e em seus fundos não alcançam esse dinheiro!" },
+                    { "Marry_messageContent_OnSuccess", "{0}, {1}, vocês estão casados agora! Felicidades para os dois.." },
 
                     //ping command
                     { "Ping_Description","Mostra a minha latência" },
@@ -112,6 +130,17 @@ namespace Sun.Globalization
                     { "Ship_89_2", "{1}'s heart warms for {0}" },
                     { "Ship_90", "Aww... This would be the cutest couple I've ever seen" },
 
+                    //marry
+                    { "Marry_E0", null },
+                    { "Marry_E1", "silly, you can't marry bots!" },
+                    { "Marry_E2", "silly, you can't marry yourself!" },
+                    { "Marry_E3", "silly, you can't marry users who are already married!" },
+                    { "Marry_embedTitle", "Love is in the air..." },
+                    { "Marry_embedDescription", "{0} has sent you a marriage proposal!\nReact with :heart: to accept..\nRemember: marrying will cost **200 coins** (shared equally between both users) **daily**, and an initial fee of **20k coins** (also shared equally)!" },
+                    { "Marry_messageContent", "{0}, it seems like you received a proposal..." },
+                    { "Marry_noMoney", ":x: | {0} {1}, you need 20,000 coins to form a couple, but your funds are insufficient!" },
+                    { "Marry_messageContent_OnSuccess", "{0}, {1}, you're now married! Best wishes to both of you!" },
+
                     //ping command
                     { "Ping_Description", "Shows my latency" },
                     { "Ping_Message", "Pong! :ping_pong:\n Latency: {0}ms" },
@@ -135,6 +164,17 @@ namespace Sun.Globalization
                     { "Ship_89_2", "Сердце {1} согревается для {0}" },
                     { "Ship_90", "Ooo... Это была бы самая милая пара, которую я когда-либо видел" },
 
+                    //marry
+                    { "Marry_E0", null },
+                    { "Marry_E1", "глупышка, ты не можешь жениться на ботах!" },
+                    { "Marry_E2", "глупышка, ты не можешь жениться на самом себе!" },
+                    { "Marry_E3", "глупышка, ты не можешь жениться на уже женатых пользователях!" },
+                    { "Marry_embedTitle", "Любовь витает в воздухе..." },
+                    { "Marry_embedDescription", "{0} отправил(а) тебе предложение о браке!\nОтреагируй :heart:, чтобы согласиться..\nПомни: брак обойдется в **200 монет** (разделено поровну) **ежедневно**, и первоначальный взнос составит **20k монет** (также разделено поровну)!" },
+                    { "Marry_messageContent", "{0}, похоже, ты получил(а) предложение..." },
+                    { "Marry_noMoney", ":x: | {0} {1}, для создания пары требуется 20,000 монет, но у вас недостаточно средств!" },
+                    { "Marry_messageContent_OnSuccess", "{0}, {1}, теперь вы женаты! Счастья вам обоим!" },
+
                     //ping command
                     { "Ping_Description", "Показывает мою задержку" },
                     { "Ping_Message", "Понг! :ping_pong:\n Задержка: {0}мс" },
@@ -157,6 +197,17 @@ namespace Sun.Globalization
                     { "Ship_89_1", "El corazón de {0} se calienta por {1}" },
                     { "Ship_89_2", "El corazón de {1} se calienta por {0}" },
                     { "Ship_90", "Aww... Esta sería la pareja más linda que haya visto" },
+
+                    //marry
+                    { "Marry_E0", null },
+                    { "Marry_E1", "tontito(a), ¡no puedes casarte con bots!" },
+                    { "Marry_E2", "tontito(a), ¡no puedes casarte contigo mismo(a)!" },
+                    { "Marry_E3", "tontito(a), ¡no puedes casarte con usuarios que ya están casados!" },
+                    { "Marry_embedTitle", "El amor está en el aire..." },
+                    { "Marry_embedDescription", "¡{0} te ha enviado una propuesta de matrimonio!\nReacciona con :heart: para aceptar..\nRecuerda: casarse costará **200 monedas** (dividido entre ambos usuarios) **diariamente**, y una tarifa inicial de **20k monedas** (también dividida entre ambos)!" },
+                    { "Marry_messageContent", "{0}, parece que has recibido una propuesta..." },
+                    { "Marry_noMoney", ":x: | {0} {1}, necesitas 20.000 monedas para formar una pareja, ¡pero tus fondos no son suficientes!" },
+                    { "Marry_messageContent_OnSuccess", "{0}, {1}, ¡ahora están casados! ¡Felicidades para ambos!" },
 
                     //ping command
                     { "Ping_Description", "Muestra mi latencia" },
