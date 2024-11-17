@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Linq;
 using Sun.Globalization;
 
 namespace Sun.Functions.DB
 {
-    public partial class Methods
+    public partial class DBMethods
     {
 
         //Checks an user balance, and deducts a value (includes partner)
@@ -146,7 +147,7 @@ namespace Sun.Functions.DB
                     command.Parameters.AddWithValue("@lastActive", lastActive);
 
                     command.ExecuteNonQuery();
-                    Console.WriteLine($"add user {username} ({userId})!");
+                    Console.WriteLine($"add user {username} ({userId}) to DB!");
                 }
             }
         }
@@ -202,7 +203,10 @@ namespace Sun.Functions.DB
                     using (var reader = command.ExecuteReader())
                     {
                         if (!reader.HasRows)
-                            throw new Exception($"No user found with user_id {userId}");
+                        {
+                            Console.WriteLine($"(user.cs - GetUserFields): No user {userId} found. Returning null.");
+                            return null;
+                        }
 
                         reader.Read();
                         var result = new Dictionary<string, object>();
@@ -227,6 +231,31 @@ namespace Sun.Functions.DB
                     command.Parameters.AddWithValue("@userId", (long)userId);
                     var count = Convert.ToInt32(command.ExecuteScalar());
                     return count > 0;
+                }
+            }
+        }
+
+        //returns true if one of users are married
+
+        public bool AreUsersMarried(ulong userId1, ulong userId2)
+        {
+            using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
+            {
+                connection.Open();
+                string query = @"
+                    SELECT COUNT(1)
+                    FROM users
+                    WHERE (user_id = @userId1 OR user_id = @userId2)
+                    AND married_with IS NOT NULL
+                    AND married_with != 0;";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@userId1", (long)userId1);
+                    command.Parameters.AddWithValue("@userId2", (long)userId2);
+
+                    var result = command.ExecuteScalar();
+                    return Convert.ToInt32(result) > 0;
                 }
             }
         }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Sun.Functions.DB
 {
-    public partial class Methods
+    public partial class DBMethods
     {
         public void Setup()
         {

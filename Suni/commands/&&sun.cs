@@ -54,7 +54,7 @@ namespace Sun.SlashCommands
                                 .WithContent($"Você pode ver meus detalhes em meu [website]({new Sun.Bot.DotenvItems().BaseUrl})!"));
 
                 System.Console.WriteLine($"the locale: {ctx.Interaction.Locale}");
-                var db = new Sun.Functions.DB.Methods();
+                var db = new Sun.Functions.DB.DBMethods();
                 db.InsertUser(ctx.User.Id, ctx.User.Username, ctx.User.AvatarUrl,
                               primaryLang: Sun.Globalization.SuniSupportedLanguages.FROM_CLIENT,
                               commandNu: 1, lastActive: System.DateTime.Now);

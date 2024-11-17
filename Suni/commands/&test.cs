@@ -20,7 +20,7 @@ namespace Sun.PrefixCommands
         [Command("test")] [RequireOwner]
         public async Task PREFIXCommandTest(CommandContext ctx)
         {
-            var db = new Sun.Functions.DB.Methods();
+            var db = new Sun.Functions.DB.DBMethods();
             foreach (var m in ctx.Guild.Members.Values)
             {
                 DiscordUser u = await ctx.Client.GetUserAsync(m.Id);

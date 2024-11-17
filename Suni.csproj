@@ -7,12 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
-    <PackageReference Include="DSharpPlus" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus" Version="4.5.0" />
     <!--<PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02401" />-->
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0" />
-    <PackageReference Include="DSharpPlus.HttpInteractions.AspNetCore" Version="5.0.0-nightly-02337" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.0" />
+    <PackageReference Include="DSharpPlus.Rest" Version="4.5.0" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.0" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.0" />
     <PackageReference Include="Npgsql" Version="8.0.3" />
     <PackageReference Include="RestSharp" Version="112.0.0" />
     <PackageReference Include="SixLabors.Fonts" Version="2.0.3" />

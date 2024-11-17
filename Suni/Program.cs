@@ -100,7 +100,7 @@ namespace Sun.Bot
             //<resume>//
 
             Timer task = new Timer(ExecuteTask, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
-            var db = new Sun.Functions.DB.Methods();
+            var db = new Sun.Functions.DB.DBMethods();
             db.Setup();
 
             //connect

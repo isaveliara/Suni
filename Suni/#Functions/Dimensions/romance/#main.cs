@@ -15,7 +15,7 @@ namespace Sun.Dimensions.Romance
 
         public static bool MarryAUsers(ulong userId1, ulong userId2, bool splitFinances)
         {
-            var db = new Functions.DB.Methods();
+            var db = new Functions.DB.DBMethods();
             using (var connection = new SQLiteConnection($"Data Source={db.dbFilePath};Version=3;"))
             {
                 connection.Open();

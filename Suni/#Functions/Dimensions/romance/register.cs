@@ -32,6 +32,11 @@ namespace Sun.Dimensions.Romance
                 await ctx.RespondAsync($"{ctx.User.Username} bobinho, não pode se casar contigo mesmo!");
                 return;
             }
+
+            //users are already married
+            if (new Sun.Functions.DB.DBMethods().AreUsersMarried(ctx.User.Id, user.Id)){
+                await ctx.RespondAsync($"Eitaa...\nUm de vocês já estão casados! :x:");
+            }
             
             //creating
             DiscordEmbed embed = new DiscordEmbedBuilder()
@@ -49,17 +54,7 @@ namespace Sun.Dimensions.Romance
             
             await msg.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":heart:"));
 
-            //wait for you acceptance.
-            var interactivity = ctx.Client.GetInteractivity();
-                var result = await interactivity.WaitForReactionAsync(x =>
-                    x.Message == ctx.Message &&
-                    x.User == user &&
-                    x.Emoji == DiscordEmoji.FromName(ctx.Client, ":heart:"), TimeSpan.FromSeconds(25));
-
-            //executing:
-            //reacted?
-            if (result.TimedOut) return;
-            
+            //event
             bool re = RomanceMethods.MarryAUsers(ctx.User.Id, user.Id, true);
             if (!re)
             {

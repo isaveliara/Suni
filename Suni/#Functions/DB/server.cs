@@ -3,7 +3,7 @@ using System.Data.SQLite;
 
 namespace Sun.Functions.DB
 {
-    public partial class Methods
+    public partial class DBMethods
     {
         public void InsertServer(ulong serverId, string serverName, string urlIcon, ServerStatusTypes relation = ServerStatusTypes.client,
                                         string flags = "", string eventData = "")

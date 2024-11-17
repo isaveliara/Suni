@@ -56,7 +56,7 @@ namespace Sun.Dimensions.Romance
             percent = (percent+50) % 100 + 1;
 
             //translation of ship messages
-            var language = Functions.DB.DBMethods.tryFoundUserLang(ctx.User.Id, lang: ctx.Interaction.Locale);
+            var language = Functions.DB.DBMethods.tryFoundUserLang(ctx.User.Id, lang: ctx.Interaction.Locale, userName:ctx.User.Username, avatar:ctx.User.AvatarUrl);
             var tr = new Globalization.Using(language);
             var (ResultadoShipMsg, response) = tr.Commands.GetShipMessages(percent, user1.Username, user2.Username);
             

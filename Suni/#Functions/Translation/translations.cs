@@ -26,16 +26,16 @@ namespace Sun.Globalization
     public partial class Using
     {
         public SuniSupportedLanguages Language { get; }
-        public SlashCommands Commands { get; }
+        public GroupTranslationsMessages Commands { get; }
         public Using(SuniSupportedLanguages language){
             Language = language;
-            Commands = new SlashCommands(language.ToString());
+            Commands = new GroupTranslationsMessages(language.ToString());
         }
 
-        public partial class SlashCommands
+        public partial class GroupTranslationsMessages
         {
             private readonly Dictionary<string, string> _messages;
-            public SlashCommands(string language)
+            public GroupTranslationsMessages(string language)
             {
                 _messages = language switch
                 {
@@ -44,6 +44,13 @@ namespace Sun.Globalization
                     "RU" => GetRussianMessages(),
                     _ => GetRussianMessages() //default
                 };
+            }
+
+            //Group of messages for a command
+
+            public (string, string) GetUserinfoMessages()
+            {
+                return (null, null);
             }
 
             public (string, string) GetShipMessages(int percent, string u1, string u2)
@@ -63,6 +70,9 @@ namespace Sun.Globalization
                     _ => "?"
                 }, name); //message content response
             }
+
+
+            //.===TRANSLATIONS===.
 
             //pt
             private Dictionary<string, string> GetPortugueseMessages()
