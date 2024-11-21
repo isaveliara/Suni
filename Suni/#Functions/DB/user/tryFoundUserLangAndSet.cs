@@ -52,6 +52,7 @@ namespace Sun.Functions.DB
                 return supported;
             }
 
+            //user exists and has a valid lang
             if (foundDBUserLang != "FROM_CLIENT")
             {
                 supported = GlobalizationMethods.TryConvertLanguageToSupported(foundDBUserLang);

@@ -1,0 +1,40 @@
+{
+    "quiz_info": {
+        "requires" : "user",
+        "version" : "1.1",
+        "questionsLimite": -1,
+        "revealAnswerOnFail": true,
+        "attempts": -1,
+        "pointsForUserWin": -1,
+        "rate": 30,
+        "rateVariance": 5
+    },
+
+
+    "questions": [
+        {
+            "index" : 1,  "worth": 3,"response_file" : "https://cdn.discordapp.com/attachments/1257155558595760199/1308359640907776060/profile.png?ex=673da85e&is=673c56de&hm=aa387c9cedfe1cbe8cee18745930430958eaf3aa80e73b961a1a713f4c8861e1&",
+            "build": {
+                "title": "Doors Q1",
+                "description": "Qual o número de entidades que o jogo possui?",
+                "color": "#FF5733",  "file" : null,  "footer": "1 resposta válida"
+            },
+            "response": "Sim! Juntando os pisos de Backdoor, The Hotel, The Rooms, Retro Mode, The mines e o The hotel em Super Hard mode, somam 45 entidades diferentes.",
+            "answers": [
+                "^45( entidades)?$"
+            ]
+        },
+        {
+            "index" : 2,  "worth": 3,"response_file" : null,
+            "build": {
+                "title": "Doors Q2",
+                "description": "my question",
+                "color": "#FF5733",  "file" : null,  "footer": "1 resposta válida"
+                },
+            "response": "Sim! A resposta pode ser &{answer_provided}",
+            "answers": [
+                "^my answer$"
+            ]
+        }
+    ]
+}

@@ -83,7 +83,7 @@ namespace Sun.Bot
             SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Romance.Sla>(); //slash
 
             //////Minigame commands
-            Commands.RegisterCommands<Sun.PrefixCommands.GameCommands>(); //prefix
+            Commands.RegisterCommands<Sun.Dimensions.Fun.FunPre>(); //prefix
             
             //<EVENTS>//
             //role events handler

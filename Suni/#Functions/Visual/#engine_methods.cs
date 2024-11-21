@@ -12,6 +12,15 @@ namespace Sun.ImageModels
 {
     public partial class Basics
     {
+        public static async Task<MemoryStream> ImagemLightzinho()
+            //light is a hottie :3
+            =>
+                await ToStream(Image.Load<Rgba32>("./assets/images/lightzinho.png"));
+        
+        public static async Task<MemoryStream> ImagemPreceptor()
+            =>
+                await ToStream(Image.Load<Rgba32>("./assets/images/preceptor.png"));
+
         public static async Task<MemoryStream> ErroredImage()
         {
             var img = Image.Load<Rgba32>("./assets/images/exception.png");

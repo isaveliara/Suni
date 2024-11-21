@@ -13,7 +13,7 @@ namespace Sun.SlashCommands
         public async Task SLASHCommandCalc(InteractionContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
-            var (image, result) = await Functions.Functions.calculateExpression(expression);
+            var (image, result) = await Functions.Functions.CalculateExpression(expression);
 
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"{expression}")

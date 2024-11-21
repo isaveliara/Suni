@@ -13,7 +13,7 @@ namespace Sun.PrefixCommands
         public async Task PREFIXCommandCalc(CommandContext ctx,
         [Option("Expression","Ex: 2x=12-0")] string expression)
         {
-            var (image, result) = await Sun.Functions.Functions.calculateExpression(expression);
+            var (image, result) = await Sun.Functions.Functions.CalculateExpression(expression);
 
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"{expression}")

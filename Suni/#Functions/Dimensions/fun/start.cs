@@ -15,9 +15,9 @@ using DSharpPlus.SlashCommands;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
-namespace Sun.PrefixCommands
+namespace Sun.Dimensions.Fun
 {
-    public partial class GameCommands : BaseCommandModule
+    public partial class FunPre : BaseCommandModule
     {
         [Group("start")]
         public class StartPrefixCommandsGroup : BaseCommandModule
@@ -28,7 +28,7 @@ namespace Sun.PrefixCommands
                 //trying to find the theme
                 var t = await TryFindTheme(theme);
                 if (t == null){
-                    await ctx.RespondAsync($"Não foi possível encontrar o tema '{theme}' ou falha ao conectar com a api! :x:");
+                    await ctx.RespondAsync($"Unable to find theme '{theme}' or failed to connect with api! :x:");
                     return;
                 }
                 await ctx.Channel.SendMessageAsync($"Começando minigame com o tema {theme}..");
@@ -51,14 +51,14 @@ namespace Sun.PrefixCommands
                         QuizquestionData = await GetQuizQuestion(theme);
                         if (QuizquestionData == null)
                         {
-                            await ctx.Channel.SendMessageAsync("Falha ao fazer request! :warning:\nRetrying...");
+                            await ctx.Channel.SendMessageAsync("Failed to make request! :warning:\nRetrying...");
                             await Task.Delay(500);
                         }
                         else
                             break;
                         if (tryingGetResponse == 0)
                         {
-                            await ctx.Channel.SendMessageAsync("Não foi possível fazer conexão com a api! :x:");
+                            await ctx.Channel.SendMessageAsync("Unable to connect to the api! Try again later :x:");
                             return;
                         }
                         tryingGetResponse--;
@@ -69,11 +69,17 @@ namespace Sun.PrefixCommands
                         Title = QuizquestionData.Build.Title,
                         Description = QuizquestionData.Build.Description,
                         Color = new DiscordColor(QuizquestionData.Build.Color),
+                        //Thumbnail = 
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
                             Text = QuizquestionData.Build.Footer
                         }
                     };
+                    //try to add thumbnail
+                    if (!string.IsNullOrEmpty(QuizquestionData.Build.File))
+                        embed.Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail{
+                            Url = QuizquestionData.Build.File
+                        };
                     
                     await ctx.RespondAsync(embed); //message with question
 
@@ -84,10 +90,10 @@ namespace Sun.PrefixCommands
                         if (userResponse == null)
                         {
                             //debug
-                            await ctx.Channel.SendMessageAsync($"Esperado as respostas '{string.Join(" | ",QuizquestionData.Answers)}'."); //only for debug
+                            //await ctx.Channel.SendMessageAsync($"Esperado as respostas '{string.Join(" | ",QuizquestionData.Answers)}'."); //only for debug
                             if (attempts == -1)
                             {
-                                await ctx.Channel.SendMessageAsync($"Sem respostas. Partida finalizada!");
+                                await ctx.Channel.SendMessageAsync($"No answers. Game over!");
                                 return;
                             }
                             continue;
@@ -118,7 +124,7 @@ namespace Sun.PrefixCommands
                                 .WithDescription(scoreBoard.ToString())
                             )); //sends scoreboard
                         //sends time for next question
-                        await ctx.Channel.SendMessageAsync($"{QuizquestionData.Response.Replace("&{getanswer}", userResponse)}\n:small_blue_diamond: Próxima pergunta em: **{(rate + new Random().Next(-rateVariance, rateVariance))>>2} segundos**");
+                        await ctx.Channel.SendMessageAsync($"{QuizquestionData.Response.Replace("&{getanswer}", userResponse)}\n:small_blue_diamond: Próxima pergunta em: **{(rate + new Random().Next(-rateVariance, rateVariance))>>2} seconds**");
                         break;
                     }
                     await Task.Delay((rate + new Random().Next(-rateVariance, rateVariance)) * 500);
@@ -127,11 +133,10 @@ namespace Sun.PrefixCommands
 
             private async Task<ThemeData> TryFindTheme(string theme)
             {
-                string baseUrl = new Sun.Bot.DotenvItems().BaseUrlApi;
+                string baseUrl = new Bot.DotenvItems().BaseUrlApi;
                 string apiUrl = $"{baseUrl}/quiz/theme/{theme}";
 
-                try
-                {
+                try{
                     var client = new RestClient(apiUrl);
                     var request = new RestRequest();
                     var response = await client.ExecuteAsync(request);
@@ -142,15 +147,17 @@ namespace Sun.PrefixCommands
                         var themeData = new QuizThemeData(JObject.Parse(response.Content));
                         return new ThemeData
                         {
-                            NumQuestions = themeData.NumQuestions,
+                            Version = themeData.Version,
+                            Requires = themeData.Requires,
+                            QuestionsLimite = themeData.QuestionsLimite,
                             RevealAnswerOnFail = themeData.RevealAnswerOnFail,
                             Attempts = themeData.Attempts,
-                            NumWins = themeData.NumWins,
+                            PointsForUserWin = themeData.PointsForUserWin,
                             Rate = themeData.Rate,
-                            RateVariance = themeData.RateVariance
+                            RateVariance = themeData.RateVariance,
                         };
                     }
-                    else Console.WriteLine($"Erro: {response.StatusCode} - {response.ErrorMessage}");
+                    else Console.WriteLine($"Error: {response.StatusCode} - {response.ErrorMessage}");
                 }
                 catch (Exception ex)
                 {
@@ -161,7 +168,7 @@ namespace Sun.PrefixCommands
 
             private static async Task<QuizQuestionData> GetQuizQuestion(string theme)
             {
-                string baseUrl = new Sun.Bot.DotenvItems().BaseUrlApi;
+                string baseUrl = new Bot.DotenvItems().BaseUrlApi;
                 string apiUrl = $"{baseUrl}/quiz/question/{theme}";
 
                 try
@@ -181,6 +188,7 @@ namespace Sun.PrefixCommands
                                 Title = quizData.Title,
                                 Description = quizData.Description,
                                 Color = quizData.Color,
+                                File = quizData.File,
                                 Footer = quizData.Footer
                             },
                             Response = quizData.ResponseText,
@@ -189,11 +197,11 @@ namespace Sun.PrefixCommands
                         };
                     }
                     else
-                        Console.WriteLine($"Erro: {response.StatusCode} - {response.ErrorMessage}");
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ErrorMessage}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Exceção: {ex.Message}");
+                    Console.WriteLine($"Ex: {ex.Message}");
                 }
 
                 return null;
@@ -216,7 +224,7 @@ namespace Sun.PrefixCommands
                 ulong returnWhoResponder = 0;
 
                 //init message
-                var countdownMessage = await ctx.Channel.SendMessageAsync($"{seconds} segundos restantes...");
+                var countdownMessage = await ctx.Channel.SendMessageAsync($"{seconds} seconds remaining...");
 
                 var interactivity = ctx.Client.GetInteractivity();
                 DateTime endTime = DateTime.Now.AddSeconds(seconds);
@@ -244,12 +252,12 @@ namespace Sun.PrefixCommands
                     remainingTime = (endTime - DateTime.Now).TotalSeconds;
                     if (remainingTime > 0)
                     {
-                        await countdownMessage.ModifyAsync($"{Math.Ceiling(remainingTime)} segundos restantes para responder...");
+                        await countdownMessage.ModifyAsync($"{Math.Ceiling(remainingTime)} seconds left to answer...");
                     }
                 }
                 if (userResponse == null)
                 {
-                    await ctx.Channel.SendMessageAsync("Tempo esgotado! :x:");
+                    await ctx.Channel.SendMessageAsync("Time Out! :x:");
                 }
                 return (userResponse, returnWhoResponder);
             }
@@ -262,20 +270,25 @@ namespace Sun.PrefixCommands
         {
             ThemeData = (JObject)data["response"]["quiz_info"];
         }
-        internal int NumQuestions => (int)ThemeData["numQuestions"];
+
+        internal string Version => ThemeData["version"].ToString();
+        internal string Requires => ThemeData["requires"].ToString();
+        internal int QuestionsLimite => (int)ThemeData["questionsLimite"];
         internal bool RevealAnswerOnFail => (bool)ThemeData["revealAnswerOnFail"];
-        internal int Attempts => (int)ThemeData["chances"];
-        internal int NumWins => (int)ThemeData["numWins"];
+        internal int Attempts => (int)ThemeData["attempts"];
+        internal int PointsForUserWin => (int)ThemeData["pointsForUserWin"];
         internal int Rate => (int)ThemeData["rate"];
         internal int RateVariance => (int)ThemeData["rateVariance"];
     }
 
     internal class ThemeData
     {
-        internal int NumQuestions { get; set; }
+        internal string Requires { get; set; }
+        internal string Version { get; set; }
+        internal int QuestionsLimite { get; set; }
         internal bool RevealAnswerOnFail { get; set; }
         internal int Attempts { get; set; }
-        internal int NumWins { get; set; }
+        internal int PointsForUserWin { get; set; }
         internal int Rate { get; set; }
         internal int RateVariance { get; set; }
     }
@@ -292,19 +305,24 @@ namespace Sun.PrefixCommands
         internal string Title => (string)QuestionData["build"]["title"];
         internal string Description => (string)QuestionData["build"]["description"];
         internal string Color => (string)QuestionData["build"]["color"];
+        internal string File => (string)QuestionData["build"]["file"];
         internal string Footer => (string)QuestionData["build"]["footer"];
         internal string ResponseText => (string)QuestionData["response"];
         internal JArray Answers => (JArray)QuestionData["answers"];
         internal int Worth => (int)QuestionData["worth"];
+        internal int Index => (int)QuestionData["index"];
+        internal string ResponseFile => (string)QuestionData["response_file"];
     }
     
     //json
     internal class QuizQuestionData
     {
         internal BuildQuizEmbedData Build { get; set; }
+        internal int Index { get; set; }
+        internal int Worth { get; set; }
+        internal string ResponseFile { get; set; }
         internal string Response { get; set; }
         internal List<string> Answers { get; set; }
-        internal int Worth { get; set; }
     }
 
     internal class BuildQuizEmbedData
@@ -312,6 +330,7 @@ namespace Sun.PrefixCommands
         internal string Title { get; set; }
         internal string Description { get; set; }
         internal string Color { get; set; }
+        internal string File { get; set; }
         internal string Footer { get; set; }
     }
 }
