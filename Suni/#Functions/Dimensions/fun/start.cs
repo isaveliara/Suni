@@ -69,17 +69,12 @@ namespace Sun.Dimensions.Fun
                         Title = QuizquestionData.Build.Title,
                         Description = QuizquestionData.Build.Description,
                         Color = new DiscordColor(QuizquestionData.Build.Color),
-                        //Thumbnail = 
+                        ImageUrl = QuizquestionData.Build.File,
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
                             Text = QuizquestionData.Build.Footer
                         }
                     };
-                    //try to add thumbnail
-                    if (!string.IsNullOrEmpty(QuizquestionData.Build.File))
-                        embed.Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail{
-                            Url = QuizquestionData.Build.File
-                        };
                     
                     await ctx.RespondAsync(embed); //message with question
 

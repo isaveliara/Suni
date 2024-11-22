@@ -19,9 +19,10 @@ namespace Sun.SlashCommands
                 .WithTitle($"{expression}")
                 .WithDescription($"{result}");
             
-            await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
-                .AddEmbed(embed)
-                .AddFile("result.png", image));
+            await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder()
+                    .AddEmbed(embed)
+                    .AddFile("result.png", image));
         }
     }
 }

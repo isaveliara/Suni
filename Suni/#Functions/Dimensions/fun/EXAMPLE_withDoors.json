@@ -13,7 +13,7 @@
 
     "questions": [
         {
-            "index" : 1,  "worth": 3,"response_file" : "https://cdn.discordapp.com/attachments/1257155558595760199/1308359640907776060/profile.png?ex=673da85e&is=673c56de&hm=aa387c9cedfe1cbe8cee18745930430958eaf3aa80e73b961a1a713f4c8861e1&",
+            "index" : 1,  "worth": 3,"response_file" : null,
             "build": {
                 "title": "Doors Q1",
                 "description": "Qual o número de entidades que o jogo possui?",
