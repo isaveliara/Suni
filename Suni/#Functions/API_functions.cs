@@ -22,7 +22,7 @@ namespace Sun.Functions
             if (response == null || response.Length == 0)
             {
                 var  erroredImg = await Sun.ImageModels.Basics.ErroredImage();
-                return (erroredImg, "failed to conect with api. Trying to solve this calc in basic form:\n:x: not implemented");
+                return (erroredImg, "failed to conect with api. Trying to solve this calc in basic form calculator:\n:x: not implemented");
             }
             
             var memoryStream = new MemoryStream(response);

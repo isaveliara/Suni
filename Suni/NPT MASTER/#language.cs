@@ -4,6 +4,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Sun.NPT.ScriptInterpreter
 {
@@ -14,6 +15,10 @@ namespace Sun.NPT.ScriptInterpreter
         private Dictionary<string, string> _constants = new Dictionary<string, string>();
         private List<string> _debugs = new List<string>();
         private List<string> _outputs = new List<string>();
+        private Dictionary<string, List<string>> _includes = new Dictionary<string, List<string>> {
+            { "std", new List<string>{"outputadd", "outputset", "outputclean"} },
+            { "npt", new List<string>{"log", "react", "ban", "unban"} },
+        };
 
         public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(string script, CommandContext ctx)
         {
@@ -138,56 +143,97 @@ namespace Sun.NPT.ScriptInterpreter
         //executing line
         private async Task<Diagnostics> ExecuteLineAsync(string line, CommandContext ctx)
         {
-            //e.g: 'sys::Object("arg1", "arg2", 99) -> Pointer'
-            var objMatch = Regex.Match(line, @"(\w+)::(\w+)\(([^)]*)\)\s*->\s*(\w+)");
+            var objMatch = Regex.Match(line, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(\w+)");
             Diagnostics result = Diagnostics.Success;
 
             if (objMatch.Success)
             {
-                string className = objMatch.Groups[1].Value;
+                string className = objMatch.Groups[1].Success ? objMatch.Groups[1].Value : null;
                 string methodName = objMatch.Groups[2].Value;
                 string argumentsToSplit = objMatch.Groups[3].Value;
                 string pointer = objMatch.Groups[4].Value;
                 var args = argumentsToSplit.Split(',');
 
-                _debugs.Add($"Executing {className}:: {methodName} with args: {argumentsToSplit}, pointer: {pointer}");
-                try
+                //if class is not specified, look in _includes
+                if (string.IsNullOrEmpty(className))
                 {
-                    Console.WriteLine(methodName.ToLower());//debug
-                    switch (className.ToLower().Replace(" ", ""))//////////////////////////////////////
+                    className = _includes.FirstOrDefault(kv => kv.Value.Contains(methodName)).Key;
+
+                    if (className == null)
                     {
-                        case "npt": //async.
-                            result = await NptEntitie.Controler(methodName, args.ToList(), pointer, ctx);
-                            break;
-                        case "std": //n. async.
-                            result = STDControler(methodName, args.ToList(), pointer);
-                            break;
-                        case "suni": //async.
-                            result = await SuniEntitie.Controler(methodName, args.ToList(), pointer, ctx);
-                            break;
-                        default:
-                            _debugs.Add($"Failed to execute '{className}': Unknow class");
-                            _outputs.Add($"Failed to execute '{className}': Unknow class");
-                            result = Diagnostics.NotFoundClassException;
-                            break;
+                        _outputs.Add($"Method '{methodName}' not associated with any class in includes.");
+                        return Diagnostics.NotFoundClassException;
                     }
                 }
-                catch (Exception)
+
+                _debugs.Add($"Executing {className}::{methodName} with args: {argumentsToSplit}, pointer: {pointer}");
+
+                //STD is a SPECIAL case
+                if (className == "std")
+                    return STDControler(methodName, args.ToList(), pointer);
+                
+                //normal cases:
+                try
                 {
-                    _outputs.Add($"Failed to execute '{methodName}': invalid args");
-                    result = Diagnostics.InvalidArgsException;
+                    //invoke the Controller of the appropriate class
+                    result = await InvokeClassControler(className, methodName, args.ToList(), pointer, ctx);
+                }
+                catch (Exception ex)
+                {
+                    _outputs.Add($"CRIT: NPT Internal Script Error while executing '{methodName}': {ex.Message}");
+                    result = Diagnostics.UnknowException;
                 }
             }
             else if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line))
             {
                 _debugs.Add("Whitespace line.");
             }
-            else //if its none, UnrecognizedLineException
+            else
             {
                 _outputs.Add($"Unrecognized line: {line}");
                 result = Diagnostics.UnrecognizedLineException;
             }
             return result;
+        }
+
+        private async Task<Diagnostics> InvokeClassControler(string className, string methodName, List<string> args, string pointer, CommandContext ctx)
+        {
+            try
+            {
+                //formalize the class name to the real class name
+                string classNameProper = char.ToUpper(className[0]) + className.Substring(1).ToLower() + "Entitie";
+
+                //dynamically resolve class in namespace
+                Type type = Type.GetType($"Sun.NPT.ScriptInterpreter.{classNameProper}");
+
+                if (type != null)
+                {
+                    //Find the static method `Controler` in
+                    var controlerMethod = type.GetMethod("Controler", BindingFlags.Static | BindingFlags.Public);
+
+                    if (controlerMethod != null)
+                    {
+                        //Invoke the `Controler` method dynamically
+                        var task = (Task<Diagnostics>)controlerMethod.Invoke(null, new object[] { methodName, args, pointer, ctx });
+                        return await task;
+                    }
+                    else
+                    {
+                        _debugs.Add($"Controler method not found in '{classNameProper}'.");
+                        return Diagnostics.NotFoundClassException;
+                    }
+                }
+                else
+                {
+                    _debugs.Add($"Class '{classNameProper}' not found.");
+                    return Diagnostics.NotFoundClassException;
+                }
+            }
+            catch (Exception ex)
+            {
+                _outputs.Add($"Error executing '{className}::{methodName}': {ex.Message}");
+                return Diagnostics.UnknowException;
+            }
         }
 
         //evaluate expressions, like 1 == 1, in if statment

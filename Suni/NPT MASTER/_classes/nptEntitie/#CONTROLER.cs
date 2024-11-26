@@ -47,6 +47,13 @@ namespace Sun.NPT.ScriptInterpreter
             return result;
         }
 
+        //methods of nptentitie
+        public static readonly Dictionary<string, string> Methods = new Dictionary<string, string> {
+            { "log", "npt" },
+            { "react", "npt" },
+            { "ban", "npt" },
+            { "unban", "npt" },
+        };
 
         
         //bans a member
