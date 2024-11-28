@@ -1,74 +1,39 @@
 using DSharpPlus.CommandsNext;
 using System.Collections.Generic;
-using System.Text;
 using Sun.NPT.ScriptInterpreter;
 
 namespace Sun.NPT.ScriptFormalizer
 {
-    public class JoinScript
+    public partial class JoinScript
     {
-        public (List<string>, Diagnostics) JoinHere(string code, CommandContext ctx)
+        public (List<string>, Dictionary<string, List<string>>, List<Dictionary<string, object>>, Diagnostics) JoinHere(string code, CommandContext ctx)
         {
             var (result, resultp) = SetPlaceHolders(code, ctx);
             if (resultp != Diagnostics.Success)
-                return (null, Diagnostics.UnknowException);
+                return (null, null, null, Diagnostics.UnknowException);
             
-            var (formalized, resultf) = Formalizer(result);
+            var (formalized, definitionsBlock, resultf) = Formalizer(result);
             if (resultf != Diagnostics.Success)
-                return (null, Diagnostics.InvalidSyntaxException);
+                return (null, null, null, Diagnostics.InvalidSyntaxException);
+            
+            var (libraries, variables, resultDefsInterp) = InterpretDefinitionsBlock(definitionsBlock);
+            if (resultDefsInterp != Diagnostics.Success)
+                return (null, null, null, Diagnostics.DefinitionsBlockHasAnError);
 
-            return (formalized, Diagnostics.Success);
+            return (formalized, libraries, variables, Diagnostics.Success);
         }
 
-        private (string, Diagnostics) SetPlaceHolders(string script, CommandContext ctx)
-        {
-            //string builder
-            var sb = new StringBuilder(script);
-
-            //possible null values
-            var userNick = ctx.Guild.GetMemberAsync(ctx.Message.Author.Id).Result?.Nickname ?? ctx.Message.Author.Username;
-            var channelFather = ctx.Channel.Parent?.Name ?? "null";
-            var channelFatherId = ctx.Channel.Parent?.Id.ToString() ?? "null"; 
-            var channelFatherName = ctx.Channel.Parent?.Name ?? "null";
-
-            //dict
-            var placeholders = new Dictionary<string, string>
-            {
-                //user
-                { "&{user}", ctx.Message.Author.Username },
-                { "&{userId}", ctx.Message.Author.Id.ToString() },
-                { "&{userMention}", ctx.Message.Author.Mention },
-                { "&{userName}", ctx.Message.Author.Username },
-                { "&{userNick}", userNick },
-
-                //server items
-                { "&{channel}", ctx.Message.Channel.Name },
-                { "&{channelName}", ctx.Message.Channel.Name },
-                { "&{channelId}", ctx.Message.Channel.Id.ToString() },
-                { "&{channelFather}", channelFather },
-                { "&{channelFatherId}", channelFatherId },
-                { "&{channelFatherName}", channelFatherName },
-
-                //guild
-                { "&{guild}", ctx.Guild.Name },
-                { "&{guildId}", ctx.Guild.Id.ToString() },
-                { "&{guildName}", ctx.Guild.Name },
-                { "&{guildMembers}", ctx.Guild.MemberCount.ToString() }
-            };
-
-            //replacing
-            foreach (var placeholder in placeholders)
-                sb.Replace(placeholder.Key, placeholder.Value);
-
-            return (sb.ToString(), Diagnostics.Success);
-        }
-
-        private (List<string>, Diagnostics) Formalizer(string code)
+        private (List<string>, List<string>, Diagnostics) Formalizer(string code)
         {
             //split the lines of script into list
 
             bool isString = false;
+            bool inDefinitionsBlock = false; 
+            //bool hasDefinitionsBlock = false;
+
             List<string> lines = new List<string>();
+            List<string> Deflines = new List<string>();
+
             string currentLine = "";
 
             for (int i = 0; i < code.Length; i++)
@@ -79,6 +44,24 @@ namespace Sun.NPT.ScriptFormalizer
                     isString = !isString;//toggle
                     currentLine += currentChar;
                     continue;
+                }
+                if (!isString && currentChar == '#')
+                {
+                    string keyword = Lookahead(code, i);
+                    if (keyword == "definitions")
+                    {
+                        inDefinitionsBlock = true;
+                        i += keyword.Length;  // Avançar o índice
+                        currentLine = "";  // Limpar linha
+                        continue;
+                    }
+                    else if (keyword == "ends")
+                    {
+                        inDefinitionsBlock = false;
+                        i += keyword.Length;  // Avançar o índice
+                        currentLine = "";  // Limpar linha
+                        continue;
+                    }
                 }
 
                 //comments (--) outside of strings
@@ -91,18 +74,12 @@ namespace Sun.NPT.ScriptFormalizer
                     continue;
                 }
 
-                //split on "." outside of strings
-                if (!isString && currentChar == '.'){
-                    if (!string.IsNullOrWhiteSpace(currentLine)) //add line
-                            lines.Add(currentLine.Trim());
-                    
-                    currentLine = "";
-                    continue;
-                }
-
-                //split on newline "\n" outside of strings
-                if (!isString && currentChar == '\n'){
-                    if (!string.IsNullOrWhiteSpace(currentLine)) //add line
+                //split on newline "\n" or on '.' outside of strings
+                if (!isString && (currentChar == '\n' || currentChar == '.')){
+                    if (!string.IsNullOrWhiteSpace(currentLine)) //add line for definitions or normal code
+                        if (inDefinitionsBlock)
+                            Deflines.Add(currentLine);
+                        else
                             lines.Add(currentLine.Trim());
                     
                     currentLine = "";
@@ -115,12 +92,28 @@ namespace Sun.NPT.ScriptFormalizer
 
             //add any remaining text as the last line
             if (!string.IsNullOrWhiteSpace(currentLine))
+                if (inDefinitionsBlock)
+                    Deflines.Add(currentLine);
+                else
                     lines.Add(currentLine.Trim());
             
             //display (DEBUGGING)
-            System.Console.WriteLine($">\n    ]{string.Join("\n    ]", lines)}\n<");
+            System.Console.WriteLine($"suni instruction\n>\n    ]{string.Join("\n    ]", Deflines)}\n<");
+            System.Console.WriteLine($"suni query\n>\n    ]{string.Join("\n    ]", lines)}\n<");
+
+            //we can just ignore this
+            //if (!hasDefinitionsBlock)
+            //    return (null, Diagnostics.NotFoundDefinitionsBlock);
             
-            return (lines, Diagnostics.Success);
+            return (lines, Deflines, Diagnostics.Success);
+        }
+        //helper method for '#' keywords lookahead or other keywords for Formalizer
+        private string Lookahead(string code, int startIndex)
+        {
+            int endIndex = startIndex + 1;
+            while (endIndex < code.Length && char.IsLetter(code[endIndex]))
+                endIndex++;
+            return code.Substring(startIndex + 1, endIndex - startIndex - 1);
         }
     }
 }

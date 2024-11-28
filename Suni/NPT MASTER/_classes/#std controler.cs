@@ -32,6 +32,12 @@ namespace Sun.NPT.ScriptInterpreter
                 case "outputclean"://std::outputadd() -> null
                     _outputs = new List<string>();
                     break;
+                case "script_variables":
+                    _outputs.Add($">> Variables: {string.Join(", ", _variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
+                    break;
+                case "script_includes":
+                    _outputs.Add($">> Includes: {string.Join("\n   ", _includes.Keys)}");
+                    break;
                 default:
                     return Diagnostics.NotFoundObjectException;
             }

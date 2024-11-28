@@ -7,7 +7,7 @@ namespace Sun.NPT.ScriptInterpreter
         Success, EarlyTermination, RaisedException, NotShowResults,
 
         //pre-check exceptions
-        MissingONLYCASERequirement, CannotSetConstantException,
+        MissingONLYCASERequirement, CannotSetConstantException, DefinitionsBlockHasAnError,
 
         //class/object errors
         NotFoundObjectException, NotFoundClassException, InvalidArgsException,
@@ -16,7 +16,7 @@ namespace Sun.NPT.ScriptInterpreter
         UnrecognizedLineException, InvalidSyntaxException, InvalidKeywordException,
         OutOfRangeException,
 
-        //language errors
+        //language errors (errors because of me)
         UnfinishedFeatureException, UnknowException,
 
         //npt errors

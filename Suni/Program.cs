@@ -20,6 +20,7 @@ namespace Sun.Bot
     public class DotenvItems
     {
         internal readonly string SuniToken;
+        internal readonly string CanaryToken;
         public readonly string BaseUrlApi;
         internal readonly object BaseUrl;
 
@@ -29,6 +30,7 @@ namespace Sun.Bot
             Env.Load();
             //var
             SuniToken = Environment.GetEnvironmentVariable("SUNITOKEN");
+            CanaryToken = Environment.GetEnvironmentVariable("CANARYTOKEN");
             BaseUrlApi = Environment.GetEnvironmentVariable("BASEURLAPI");
             BaseUrl = Environment.GetEnvironmentVariable("BASEURL");
         }
@@ -69,8 +71,8 @@ namespace Sun.Bot
                 EnableDefaultHelp = true
             };
             Commands = SuniClient.UseCommandsNext(commandsConfig); //using configs
-            
             var SlashCommandsConfig = SuniClient.UseSlashCommands();
+            await SlashCommandsConfig.RefreshCommands();
 
             //////MISCELLANEOUS commands
             SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Utilities.Sla>(); //slash
@@ -83,6 +85,7 @@ namespace Sun.Bot
             SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Romance.Sla>(); //slash
 
             //////Minigame commands
+            SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Fun.FunSla>(); //slash
             Commands.RegisterCommands<Sun.Dimensions.Fun.FunPre>(); //prefix
             
             //<EVENTS>//

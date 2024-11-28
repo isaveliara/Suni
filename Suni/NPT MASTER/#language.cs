@@ -15,42 +15,24 @@ namespace Sun.NPT.ScriptInterpreter
         private Dictionary<string, string> _constants = new Dictionary<string, string>();
         private List<string> _debugs = new List<string>();
         private List<string> _outputs = new List<string>();
-        private Dictionary<string, List<string>> _includes = new Dictionary<string, List<string>> {
-            { "std", new List<string>{"outputadd", "outputset", "outputclean"} },
-            { "npt", new List<string>{"log", "react", "ban", "unban"} },
-        };
+        public Dictionary<string, List<string>> _includes { get; private set; }
+        public List<Dictionary<string, object>> _variables { get; private set; }
 
         public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(string script, CommandContext ctx)
         {
             //formalize
-            var (lines, re) = new ScriptFormalizer.JoinScript().JoinHere(script, ctx);
-            if (re != Diagnostics.Success)
-                    return (_debugs, _outputs, re);
+            var (lines, includes, variables, resultFormalization) = new ScriptFormalizer.JoinScript().JoinHere(script, ctx);
+            _includes = includes; //set includes
+            _variables = variables; //set variables
+
+            if (resultFormalization != Diagnostics.Success)
+                    return (_debugs, _outputs, resultFormalization);
 
             //byte indentLevel = 0;
-            bool inDefinitionsBlock = false;
 
             for (int i = 0; i < lines.Count; i++)
             {
                 var line = lines[i];
-
-                if (line == "#definitions"){
-                    inDefinitionsBlock = true;
-                    continue;
-                }else if (line == "#ends")
-                {
-                    inDefinitionsBlock = false;
-                    continue;
-                }
-                //process --definitions-- block
-                else if (inDefinitionsBlock){
-                    var parseDEFINITIONSResult = ParseDefinition(line);
-
-                    if (parseDEFINITIONSResult != Diagnostics.Success)
-                        return (_debugs, _outputs, parseDEFINITIONSResult);
-                    
-                    continue;
-                }   ///process script after #definitions #ends
                 
                 //KEY WORDS DETECTION
                 if (line.StartsWith('@'))
@@ -103,7 +85,11 @@ namespace Sun.NPT.ScriptInterpreter
                 //test if _canExecute line for continue without executing
                 if (!_canExecute) continue;
 
-                //if its not any key-word, execute as object
+                //if its not any key-word, execute as object or something else
+
+                //so replace the variables with their values before executing the line
+                line = ReplaceVariables(line);
+
                 var executedLineResult = await ExecuteLineAsync(line, ctx); //responsable for executing the objects in :: format
                 
                 //exception handler of object execution result
@@ -115,29 +101,23 @@ namespace Sun.NPT.ScriptInterpreter
             return (_debugs, _outputs, Diagnostics.Success);
         }
 
-        //Method responsable for parsing the --definitons-- --end--
-        private Diagnostics ParseDefinition(string line)
+        private string ReplaceVariables(string line)
         {
-            var setKeywordMatch = Regex.Match(line, @"^@set<(\w+),\s*(.*)>$");
-            var onlyCaseKeywordMatch = Regex.Match(line, @"^@onlycase<(.+)>$");
-
-            if (setKeywordMatch.Success)
+            return Regex.Replace(line, @"\${(\w+)}", match =>
             {
-                string variable = setKeywordMatch.Groups[1].Value;
-                string value = setKeywordMatch.Groups[2].Value;
-                _constants[variable] = value;
-                return Diagnostics.Success;
-            }
-            else if (onlyCaseKeywordMatch.Success)
-            {
-                string expression = onlyCaseKeywordMatch.Groups[1].Value;
-                if (!EvaluateExpression(expression))
+                var varName = match.Groups[1].Value;
+                
+                if (_variables.Any(v => v.ContainsKey(varName)))
                 {
-                    return Diagnostics.MissingONLYCASERequirement;
+                    var value = _variables.First(v => v.ContainsKey(varName))[varName];
+                    return value?.ToString() ?? "nil";
                 }
-                return Diagnostics.Success; 
-            }
-            return Diagnostics.UnrecognizedLineException;
+                else
+                {
+                    _debugs.Add($"Warning: Variable '{varName}' not found, returning nil.");
+                    return "nil";
+                }
+            });
         }
 
         //executing line

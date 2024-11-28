@@ -5,6 +5,8 @@ The translation sys. could be here, but I got lazy and decided to wait until squ
 
 using System;
 using System.IO;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
