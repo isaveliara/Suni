@@ -48,7 +48,7 @@ namespace Sun.Bot
             var discordConfig = new DiscordConfiguration()
             {
                 Intents = DiscordIntents.All,
-                Token = new DotenvItems().SuniToken,
+                Token = new DotenvItems().CanaryToken,
                 ShardId = 0,
                 ShardCount = 2,
                 AutoReconnect = true,
@@ -78,7 +78,7 @@ namespace Sun.Bot
             SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Utilities.Sla>(); //slash
             Commands.RegisterCommands<Sun.PrefixCommands.Miscellaneous>(); //prefix
             SlashCommandsConfig.RegisterCommands<Sun.SlashCommands.Miscellaneous>();
-            SlashCommandsConfig.RegisterCommands<Sun.ContextCommands.Miscellaneous>(); //menu context
+            SlashCommandsConfig.RegisterCommands<Sun.ContextCommands.MiscellaneousC>(); //menu context
 
             //////IMAGECOMMANDS commands
             Commands.RegisterCommands<Sun.Dimensions.Romance.Pre>(); //prefix
@@ -108,6 +108,11 @@ namespace Sun.Bot
 
             //connect
             await SuniClient.ConnectAsync();
+
+            var commands = await SuniClient.GetGlobalApplicationCommandsAsync();
+            foreach (var command in commands)
+                Console.WriteLine($"Command: {command.Name} | Type: {command.Type} | ID: {command.Id}");
+
             await Task.Delay(-1);
         }
 

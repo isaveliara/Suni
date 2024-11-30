@@ -9,7 +9,7 @@ using Sun.Functions;
 
 namespace Sun.ContextCommands
 {
-    public partial class Miscellaneous : ApplicationCommandModule
+    public partial class MiscellaneousC : ApplicationCommandModule
     {
         /*
         [ContextMenu(ApplicationCommandType.MessageContextMenu, "testONc")]

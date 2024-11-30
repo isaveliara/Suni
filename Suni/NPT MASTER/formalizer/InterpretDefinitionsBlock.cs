@@ -22,9 +22,9 @@ namespace Sun.NPT.ScriptFormalizer
                 string currentLine = lines[i].Trim();
 
                 //process "include" statements
-                if (currentLine.StartsWith("include"))
+                if (currentLine.StartsWith("~include"))
                 {
-                    var includeName = currentLine.Substring(8).Trim();
+                    var includeName = currentLine.Substring(9).Trim();
                     //DEBUG:
                     System.Console.WriteLine(includeName + " included by line: " + currentLine);
                     if (!string.IsNullOrWhiteSpace(includeName) && !includes.ContainsKey(includeName))
@@ -40,10 +40,10 @@ namespace Sun.NPT.ScriptFormalizer
                 }
 
                 //process "set" statements for variables
-                if (currentLine.StartsWith("set"))
+                if (currentLine.StartsWith("~set"))
                 {
                     //example: set __version__ "1.0.0ret"
-                    var parts = currentLine.Substring("set".Length).Trim().Split(new char[] { ' ' }, 2);
+                    var parts = currentLine.Substring("~set".Length).Trim().Split([' '], 2);
                     if (parts.Length == 2)
                     {
                         string variableName = parts[0].Trim();

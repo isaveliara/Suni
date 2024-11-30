@@ -56,10 +56,10 @@ namespace Sun.NPT.ScriptInterpreter
                     if (keyWordName.StartsWith("goto>>")){
                         if (int.TryParse(keyWordName.Substring(6), out int targetLineIndex))
                         {
-                            if (targetLineIndex >= 0 && targetLineIndex < lines.Count)
+                            if (targetLineIndex >= 1 && targetLineIndex-1 < lines.Count)
                             {
-                                lines.RemoveAt(i); //remove the goto line to avoid infinite loop
-                                i = targetLineIndex - 1;
+                                lines[i] = "";//RemoveAt(i); //remove the goto line to avoid infinite loop
+                                i = targetLineIndex-2;
                                 continue;
                             }
                             else
@@ -229,22 +229,5 @@ namespace Sun.NPT.ScriptInterpreter
                 return false;
             }
         }
-
-        //search for a @get<varname> value
-        private string GetConstant(string varname)
-        {
-            return _constants.ContainsKey(varname) ? _constants[varname] : null;
-        }
     }
 }
-
-//test
-
-//string script = @"
-//    --definitions--
-//    @set<ban_duration, '27days'>
-//    --end--
-//
-//    npt::BanAsync(@get<ban_duration>, 'Fez alguma coisa') -> 12345678910
-//    sys::Object('arg1', 'arg2', 99) -> Pointer
-//    ";

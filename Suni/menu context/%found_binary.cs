@@ -7,7 +7,7 @@ using DSharpPlus.SlashCommands;
 
 namespace Sun.ContextCommands
 {
-    public partial class Miscellaneous : ApplicationCommandModule
+    public partial class MiscellaneousC : ApplicationCommandModule
     {
         
         [ContextMenu(ApplicationCommandType.MessageContextMenu, "found Binary Code")]

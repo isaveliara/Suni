@@ -99,7 +99,7 @@ namespace Sun.NPT.ScriptFormalizer
             
             //display (DEBUGGING)
             System.Console.WriteLine($"suni instruction\n>\n    ]{string.Join("\n    ]", Deflines)}\n<");
-            System.Console.WriteLine($"suni query\n>\n    ]{string.Join("\n    ]", lines)}\n<");
+            System.Console.WriteLine($"suni query\n>\n    ]{string.Join("\n    ]", lines)}\n<\n");
 
             //we can just ignore this
             //if (!hasDefinitionsBlock)
