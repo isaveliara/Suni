@@ -14,9 +14,9 @@ namespace Sun.NPT.ScriptFormalizer
 
             //possible null values
             var userNick = ctx.Guild.GetMemberAsync(ctx.Message.Author.Id).Result?.Nickname ?? ctx.Message.Author.Username;
-            var channelFather = ctx.Channel.Parent?.Name ?? "null";
-            var channelFatherId = ctx.Channel.Parent?.Id.ToString() ?? "null"; 
-            var channelFatherName = ctx.Channel.Parent?.Name ?? "null";
+            var channelFather = ctx.Channel.Parent?.Name ?? "nil";
+            var channelFatherId = ctx.Channel.Parent?.Id.ToString() ?? "nil"; 
+            var channelFatherName = ctx.Channel.Parent?.Name ?? "nil";
 
             //dict
             var placeholders = new Dictionary<string, string>

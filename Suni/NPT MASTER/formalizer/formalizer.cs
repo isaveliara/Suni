@@ -47,7 +47,7 @@ namespace Sun.NPT.ScriptFormalizer
                 }
                 if (!isString && currentChar == '#')
                 {
-                    string keyword = Lookahead(code, i);
+                    string keyword = Help.keywordLookahead(code, i);
                     if (keyword == "definitions")
                     {
                         inDefinitionsBlock = true;
@@ -106,14 +106,6 @@ namespace Sun.NPT.ScriptFormalizer
             //    return (null, Diagnostics.NotFoundDefinitionsBlock);
             
             return (lines, Deflines, Diagnostics.Success);
-        }
-        //helper method for '#' keywords lookahead or other keywords for Formalizer
-        private string Lookahead(string code, int startIndex)
-        {
-            int endIndex = startIndex + 1;
-            while (endIndex < code.Length && char.IsLetter(code[endIndex]))
-                endIndex++;
-            return code.Substring(startIndex + 1, endIndex - startIndex - 1);
         }
     }
 }

@@ -37,24 +37,23 @@ namespace Sun.NPT.ScriptInterpreter
                 //KEY WORDS DETECTION
                 if (line.StartsWith('@'))
                 {
-                    var keyWordName = line.Substring(1);
+                    var keyWordName = Help.keywordLookahead(line, 0);
 
                     //toggle _canExecute
-                    if (keyWordName=="disableExe"){
-                        _canExecute = false;
-                        continue;
-                    }
-                    else if (keyWordName=="enableExe"){
-                        _canExecute = true;
-                        continue;
+                    switch (keyWordName)
+                    {
+                        case "disableExe":
+                            _canExecute = false;
+                            continue;
+                        case "enableExe":
+                            _canExecute = true;
+                            continue;
                     }
                     if (!_canExecute) continue;
 
-                    //now, we skip if _canExecute is false.
-
-                    //instructions keywords (>>)
-                    if (keyWordName.StartsWith("goto>>")){
-                        if (int.TryParse(keyWordName.Substring(6), out int targetLineIndex))
+                    //instructions keywords
+                    if (keyWordName.StartsWith("goto")){
+                        if (int.TryParse(keyWordName.Substring(4), out int targetLineIndex))
                         {
                             if (targetLineIndex >= 1 && targetLineIndex-1 < lines.Count)
                             {
@@ -69,7 +68,7 @@ namespace Sun.NPT.ScriptInterpreter
                             return(_debugs, _outputs, Diagnostics.OutOfRangeException); //invalid line index
                     }
 
-                    //other
+                    //other keywords, that can be influenced by _canExecute
                     switch (keyWordName)
                     {
                         case "kit":
