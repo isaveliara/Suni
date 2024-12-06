@@ -51,7 +51,7 @@ namespace Sun.NPT.ScriptFormalizer
                         if (result != Diagnostics.Success)
                             return (null, null, result); //error
 
-                        //add the variable with its typed value
+                        //add the variable with typed value
                         variables.Add(new Dictionary<string, NptSystem.NptType> { { variableName, typedValue } });
                         System.Console.WriteLine($"Variable '{variableName}' set with type '{typedValue.Type}' and value '{typedValue.Value}'");
                     }

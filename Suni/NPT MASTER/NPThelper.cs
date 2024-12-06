@@ -18,8 +18,10 @@ namespace Sun.NPT.ScriptInterpreter
         //helper method for get the type of something
         public static (Diagnostics, NptType) GetType(string value)
         {
-            //null (nil)
-            if (value.Trim() == "nil")
+            value = value.Trim();
+
+            // null (nil)
+            if (value == "nil")
                 return (Diagnostics.Success, new NptType(Types.Nil, null));
 
             //bool
@@ -39,19 +41,19 @@ namespace Sun.NPT.ScriptInterpreter
             {
                 if (value.Length != 4)
                     return (Diagnostics.OutOfRangeException, new NptType(Types.Nil, null));
-                return (Diagnostics.Success, new NptType(Types.Char, value[1]));
+                return (Diagnostics.Success, new NptType(Types.Char, value[2]));
             }
 
             //string
             if (value.StartsWith("s'") && value.EndsWith("'"))
-                return (Diagnostics.Success, new NptType(Types.Str, value.Substring(2, value.Length - 2)));
+                return (Diagnostics.Success, new NptType(Types.Str, value.Substring(2, value.Length - 3)));
 
             //tuple (simple)
             if (value.StartsWith("(") && value.EndsWith(")"))
             {
                 var items = value.Substring(1, value.Length - 2)
                                 .Split(',')
-                                .Select(item => GetType(item.Trim()).Item2.Value)
+                                .Select(item => GetType(item.Trim(' ', '\'')).Item2.Value)
                                 .ToList();
                 return (Diagnostics.Success, new NptType(Types.Tuple, items));
             }
@@ -61,7 +63,7 @@ namespace Sun.NPT.ScriptInterpreter
             {
                 var items = value.Substring(1, value.Length - 2)
                                 .Split(',')
-                                .Select(item => GetType(item.Trim()).Item2.Value)
+                                .Select(item => GetType(item.Trim(' ', '\'')).Item2.Value)
                                 .ToList();
                 return (Diagnostics.Success, new NptType(Types.List, items));
             }
@@ -70,21 +72,21 @@ namespace Sun.NPT.ScriptInterpreter
             if (value.StartsWith("{") && value.EndsWith("}"))
             {
                 var pairs = value.Substring(1, value.Length - 2)
-                                 .Split(',')
-                                 .Select(pair =>
-                                 {
-                                     var parts = pair.Split(':');
-                                     return new KeyValuePair<object, object>(
-                                         GetType(parts[0].Trim()).Item2.Value,
-                                         GetType(parts[1].Trim()).Item2.Value
-                                     );
-                                 })
-                                 .ToDictionary(kv => kv.Key, kv => kv.Value);
+                                .Split(',')
+                                .Select(pair =>
+                                {
+                                    var parts = pair.Split(':');
+                                    return new KeyValuePair<object, object>(
+                                        GetType(parts[0].Trim(' ', '\'')).Item2.Value,
+                                        GetType(parts[1].Trim(' ', '\'')).Item2.Value
+                                    );
+                                })
+                                .ToDictionary(kv => kv.Key, kv => kv.Value);
 
                 return (Diagnostics.Success, new NptType(Types.Dict, pairs));
             }
 
-            //default: str
+            //unknow
             return (Diagnostics.UnknowTypeException, null);
         }
     }

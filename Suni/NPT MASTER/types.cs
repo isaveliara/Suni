@@ -32,12 +32,12 @@ namespace Sun.NPT.ScriptInterpreter
                     Types.Bi => Value.ToString()?.ToLower(),
                     Types.Int => Value.ToString(),
                     Types.Flt => Value.ToString(),
-                    Types.Str => $"s'{Value}'",
-                    Types.Char => $"c'{Value}'",
+                    Types.Str => $"{Value}",
+                    Types.Char => $"{Value}",
                     Types.Fn => "<function>", //xd, ignore (TODO)
-                    Types.Tuple => $"({Value})",
-                    Types.List => $"[{string.Join(", ", (Value as List<object>) ?? new List<object>())}]",
-                    Types.Dict => $"{{{string.Join(", ", (Value as Dictionary<object, object>)?.Select(kv => $"{kv.Key}: {kv.Value}") ?? new string[0])}}}",
+                    Types.Tuple => $"{Value}",
+                    Types.List => $"{string.Join(", ", (Value as List<object>) ?? new List<object>())}",
+                    Types.Dict => $"{string.Join(", ", (Value as Dictionary<object, object>)?.Select(kv => $"{kv.Key}: {kv.Value}") ?? new string[0])}",
                     _ => Value?.ToString() ?? "unknown"
                 };
             }
