@@ -6,9 +6,6 @@ namespace Sun.NPT.ScriptInterpreter
         //simple
         Success, EarlyTermination, RaisedException,
 
-        //pre-check exceptions
-        DefinitionsBlockHasAnError,
-
         //logic errors
         DivisionByZeroException,
 
@@ -16,10 +13,11 @@ namespace Sun.NPT.ScriptInterpreter
         NotFoundObjectException, NotFoundClassException, InvalidArgsException,
 
         //syntax errors
-        UnrecognizedLineException, InvalidSyntaxException, InvalidKeywordException,
+        UnrecognizedLineException, InvalidKeywordException,
         OutOfRangeException,
         
-        MalformedIFExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation,
+        //evaluate errors
+        MalformedIFExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation, InvalidIFOperator,
 
         //language errors (errors because of me)
         UnknowException,
@@ -27,5 +25,6 @@ namespace Sun.NPT.ScriptInterpreter
         //npt errors
         NPTInvalidChannelException, NPTMissingPermissionsException, NPTDeniedException,
         NPTInvalidMessageException, NPTInvalidUserException,
+        UnknowTypeException,
     }
 }

@@ -10,15 +10,15 @@ namespace Sun.NPT.ScriptFormalizer
         {
             var (result, resultp) = SetPlaceHolders(code, ctx);
             if (resultp != Diagnostics.Success)
-                return (null, null, null, Diagnostics.UnknowException);
+                return (null, null, null, resultp);
             
             var (formalized, definitionsBlock, resultf) = Formalizer(result);
             if (resultf != Diagnostics.Success)
-                return (null, null, null, Diagnostics.InvalidSyntaxException);
+                return (null, null, null, resultf);
             
             var (libraries, variables, resultDefsInterp) = InterpretDefinitionsBlock(definitionsBlock);
             if (resultDefsInterp != Diagnostics.Success)
-                return (null, null, null, Diagnostics.DefinitionsBlockHasAnError);
+                return (null, null, null, resultDefsInterp);
 
             return (formalized, libraries, variables, Diagnostics.Success);
         }

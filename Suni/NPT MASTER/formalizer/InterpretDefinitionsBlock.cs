@@ -47,7 +47,9 @@ namespace Sun.NPT.ScriptFormalizer
                     if (parts.Length == 2)
                     {
                         string variableName = parts[0].Trim();
-                        var typedValue = Help.GetType(parts[1]);
+                        var (result, typedValue) = Help.GetType(parts[1]);
+                        if (result != Diagnostics.Success)
+                            return (null, null, result); //error
 
                         //add the variable with its typed value
                         variables.Add(new Dictionary<string, NptSystem.NptType> { { variableName, typedValue } });

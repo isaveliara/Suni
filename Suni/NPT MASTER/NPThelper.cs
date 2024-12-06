@@ -16,40 +16,44 @@ namespace Sun.NPT.ScriptInterpreter
         }
 
         //helper method for get the type of something
-        public static NptType GetType(string value)
+        public static (Diagnostics, NptType) GetType(string value)
         {
             //null (nil)
             if (value.Trim() == "nil")
-                return new NptType(Types.Nil, null);
+                return (Diagnostics.Success, new NptType(Types.Nil, null));
 
             //bool
             if (bool.TryParse(value, out bool boolValue))
-                return new NptType(Types.Bi, boolValue);
+                return (Diagnostics.Success, new NptType(Types.Bi, boolValue));
 
             //int
             if (int.TryParse(value, out int intValue))
-                return new NptType(Types.Int, intValue);
+                return (Diagnostics.Success, new NptType(Types.Int, intValue));
 
             //double/float
             if (float.TryParse(value, out float floatValue))
-                return new NptType(Types.Flt, floatValue);
+                return (Diagnostics.Success, new NptType(Types.Flt, floatValue));
 
             //char
-            if (value.Length == 3 && value.StartsWith("'") && value.EndsWith("'"))
-                return new NptType(Types.Char, value[1]);
+            if (value.StartsWith("c'") && value.EndsWith("'"))
+            {
+                if (value.Length != 4)
+                    return (Diagnostics.OutOfRangeException, new NptType(Types.Nil, null));
+                return (Diagnostics.Success, new NptType(Types.Char, value[1]));
+            }
 
             //string
-            if (value.StartsWith("\"") && value.EndsWith("\""))
-                return new NptType(Types.Str, value.Substring(1, value.Length - 2));
+            if (value.StartsWith("s'") && value.EndsWith("'"))
+                return (Diagnostics.Success, new NptType(Types.Str, value.Substring(2, value.Length - 2)));
 
             //tuple (simple)
             if (value.StartsWith("(") && value.EndsWith(")"))
             {
                 var items = value.Substring(1, value.Length - 2)
                                 .Split(',')
-                                .Select(item => GetType(item.Trim()).Value)
+                                .Select(item => GetType(item.Trim()).Item2.Value)
                                 .ToList();
-                return new NptType(Types.Tuple, items);
+                return (Diagnostics.Success, new NptType(Types.Tuple, items));
             }
 
             //list (simple)
@@ -57,9 +61,9 @@ namespace Sun.NPT.ScriptInterpreter
             {
                 var items = value.Substring(1, value.Length - 2)
                                 .Split(',')
-                                .Select(item => GetType(item.Trim()).Value)
+                                .Select(item => GetType(item.Trim()).Item2.Value)
                                 .ToList();
-                return new NptType(Types.List, items);
+                return (Diagnostics.Success, new NptType(Types.List, items));
             }
 
             //dict (simple)
@@ -71,17 +75,17 @@ namespace Sun.NPT.ScriptInterpreter
                                  {
                                      var parts = pair.Split(':');
                                      return new KeyValuePair<object, object>(
-                                         GetType(parts[0].Trim()).Value,
-                                         GetType(parts[1].Trim()).Value
+                                         GetType(parts[0].Trim()).Item2.Value,
+                                         GetType(parts[1].Trim()).Item2.Value
                                      );
                                  })
                                  .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-                return new NptType(Types.Dict, pairs);
+                return (Diagnostics.Success, new NptType(Types.Dict, pairs));
             }
 
             //default: str
-            return new NptType(Types.Str, value);
+            return (Diagnostics.UnknowTypeException, null);
         }
     }
 }

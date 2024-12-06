@@ -32,7 +32,7 @@ namespace Sun.NPT.ScriptInterpreter
                     Types.Bi => Value.ToString()?.ToLower(),
                     Types.Int => Value.ToString(),
                     Types.Flt => Value.ToString(),
-                    Types.Str => $"'{Value}'",
+                    Types.Str => $"s'{Value}'",
                     Types.Char => $"c'{Value}'",
                     Types.Fn => "<function>", //xd, ignore (TODO)
                     Types.Tuple => $"({Value})",
