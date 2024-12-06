@@ -6,15 +6,15 @@ namespace Sun.NPT.ScriptFormalizer
 {
     public partial class JoinScript
     {
-        internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, object>> variables, Diagnostics) InterpretDefinitionsBlock(List<string> lines)
+        internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, NptSystem.NptType>> variables, Diagnostics) InterpretDefinitionsBlock(List<string> lines)
         {
             //(default)
             var includes = new Dictionary<string, List<string>>{
                 { "npt", new List<string>{"log", "ban", "unban", "react"} },
             };
-            var variables = new List<Dictionary<string, object>>{
-                new Dictionary<string, object> { {"__version__", "suninstruction_1.0.0"} },
-                new Dictionary<string, object> { {"__time__", System.DateTime.Now}}
+            var variables = new List<Dictionary<string, NptSystem.NptType>>{
+                new Dictionary<string, NptSystem.NptType> { { "__version__", new NptSystem.NptType(NptSystem.Types.Str, "suninstruction_1.0.1a") } },
+                new Dictionary<string, NptSystem.NptType> { { "__time__", new NptSystem.NptType(NptSystem.Types.Str, System.DateTime.Now.ToString()) } }
             };
 
             for (int i = 0; i < lines.Count; i++)
@@ -31,7 +31,7 @@ namespace Sun.NPT.ScriptFormalizer
                         switch (includeName) //TODO: get dinamically the methods of the libraries
                         {
                             case "std":
-                                includes[includeName] = new List<string> { "outputadd", "outputset", "outputclean", "script_variables", "script_includes" };
+                                includes[includeName] = new List<string> { "nout", "noutset", "ncls", "list_var", "list_libs" };
                                 break;
                             default:
                                 includes[includeName] = new List<string>(); //add the include to the dictionary
@@ -42,16 +42,16 @@ namespace Sun.NPT.ScriptFormalizer
                 //process "set" statements for variables
                 if (currentLine.StartsWith("~set"))
                 {
-                    //example: set __version__ "1.0.0ret"
-                    var parts = currentLine.Substring("~set".Length).Trim().Split([' '], 2);
+                    var parts = currentLine.Substring(4).Trim().Split(' ', 2);
+
                     if (parts.Length == 2)
                     {
                         string variableName = parts[0].Trim();
-                        string value = parts[1].Trim(' ', '"'); //remove any surrounding quotes
+                        var typedValue = Help.GetType(parts[1]);
 
-                        //save the variable into the dictionary
-                        variables.Add(new Dictionary<string, object> { { variableName, value } });
-                        System.Console.WriteLine($"type of var '{variableName}' is {value.GetType()} - (value '{value}')");
+                        //add the variable with its typed value
+                        variables.Add(new Dictionary<string, NptSystem.NptType> { { variableName, typedValue } });
+                        System.Console.WriteLine($"Variable '{variableName}' set with type '{typedValue.Type}' and value '{typedValue.Value}'");
                     }
                 }
             }

@@ -4,10 +4,13 @@ namespace Sun.NPT.ScriptInterpreter
     public enum Diagnostics
     {
         //simple
-        Success, EarlyTermination, RaisedException, NotShowResults,
+        Success, EarlyTermination, RaisedException,
 
         //pre-check exceptions
-        MissingONLYCASERequirement, CannotSetConstantException, DefinitionsBlockHasAnError,
+        DefinitionsBlockHasAnError,
+
+        //logic errors
+        DivisionByZeroException,
 
         //class/object errors
         NotFoundObjectException, NotFoundClassException, InvalidArgsException,
@@ -15,9 +18,11 @@ namespace Sun.NPT.ScriptInterpreter
         //syntax errors
         UnrecognizedLineException, InvalidSyntaxException, InvalidKeywordException,
         OutOfRangeException,
+        
+        MalformedIFExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation,
 
         //language errors (errors because of me)
-        UnfinishedFeatureException, UnknowException,
+        UnknowException,
 
         //npt errors
         NPTInvalidChannelException, NPTMissingPermissionsException, NPTDeniedException,

@@ -6,7 +6,7 @@ namespace Sun.NPT.ScriptFormalizer
 {
     public partial class JoinScript
     {
-        public (List<string>, Dictionary<string, List<string>>, List<Dictionary<string, object>>, Diagnostics) JoinHere(string code, CommandContext ctx)
+        public (List<string>, Dictionary<string, List<string>>, List<Dictionary<string, NptSystem.NptType>>, Diagnostics) JoinHere(string code, CommandContext ctx)
         {
             var (result, resultp) = SetPlaceHolders(code, ctx);
             if (resultp != Diagnostics.Success)

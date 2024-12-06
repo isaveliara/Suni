@@ -41,6 +41,9 @@ namespace Sun.Bot
         public static DiscordClient SuniClient { get; private set; }
         public static CommandsNextExtension Commands { get; private set; }
         public static int Fun { get; private set; }
+        public static int TimerRepeats { get; private set; } = 0;
+        //public static int Err { get; private set; }
+        //public static int ErrCommands { get; private set; }
 
         static async Task Main()
         {
@@ -118,7 +121,7 @@ namespace Sun.Bot
 
         private static void ExecuteTask(object state)
         {
-            Console.WriteLine("task! - Executed at " + DateTime.Now);
+            Console.WriteLine($"task! ({TimerRepeats++}) - Executed at " + DateTime.Now);
         }
 
         private static Task Client_Ready(DiscordClient sender, ReadyEventArgs args)

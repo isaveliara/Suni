@@ -16,26 +16,26 @@ using System.Linq;
 namespace Sun.NPT.ScriptInterpreter
 {
     //class for parser and execution
-    public partial class ScriptParser
+    public partial class NptSystem
     {
         //objects that interact with the class itself
         public Diagnostics STDControler(string method, List<string> args, string pointer)
         {
             switch (method)
             {
-                case "outputadd": //std::outputadd() -> hello world
+                case "nout": //std::nout() -> hello world
                     _outputs.Add(pointer);
                     break;
-                case "outputset": //std::outputset() -> hello world
+                case "noutset": //std::noutset() -> hello world
                     _outputs = new List<string>{pointer};
                     break;
-                case "outputclean"://std::outputadd() -> null
+                case "ncls"://std::ncls() -> null
                     _outputs = new List<string>();
                     break;
-                case "script_variables":
+                case "list_var"://std::list_var() -> nil
                     _outputs.Add($">> Variables: {string.Join(", ", _variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
                     break;
-                case "script_includes":
+                case "list_libs"://std::list_libs() -> nil
                     _outputs.Add($">> Includes: {string.Join("\n   ", _includes.Keys)}");
                     break;
                 default:

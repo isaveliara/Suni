@@ -9,14 +9,14 @@ using System.Reflection;
 namespace Sun.NPT.ScriptInterpreter
 {
     //class for parser and execution
-    public partial class ScriptParser
+    public partial class NptSystem
     {
         bool _canExecute = true;
-        private Dictionary<string, string> _constants = new Dictionary<string, string>();
+        public byte _indentLevel { get; private set; }
         private List<string> _debugs = new List<string>();
         private List<string> _outputs = new List<string>();
         public Dictionary<string, List<string>> _includes { get; private set; }
-        public List<Dictionary<string, object>> _variables { get; private set; }
+        public List<Dictionary<string, NptType>> _variables { get; private set; }
 
         public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(string script, CommandContext ctx)
         {
@@ -33,7 +33,7 @@ namespace Sun.NPT.ScriptInterpreter
             for (int i = 0; i < lines.Count; i++)
             {
                 var line = lines[i];
-                
+
                 //KEY WORDS DETECTION
                 if (line.StartsWith('@'))
                 {
@@ -85,12 +85,10 @@ namespace Sun.NPT.ScriptInterpreter
                 if (!_canExecute) continue;
 
                 //if its not any key-word, execute as object or something else
-
                 //so replace the variables with their values before executing the line
                 line = ReplaceVariables(line);
 
                 var executedLineResult = await ExecuteLineAsync(line, ctx); //responsable for executing the objects in :: format
-                
                 //exception handler of object execution result
                 if (executedLineResult != Diagnostics.Success)
                     return (_debugs, _outputs, executedLineResult); //implement inf.
@@ -106,13 +104,11 @@ namespace Sun.NPT.ScriptInterpreter
             {
                 var varName = match.Groups[1].Value;
                 
-                if (_variables.Any(v => v.ContainsKey(varName)))
-                {
+                if (_variables.Any(v => v.ContainsKey(varName))){
                     var value = _variables.First(v => v.ContainsKey(varName))[varName];
                     return value?.ToString() ?? "nil";
                 }
-                else
-                {
+                else{
                     _debugs.Add($"Warning: Variable '{varName}' not found, returning nil.");
                     return "nil";
                 }
@@ -122,53 +118,27 @@ namespace Sun.NPT.ScriptInterpreter
         //executing line
         private async Task<Diagnostics> ExecuteLineAsync(string line, CommandContext ctx)
         {
-            var objMatch = Regex.Match(line, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(\w+)");
             Diagnostics result = Diagnostics.Success;
 
+            //objects statement
+            var objMatch = Regex.Match(line, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(.+)");
+
+            var ifMatch = Regex.Match(line, @"if\s*\(([^)]+)\)\s*", RegexOptions.IgnoreCase);
             if (objMatch.Success)
+                result = await ExecuteObjectStatementAsync(objMatch, ctx);
+
+            //if statement
+            else if (ifMatch.Success)
             {
-                string className = objMatch.Groups[1].Success ? objMatch.Groups[1].Value : null;
-                string methodName = objMatch.Groups[2].Value;
-                string argumentsToSplit = objMatch.Groups[3].Value;
-                string pointer = objMatch.Groups[4].Value;
-                var args = argumentsToSplit.Split(',');
-
-                //if class is not specified, look in _includes
-                if (string.IsNullOrEmpty(className))
-                {
-                    className = _includes.FirstOrDefault(kv => kv.Value.Contains(methodName)).Key;
-
-                    if (className == null)
-                    {
-                        _outputs.Add($"Method '{methodName}' not associated with any class in includes.");
-                        return Diagnostics.NotFoundClassException;
-                    }
-                }
-
-                _debugs.Add($"Executing {className}::{methodName} with args: {argumentsToSplit}, pointer: {pointer}");
-
-                //STD is a SPECIAL case
-                if (className == "std")
-                    return STDControler(methodName, args.ToList(), pointer);
-                
-                //normal cases:
-                try
-                {
-                    //invoke the Controller of the appropriate class
-                    result = await InvokeClassControler(className, methodName, args.ToList(), pointer, ctx);
-                }
-                catch (Exception ex)
-                {
-                    _outputs.Add($"CRIT: NPT Internal Script Error while executing '{methodName}': {ex.Message}");
-                    result = Diagnostics.UnknowException;
-                }
+                string condition = ifMatch.Groups[1].Value;
+                bool conditionResult = NptStatements.EvaluateIFExpression(condition).Item2;
+                _debugs.Add($"the condition '{condition}' is {conditionResult}");
             }
+
             else if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line))
-            {
                 _debugs.Add("Whitespace line.");
-            }
-            else
-            {
+            
+            else{
                 _outputs.Add($"Unrecognized line: {line}");
                 result = Diagnostics.UnrecognizedLineException;
             }
@@ -177,23 +147,20 @@ namespace Sun.NPT.ScriptInterpreter
 
         private async Task<Diagnostics> InvokeClassControler(string className, string methodName, List<string> args, string pointer, CommandContext ctx)
         {
-            try
-            {
+            try{
                 //formalize the class name to the real class name
                 string classNameProper = char.ToUpper(className[0]) + className.Substring(1).ToLower() + "Entitie";
 
                 //dynamically resolve class in namespace
                 Type type = Type.GetType($"Sun.NPT.ScriptInterpreter.{classNameProper}");
 
-                if (type != null)
-                {
+                if (type != null){
                     //Find the static method `Controler` in
                     var controlerMethod = type.GetMethod("Controler", BindingFlags.Static | BindingFlags.Public);
 
-                    if (controlerMethod != null)
-                    {
+                    if (controlerMethod != null){
                         //Invoke the `Controler` method dynamically
-                        var task = (Task<Diagnostics>)controlerMethod.Invoke(null, new object[] { methodName, args, pointer, ctx });
+                        var task = (Task<Diagnostics>)controlerMethod.Invoke(null, [methodName, args, pointer, ctx]);
                         return await task;
                     }
                     else
@@ -202,8 +169,7 @@ namespace Sun.NPT.ScriptInterpreter
                         return Diagnostics.NotFoundClassException;
                     }
                 }
-                else
-                {
+                else{
                     _debugs.Add($"Class '{classNameProper}' not found.");
                     return Diagnostics.NotFoundClassException;
                 }
@@ -212,20 +178,6 @@ namespace Sun.NPT.ScriptInterpreter
             {
                 _outputs.Add($"Error executing '{className}::{methodName}': {ex.Message}");
                 return Diagnostics.UnknowException;
-            }
-        }
-
-        //evaluate expressions, like 1 == 1, in if statment
-        private bool EvaluateExpression(string expression)
-        {
-            ///TODO: implement
-            try
-            {
-                return true;
-            }
-            catch
-            {
-                return false;
             }
         }
     }
