@@ -7,8 +7,8 @@ namespace Sun.NPT.ScriptInterpreter
     {
         public enum Types
         {
-            Nil, Bi,
-            Int, Flt, Tuple,
+            Nil, Bool,
+            Int, Float, Tuple,
             Str, Fn, Char,
             List, Dict,
         }
@@ -29,9 +29,9 @@ namespace Sun.NPT.ScriptInterpreter
                 return Type switch
                 {
                     Types.Nil => "nil",
-                    Types.Bi => Value.ToString()?.ToLower(),
+                    Types.Bool => $"{Value}",
                     Types.Int => Value.ToString(),
-                    Types.Flt => Value.ToString(),
+                    Types.Float => Value.ToString(),
                     Types.Str => $"{Value}",
                     Types.Char => $"{Value}",
                     Types.Fn => "<function>", //xd, ignore (TODO)

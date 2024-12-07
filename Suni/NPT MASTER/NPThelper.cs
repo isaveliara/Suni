@@ -25,8 +25,8 @@ namespace Sun.NPT.ScriptInterpreter
                 return (Diagnostics.Success, new NptType(Types.Nil, null));
 
             //bool
-            if (bool.TryParse(value, out bool boolValue))
-                return (Diagnostics.Success, new NptType(Types.Bi, boolValue));
+            if (value == "true" || value == "false")
+                return (Diagnostics.Success, new NptType(Types.Bool, value));
 
             //int
             if (int.TryParse(value, out int intValue))
@@ -34,7 +34,7 @@ namespace Sun.NPT.ScriptInterpreter
 
             //double/float
             if (float.TryParse(value, out float floatValue))
-                return (Diagnostics.Success, new NptType(Types.Flt, floatValue));
+                return (Diagnostics.Success, new NptType(Types.Float, floatValue));
 
             //char
             if (value.StartsWith("c'") && value.EndsWith("'"))
