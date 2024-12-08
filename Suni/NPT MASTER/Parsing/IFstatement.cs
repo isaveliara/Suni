@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Sun.NPT.ScriptInterpreter
 {
-    class NptStatements
+    partial class NptStatements
     {
         public static (Diagnostics, bool) EvaluateIFExpression(string expression)
         {
@@ -121,13 +121,13 @@ namespace Sun.NPT.ScriptInterpreter
                         break;
                     
                     //concat operators
-                    case "++":
+                    case "+&":
                         if (a is int && b is int)
                             stackValues.Push(int.Parse($"{a}{b}"));
                         else
                             stackValues.Push((string)a + (string)b);
                         break;
-                    case "--":
+                    case "-&":
                         if (a is string && b is int)
                         {
                             string str = (string)a;
@@ -143,7 +143,7 @@ namespace Sun.NPT.ScriptInterpreter
 
         private static string[] Tokenize(string expression)
         {
-            string pattern = @"(s\'[^']*\'|c\'[^\']\'|\[|\]|\|\||&&|==|~=|>=|<=|>|<|!|\+\+|--|\+|\-|\*|\/|\s+)";
+            string pattern = @"(s\'[^']*\'|c\'[^\']\'|\[|\]|\|\||&&|==|~=|>=|<=|>|<|!|\+\&|-\&|\+|\-|\*|\/|\s+)";
             return Regex.Split(expression, pattern)
                         .Where(token => !string.IsNullOrWhiteSpace(token))
                         .ToArray();
@@ -156,7 +156,7 @@ namespace Sun.NPT.ScriptInterpreter
                 "[" => 4,
                 "!" => 3,
                 "*" or "/" => 2,
-                "+" or "-" or "--" or "++" => 1,
+                "+" or "-" or "-&" or "+&" => 1,
                 "&&" => 0,
                 "||" => -1,
                 _ => -2
@@ -165,7 +165,7 @@ namespace Sun.NPT.ScriptInterpreter
 
         private static bool IsIFOperator(string token)
         {
-            return new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "--", "++" }
+            return new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "-&", "+&" }
                 .Contains(token);
         }
 

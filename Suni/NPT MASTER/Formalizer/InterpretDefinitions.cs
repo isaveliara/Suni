@@ -13,7 +13,7 @@ namespace Sun.NPT.ScriptFormalizer
                 { "npt", new List<string>{"log", "ban", "unban", "react"} },
             };
             var variables = new List<Dictionary<string, NptSystem.NptType>>{
-                new Dictionary<string, NptSystem.NptType> { { "__version__", new NptSystem.NptType(NptSystem.Types.Str, "suninstruction_1.0.1a") } },
+                new Dictionary<string, NptSystem.NptType> { { "__version__", new NptSystem.NptType(NptSystem.Types.Str, Bot.SunClassBot.SuniV) } },
                 new Dictionary<string, NptSystem.NptType> { { "__time__", new NptSystem.NptType(NptSystem.Types.Str, System.DateTime.Now.ToString()) } }
             };
 

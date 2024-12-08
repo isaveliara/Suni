@@ -17,7 +17,7 @@ namespace Sun.NPT.ScriptInterpreter
         OutOfRangeException,
         
         //evaluate errors
-        MalformedIFExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation, InvalidIFOperator,
+        MalformedIFExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation, InvalidOperator,
 
         //language errors (errors because of me)
         UnknowException,
@@ -27,5 +27,7 @@ namespace Sun.NPT.ScriptInterpreter
         NPTInvalidMessageException, NPTInvalidUserException,
         UnknowTypeException,
         CannotConvertType,
+        TypeMismatchException,
+        MissingOperandsForEvaluation,
     }
 }

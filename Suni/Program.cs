@@ -41,6 +41,7 @@ namespace Sun.Bot
         public static DiscordClient SuniClient { get; private set; }
         public static CommandsNextExtension Commands { get; private set; }
         public static int Fun { get; private set; }
+        public static string SuniV { get; } = "suninstruction_1.0.2a";
         public static int TimerRepeats { get; private set; } = 0;
         //public static int Err { get; private set; }
         //public static int ErrCommands { get; private set; }

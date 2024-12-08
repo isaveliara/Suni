@@ -155,11 +155,11 @@ namespace Sun.NPT.ScriptInterpreter
                 Type type = Type.GetType($"Sun.NPT.ScriptInterpreter.{classNameProper}");
 
                 if (type != null){
-                    //Find the static method `Controler` in
+                    //find the static method `Controler` in
                     var controlerMethod = type.GetMethod("Controler", BindingFlags.Static | BindingFlags.Public);
 
                     if (controlerMethod != null){
-                        //Invoke the `Controler` method dynamically
+                        //invoke the `Controler` method dynamically
                         var task = (Task<Diagnostics>)controlerMethod.Invoke(null, [methodName, args, pointer, ctx]);
                         return await task;
                     }

@@ -69,7 +69,7 @@ namespace Sun.PrefixCommands
                 }*/
 
                 //building response
-                string response = "```OUTPUT of SuniNPT code is here:";
+                string response = $"```OUTPUT of SuniNPT code `{Bot.SunClassBot.SuniV}` is here:";
                 NptSystem parser = new NptSystem();
                 var result = await parser.ParseScriptAsync(code, ctx);
                 //first output

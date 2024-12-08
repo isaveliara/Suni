@@ -13,6 +13,6 @@ namespace Sun.Functions.DB
 
     public partial class DBMethods
     {
-        internal string dbFilePath = "./Suni/#Functions/DB/database.db";//used for all
+        internal string dbFilePath = "./Suni/Functions/DB/database.db";//used for all
     }
 }
