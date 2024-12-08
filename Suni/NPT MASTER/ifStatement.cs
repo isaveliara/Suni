@@ -23,8 +23,10 @@ namespace Sun.NPT.ScriptInterpreter
                     stackValues.Push(number);
                 else if (bool.TryParse(token, out bool boolean))
                     stackValues.Push(boolean);
-                else if (token.StartsWith("\"") && token.EndsWith("\""))
-                    stackValues.Push(token.Trim('"'));
+                else if (token.StartsWith("s'") && token.EndsWith("'"))
+                    stackValues.Push(token.Substring(2, token.Length - 3));
+                else if (token.StartsWith("c'") && token.EndsWith("'"))
+                    stackValues.Push(token[2]);
                 else if (token == "[")
                     stackOperators.Push(token);
                 else if (token == "]")
@@ -88,7 +90,7 @@ namespace Sun.NPT.ScriptInterpreter
                     case "==":
                         stackValues.Push(a.Equals(b));
                         break;
-                    case "!=":
+                    case "~=":
                         stackValues.Push(!a.Equals(b));
                         break;
                     case ">":
@@ -117,6 +119,22 @@ namespace Sun.NPT.ScriptInterpreter
                             return Diagnostics.DivisionByZeroException;
                         stackValues.Push(Convert.ToInt32(a) / Convert.ToInt32(b));
                         break;
+                    
+                    //concat operators
+                    case "++":
+                        if (a is int && b is int)
+                            stackValues.Push(int.Parse($"{a}{b}"));
+                        else
+                            stackValues.Push((string)a + (string)b);
+                        break;
+                    case "--":
+                        if (a is string && b is int)
+                        {
+                            string str = (string)a;
+                            int removeCount = (int)b;
+                            stackValues.Push(str.Substring(0, Math.Max(0, str.Length - removeCount)));
+                        }
+                        break;
                 }
             }
 
@@ -125,7 +143,7 @@ namespace Sun.NPT.ScriptInterpreter
 
         private static string[] Tokenize(string expression)
         {
-            string pattern = @"(\[|\]|\|\||&&|==|!=|>=|<=|>|<|!|\+|\-|\*|\/|\s+)";
+            string pattern = @"(s\'[^']*\'|c\'[^\']\'|\[|\]|\|\||&&|==|~=|>=|<=|>|<|!|\+\+|--|\+|\-|\*|\/|\s+)";
             return Regex.Split(expression, pattern)
                         .Where(token => !string.IsNullOrWhiteSpace(token))
                         .ToArray();
@@ -138,7 +156,7 @@ namespace Sun.NPT.ScriptInterpreter
                 "[" => 4,
                 "!" => 3,
                 "*" or "/" => 2,
-                "+" or "-" => 1,
+                "+" or "-" or "--" or "++" => 1,
                 "&&" => 0,
                 "||" => -1,
                 _ => -2
@@ -147,9 +165,10 @@ namespace Sun.NPT.ScriptInterpreter
 
         private static bool IsIFOperator(string token)
         {
-            return new HashSet<string> { "&&", "||", "!", "==", "!=", ">", "<", ">=", "<=", "+", "-", "*", "/" }
+            return new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "--", "++" }
                 .Contains(token);
         }
+
 
         private static bool ValidateExpression(string expression)
         {

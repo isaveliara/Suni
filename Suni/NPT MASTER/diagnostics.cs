@@ -26,5 +26,6 @@ namespace Sun.NPT.ScriptInterpreter
         NPTInvalidChannelException, NPTMissingPermissionsException, NPTDeniedException,
         NPTInvalidMessageException, NPTInvalidUserException,
         UnknowTypeException,
+        CannotConvertType,
     }
 }
