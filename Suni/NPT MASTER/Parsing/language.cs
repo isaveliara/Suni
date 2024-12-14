@@ -131,7 +131,10 @@ namespace Sun.NPT.ScriptInterpreter
             else if (ifMatch.Success)
             {
                 string condition = ifMatch.Groups[1].Value;
-                bool conditionResult = NptStatements.EvaluateIFExpression(condition).Item2;
+                var (r, conditionResult) = NptStatements.IFStatement(condition);
+                if (r != Diagnostics.Success)
+                    return r;
+                
                 _debugs.Add($"the condition '{condition}' is {conditionResult}");
             }
 

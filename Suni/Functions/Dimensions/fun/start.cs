@@ -119,7 +119,7 @@ namespace Sun.Dimensions.Fun
                                 .WithDescription(scoreBoard.ToString())
                             )); //sends scoreboard
                         //sends time for next question
-                        await ctx.Channel.SendMessageAsync($"{QuizquestionData.Response.Replace("&{getanswer}", userResponse)}\n:small_blue_diamond: Próxima pergunta em: **{(rate + new Random().Next(-rateVariance, rateVariance))>>2} seconds**");
+                        await ctx.Channel.SendMessageAsync($"{QuizquestionData.Response.Replace("&{answer_provided}", userResponse)}\n:small_blue_diamond: Próxima pergunta em: **{(rate + new Random().Next(-rateVariance, rateVariance))>>2} seconds**");
                         break;
                     }
                     await Task.Delay((rate + new Random().Next(-rateVariance, rateVariance)) * 500);
@@ -154,8 +154,7 @@ namespace Sun.Dimensions.Fun
                     }
                     else Console.WriteLine($"Error: {response.StatusCode} - {response.ErrorMessage}");
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex){
                     Console.WriteLine($"failed to get the theme:\n{ex}");
                 }
                 return null;
@@ -206,7 +205,7 @@ namespace Sun.Dimensions.Fun
             {
                 userResponse = userResponse.ToLower();
                 foreach (var answer in validAnswers)
-                    if (Regex.IsMatch(userResponse, answer.ToLower(), RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(userResponse, answer.ToLower(), RegexOptions.None))
                         return true;
                 
                 return false;

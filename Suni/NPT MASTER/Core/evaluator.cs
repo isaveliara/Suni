@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Sun.NPT.ScriptInterpreter
 {
@@ -17,12 +15,27 @@ namespace Sun.NPT.ScriptInterpreter
                 return token.Substring(2, token.Length - 3);
             if (token.StartsWith("c'") && token.EndsWith("'"))
                 return token[2];
-            return token; //returns the original token for unknown types
+            
+            //operators
+            switch (token)
+            {
+                case "&&":
+                case "||":
+                case "==":
+                case "!=":
+                case ">=":
+                case "<=":
+                case ">":
+                case "<":
+                    return token;
+            }
+
+            return Diagnostics.BadToken; //returns the original token for unknown types
         }
         public static (Diagnostics, bool) EvaluateExpression(string expression)
         {
             if (!ValidateExpression(expression))
-                return (Diagnostics.MalformedIFExpression, false);
+                return (Diagnostics.MalformedExpression, false);
 
             Stack<object> stackValues = new Stack<object>();
             Stack<string> stackOperators = new Stack<string>();
@@ -37,7 +50,7 @@ namespace Sun.NPT.ScriptInterpreter
                 {
                     while (stackOperators.Count > 0 && stackOperators.Peek() != "[")
                     {
-                        var error = ApplyOperator2(stackValues, stackOperators.Pop());
+                        var error = ApplyOperator(stackValues, stackOperators.Pop());
                         if (error != Diagnostics.Success)
                             return (error, false);
                     }
@@ -47,19 +60,24 @@ namespace Sun.NPT.ScriptInterpreter
                 {
                     while (stackOperators.Count > 0 && Precedence(stackOperators.Peek()) >= Precedence(token))
                     {
-                        var error = ApplyOperator2(stackValues, stackOperators.Pop());
+                        var error = ApplyOperator(stackValues, stackOperators.Pop());
                         if (error != Diagnostics.Success)
                             return (error, false);
                     }
                     stackOperators.Push(token);
                 }
                 else
-                    stackValues.Push(ConvertToken(token));
+                {
+                    var converted = ConvertToken(token);
+                    if (converted is Diagnostics)
+                        return ((Diagnostics)converted, false);
+                    stackValues.Push(converted);
+                }
             }
 
             while (stackOperators.Count > 0)
             {
-                var error = ApplyOperator2(stackValues, stackOperators.Pop());
+                var error = ApplyOperator(stackValues, stackOperators.Pop());
                 if (error != Diagnostics.Success)
                     return (error, false);
             }
@@ -67,8 +85,12 @@ namespace Sun.NPT.ScriptInterpreter
             return (Diagnostics.Success, Convert.ToBoolean(stackValues.Pop()));
         }
 
-        private static Diagnostics ApplyOperator2(Stack<object> stackValues, string Operator)
+        private static Diagnostics ApplyOperator(Stack<object> stackValues, string Operator)
         {
+            if (stackValues.Peek() is Diagnostics.BadToken)
+                return Diagnostics.BadToken; //
+            
+
             if (stackValues.Count == 0)
                 return Diagnostics.MissingOperandsForEvaluation;
 
@@ -141,8 +163,8 @@ namespace Sun.NPT.ScriptInterpreter
                                     "+" => intA + intB,
                                     "-" => intA - intB,
                                     "*" => intA * intB,
-                                    "/" => intB != 0 ? intA / intB : throw new DivideByZeroException(),
-                                    _ => throw new InvalidOperationException("Unsupported arithmetic operator.")
+                                    "/" => intB != 0 ? intA / intB : Diagnostics.DivisionByZeroException,
+                                    _ => Diagnostics.InvalidOperator
                                 });
                             }
                             else
@@ -150,12 +172,10 @@ namespace Sun.NPT.ScriptInterpreter
                             break;
 
                         case "+&":
-                            stackValues.Push($"{a}{b}");
-                            break;
-
+                            stackValues.Push($"{a?.ToString() ?? ""}{b?.ToString() ?? ""}");  break;
                         case "-&":
                             if (a is string strA && b is int countB)
-                                stackValues.Push(strA.Substring(0, Math.Max(0, strA.Length - countB)));
+                                stackValues.Push(countB >= 0 ? strA.Substring(0, Math.Max(0, strA.Length - countB)) : strA);
                             else
                                 return Diagnostics.TypeMismatchException;
                             break;
@@ -164,8 +184,7 @@ namespace Sun.NPT.ScriptInterpreter
                             return Diagnostics.InvalidOperator;
                     }
                 }
-                catch (Exception)
-                {
+                catch (Exception){
                     return Diagnostics.TypeMismatchException;
                 }
             }
@@ -174,9 +193,8 @@ namespace Sun.NPT.ScriptInterpreter
         }
 
         private static bool IsOperator(string token)
-        {
-            return new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "-&", "+&" }
-                .Contains(token);
-        }
+            =>
+                new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "-&", "+&" }
+                    .Contains(token);
     }
 }
