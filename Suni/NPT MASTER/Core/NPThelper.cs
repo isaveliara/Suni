@@ -7,12 +7,22 @@ namespace Sun.NPT.ScriptInterpreter
     public partial class Help
     {
         //helper method for keywords lookahead
-        public static string keywordLookahead(string code, int startIndex)
+        public static (string Letters, string Chars) keywordLookahead(string code, int startIndex)
         {
-            int endIndex = startIndex + 1;
-            while (endIndex < code.Length && char.IsLetter(code[endIndex]))
-                endIndex++;
-            return code.Substring(startIndex + 1, endIndex - startIndex - 1);
+            int currentIndex = startIndex + 1;
+            int firstNonLetterIndex = currentIndex;
+
+            while (currentIndex < code.Length && code[currentIndex] != ' ' && code[currentIndex] != '\n')
+            {
+                if (char.IsLetter(code[currentIndex]) && firstNonLetterIndex == currentIndex)
+                    firstNonLetterIndex++;
+                currentIndex++;
+            }
+
+            string letters = code.Substring(startIndex + 1, firstNonLetterIndex - startIndex - 1);
+            string chars = code.Substring(startIndex + 1, currentIndex - startIndex - 1);
+
+            return (letters, chars);
         }
 
         //helper method for get the type of something

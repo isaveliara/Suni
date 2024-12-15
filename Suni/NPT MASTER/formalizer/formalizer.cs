@@ -47,18 +47,18 @@ namespace Sun.NPT.ScriptFormalizer
                 }
                 if (!isString && currentChar == '#')
                 {
-                    string keyword = Help.keywordLookahead(code, i);
-                    if (keyword == "definitions")
+                    var keyword = Help.keywordLookahead(code, i);
+                    if (keyword.Chars == "definitions")
                     {
                         inDefinitionsBlock = true;
-                        i += keyword.Length;  // Avançar o índice
+                        i += keyword.Chars.Length;  // Avançar o índice
                         currentLine = "";  // Limpar linha
                         continue;
                     }
-                    else if (keyword == "ends")
+                    else if (keyword.Chars == "ends")
                     {
                         inDefinitionsBlock = false;
-                        i += keyword.Length;  // Avançar o índice
+                        i += keyword.Chars.Length;  // Avançar o índice
                         currentLine = "";  // Limpar linha
                         continue;
                     }

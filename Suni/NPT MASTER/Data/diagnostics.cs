@@ -30,5 +30,6 @@ namespace Sun.NPT.ScriptInterpreter
         TypeMismatchException,
         MissingOperandsForEvaluation,
         BadToken,
+        SyntaxException,
     }
 }

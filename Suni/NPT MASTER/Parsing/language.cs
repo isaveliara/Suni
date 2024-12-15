@@ -11,10 +11,16 @@ namespace Sun.NPT.ScriptInterpreter
     //class for parser and execution
     public partial class NptSystem
     {
+        //execution flow
         bool _canExecute = true;
         public byte _indentLevel { get; private set; }
+        Stack<bool> executionStack = new Stack<bool>();
+
+        //front-end infs.
         private List<string> _debugs = new List<string>();
         private List<string> _outputs = new List<string>();
+
+        //values
         public Dictionary<string, List<string>> _includes { get; private set; }
         public List<Dictionary<string, NptType>> _variables { get; private set; }
 
@@ -26,34 +32,46 @@ namespace Sun.NPT.ScriptInterpreter
             _variables = variables; //set variables
 
             if (resultFormalization != Diagnostics.Success)
-                    return (_debugs, _outputs, resultFormalization);
+                return (_debugs, _outputs, resultFormalization);
 
-            //byte indentLevel = 0;
+            _indentLevel = 0;
+            executionStack.Push(_canExecute);
 
             for (int i = 0; i < lines.Count; i++)
             {
-                var line = lines[i];
+                //replace the variables with their values before executing the line
+                var line = ReplaceVariables(lines[i]);
+                if (string.IsNullOrWhiteSpace(line)) continue;
 
                 //KEY WORDS DETECTION
-                if (line.StartsWith('@'))
+                if (line.StartsWith('&'))
                 {
                     var keyWordName = Help.keywordLookahead(line, 0);
-
-                    //toggle _canExecute
-                    switch (keyWordName)
+                    _debugs.Add($"identified keyword: >>{keyWordName.Chars}<<");
+                    if (keyWordName.Chars == "do{")
                     {
-                        case "disableExe":
-                            _canExecute = false;
-                            continue;
-                        case "enableExe":
-                            _canExecute = true;
-                            continue;
+                        _indentLevel++;
+                        executionStack.Push(_canExecute);
+                        continue;
                     }
-                    if (!_canExecute) continue;
+                    else if (keyWordName.Chars == "}")
+                    {
+                        if (_indentLevel == 0)
+                            return (_debugs, _outputs, Diagnostics.OutOfRangeException); //unmatched &}
+                        
+                        _indentLevel--;
+                        executionStack.Pop();
+                        _canExecute = executionStack.Peek();
+                        continue;
+                    }
+                    //update execution ctx.
+                    _canExecute = executionStack.Peek();
+
+                    if (!_canExecute) continue; //check
 
                     //instructions keywords
-                    if (keyWordName.StartsWith("goto")){
-                        if (int.TryParse(keyWordName.Substring(4), out int targetLineIndex))
+                    if (keyWordName.Letters == "goto"){
+                        if (int.TryParse(keyWordName.Chars.Substring(4), out int targetLineIndex)) //this is wrong
                         {
                             if (targetLineIndex >= 1 && targetLineIndex-1 < lines.Count)
                             {
@@ -67,9 +85,29 @@ namespace Sun.NPT.ScriptInterpreter
                         else
                             return(_debugs, _outputs, Diagnostics.OutOfRangeException); //invalid line index
                     }
+                    else if (keyWordName.Letters == "if")
+                    {
+                        var ifMatch = Regex.Match(line, @"if\s*\(([^)]+)\)\s*", RegexOptions.None);
+                        //if statement
+                        if (ifMatch.Success)
+                        {
+                            string condition = ifMatch.Groups[1].Value;
+                            var (r, conditionResult) = NptStatements.IFStatement(condition);
+                            if (r != Diagnostics.Success)
+                                return (_debugs, _outputs, r);
+                            
+                            _debugs.Add($"the condition '{condition}' is {conditionResult}");
+                            _indentLevel++;
+                            executionStack.Push(conditionResult);
+                            _canExecute = conditionResult;
+                            continue;
+                        }
+                        else
+                            return (_debugs, _outputs, Diagnostics.SyntaxException); //invalid if statement
+                    }
 
-                    //other keywords, that can be influenced by _canExecute
-                    switch (keyWordName)
+                    //normal keywords
+                    switch (keyWordName.Letters)
                     {
                         case "kit":
                             return (_debugs, _outputs, Diagnostics.EarlyTermination); //add info for why/where kited
@@ -83,10 +121,6 @@ namespace Sun.NPT.ScriptInterpreter
                 
                 //test if _canExecute line for continue without executing
                 if (!_canExecute) continue;
-
-                //if its not any key-word, execute as object or something else
-                //so replace the variables with their values before executing the line
-                line = ReplaceVariables(line);
 
                 var executedLineResult = await ExecuteLineAsync(line, ctx); //responsable for executing the objects in :: format
                 //exception handler of object execution result
@@ -122,28 +156,12 @@ namespace Sun.NPT.ScriptInterpreter
 
             //objects statement
             var objMatch = Regex.Match(line, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(.+)");
-
-            var ifMatch = Regex.Match(line, @"if\s*\(([^)]+)\)\s*", RegexOptions.IgnoreCase);
             if (objMatch.Success)
                 result = await ExecuteObjectStatementAsync(objMatch, ctx);
-
-            //if statement
-            else if (ifMatch.Success)
-            {
-                string condition = ifMatch.Groups[1].Value;
-                var (r, conditionResult) = NptStatements.IFStatement(condition);
-                if (r != Diagnostics.Success)
-                    return r;
-                
-                _debugs.Add($"the condition '{condition}' is {conditionResult}");
-            }
-
-            else if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line))
-                _debugs.Add("Whitespace line.");
             
             else{
                 _outputs.Add($"Unrecognized line: {line}");
-                result = Diagnostics.UnrecognizedLineException;
+                result = Diagnostics.SyntaxException;
             }
             return result;
         }
