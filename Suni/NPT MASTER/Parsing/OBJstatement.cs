@@ -19,7 +19,7 @@ namespace Sun.NPT.ScriptInterpreter
             //if class is not specified, look in _includes
             if (string.IsNullOrEmpty(className))
             {
-                className = _includes.FirstOrDefault(kv => kv.Value.Contains(methodName)).Key;
+                className = Includes.FirstOrDefault(kv => kv.Value.Contains(methodName)).Key;
 
                 if (className == null){
                     _outputs.Add($"Method '{methodName}' not associated with any class in includes.");

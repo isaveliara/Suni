@@ -33,10 +33,10 @@ namespace Sun.NPT.ScriptInterpreter
                     _outputs = new List<string>();
                     break;
                 case "list_var"://std::list_var() -> nil
-                    _outputs.Add($">> Variables: {string.Join(", ", _variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
+                    _outputs.Add($">> Variables: {string.Join(", ", Variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
                     break;
                 case "list_libs"://std::list_libs() -> nil
-                    _outputs.Add($">> Includes: {string.Join("\n   ", _includes.Keys)}");
+                    _outputs.Add($">> Includes: {string.Join("\n   ", Includes.Keys)}");
                     break;
                 default:
                     return Diagnostics.NotFoundObjectException;
