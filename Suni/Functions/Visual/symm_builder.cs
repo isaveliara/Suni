@@ -6,7 +6,6 @@ Expect:(type, url-of-image)
 ///TODO: fix the 3 and 4 types.
 
 using System.IO;
-using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;

@@ -1,35 +1,34 @@
-namespace Sun.NPT.ScriptInterpreter
+namespace Sun.NPT.ScriptInterpreter;
+
+//enum for status
+public enum Diagnostics
 {
-    //enum for status
-    public enum Diagnostics
-    {
-        //simple
-        Success, EarlyTermination, RaisedException,
+    //simple
+    Success, EarlyTermination, RaisedException,
 
-        //logic errors
-        DivisionByZeroException,
+    //logic errors
+    DivisionByZeroException,
 
-        //class/object errors
-        NotFoundObjectException, NotFoundClassException, InvalidArgsException,
+    //class/object errors
+    NotFoundObjectException, NotFoundClassException, InvalidArgsException,
 
-        //syntax errors
-        UnrecognizedLineException, InvalidKeywordException,
-        OutOfRangeException,
-        
-        //evaluate errors
-        MalformedExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation, InvalidOperator,
+    //syntax errors
+    UnrecognizedLineException, InvalidKeywordException,
+    OutOfRangeException,
+    
+    //evaluate errors
+    MalformedExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation, InvalidOperator,
 
-        //language errors (errors because of me)
-        UnknowException,
+    //language errors (errors because of me)
+    UnknowException,
 
-        //npt errors
-        NPTInvalidChannelException, NPTMissingPermissionsException, NPTDeniedException,
-        NPTInvalidMessageException, NPTInvalidUserException,
-        UnknowTypeException,
-        CannotConvertType,
-        TypeMismatchException,
-        MissingOperandsForEvaluation,
-        BadToken,
-        SyntaxException,
-    }
+    //npt errors
+    NPTInvalidChannelException, NPTMissingPermissionsException, NPTDeniedException,
+    NPTInvalidMessageException, NPTInvalidUserException,
+    UnknowTypeException,
+    CannotConvertType,
+    TypeMismatchException,
+    MissingOperandsForEvaluation,
+    BadToken,
+    SyntaxException,
 }

@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.SlashCommands;
 using Sun.Globalization;
 
 namespace Sun.Functions.DB

@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+using DSharpPlus.Commands;
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -25,6 +25,7 @@ namespace Sun.NPT.ScriptInterpreter
         public string ActualLine { get; private set; }
         public Dictionary<string, List<string>> Includes { get; private set; }
         public List<Dictionary<string, NptType>> Variables { get; private set; }
+        public Dictionary<string, List<string>> NFuncs { get; private set; } = [];
 
         public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(string script, CommandContext ctx)
         {
@@ -74,7 +75,7 @@ namespace Sun.NPT.ScriptInterpreter
                     //instructions keywords
                     if (keyWordName.Letters == "if")
                     {
-                        var ifMatch = Regex.Match(ActualLine, @"if\s*\(([^)]+)\)\s*", RegexOptions.None);
+                        var ifMatch = Regex.Match(ActualLine.Substring(2), @"\(([^)]+)\)\s*&do{", RegexOptions.None);
                         //if statement
                         if (ifMatch.Success)
                         {

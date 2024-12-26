@@ -1,6 +1,4 @@
 using System.Data.SQLite;
-using System;
-using System.Threading.Tasks;
 
 namespace Sun.Functions.DB
 {

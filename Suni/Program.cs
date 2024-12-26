@@ -1,17 +1,19 @@
 ﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
+using DSharpPlus.Commands;
 using DSharpPlus.EventArgs;
-
 using DSharpPlus.Interactivity;
+
 using DSharpPlus.Interactivity.Extensions;
 
 using DotNetEnv;
-using Sun.HandlerFunctions;
 using System;
 using System.Threading.Tasks;
-using Sun.PrefixCommands;
-using DSharpPlus.SlashCommands;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using DSharpPlus.Extensions;
+using DSharpPlus.Net.Gateway;
+using DSharpPlus.Commands.Processors.TextCommands;
+using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 
 //using Microsoft.Extensions.Logging;
 
@@ -38,73 +40,61 @@ namespace Sun.Bot
 
     public sealed class SunClassBot
     {
-        public static DiscordClient SuniClient { get; private set; }
-        public static CommandsNextExtension Commands { get; private set; }
+        public static DiscordClient SuniClient;
+        public static CommandsExtension Commands { get; private set; }
         public static int Fun { get; private set; }
-        public static string SuniV { get; } = "suninstruction_1.0.2c";
+        public const string SuniV = "suninstruction_1.2.0a";
         public static int TimerRepeats { get; private set; } = 0;
-        //public static int Err { get; private set; }
-        //public static int ErrCommands { get; private set; }
 
         static async Task Main()
         {
-            //configure
-            var discordConfig = new DiscordConfiguration()
+            var SuniBuilder = DiscordClientBuilder.CreateDefault(new DotenvItems().CanaryToken, DiscordIntents.All.RemoveIntent(DiscordIntents.GuildPresences));
+
+            //SuniBuilder.SetLogLevel(LogLevel.Debug);
+            SuniBuilder.SetLogLevel(LogLevel.Information);
+
+            SuniBuilder.ConfigureServices(services =>{
+                services.Replace<IGatewayController, GatewayController>();
+            });
+
+            SuniBuilder.ConfigureExtraFeatures(config =>{
+                config.LogUnknownAuditlogs = false;
+                config.LogUnknownEvents = false;
+            });
+            SuniBuilder.ConfigureEventHandlers(builder =>
+                builder.HandleSessionCreated(Client_Ready)
+                       .HandleMessageCreated(Sun.Events.MessageEvents.On_message)
+            );
+
+            //SuniBuilder.UseInteractivity(new InteractivityConfiguration{
+            //    PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
+            //    Timeout = TimeSpan.FromSeconds(30)
+            //});
+            
+            var prefixes = new string[] { "&" };
+            SuniBuilder.UseCommands((_, extension) =>{
+                TextCommandProcessor textCommandProcessor = new(new()
+                {
+                    PrefixResolver = new DefaultPrefixResolver(true, prefixes).ResolvePrefixAsync,
+                    EnableCommandNotFoundException = false
+                });
+                extension.AddProcessor(textCommandProcessor);
+
+                //Register error handling
+                extension.CommandErrored += Sun.Events.ErrorEvents.CommandErrored;
+
+                //Register logging
+                //extension.CommandExecuted +=
+
+                //Register Interaction Commands
+                Sun.Functions.Helpers.RegisterAllCommands(extension);
+            }, new CommandsConfiguration
             {
-                Intents = DiscordIntents.All,
-                Token = new DotenvItems().CanaryToken,
-                ShardId = 0,
-                ShardCount = 2,
-                AutoReconnect = true,
-                //MinimumLogLevel = LogLevel.Debug
-            };
-            //applying
-            SuniClient = new DiscordClient(discordConfig);
-            //set default timeout for interactions
-            SuniClient.UseInteractivity(new InteractivityConfiguration(){Timeout=TimeSpan.FromSeconds(100)});
-            
-            SuniClient.Ready += Client_Ready;
-            
-            //other config
-            var commandsConfig = new CommandsNextConfiguration()
-            {
-                StringPrefixes = ["&"],
-                EnableMentionPrefix = true,
-                EnableDms = true,
-                IgnoreExtraArguments = true,
-                EnableDefaultHelp = true
-            };
-            Commands = SuniClient.UseCommandsNext(commandsConfig); //using configs
-            var SlashCommandsConfig = SuniClient.UseSlashCommands();
-            await SlashCommandsConfig.RefreshCommands();
+                UseDefaultCommandErrorHandler = false
+            });
 
-            //////MISCELLANEOUS commands
-            SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Utilities.Sla>(); //slash
-            Commands.RegisterCommands<Sun.PrefixCommands.Miscellaneous>(); //prefix
-            SlashCommandsConfig.RegisterCommands<Sun.SlashCommands.Miscellaneous>();
-            SlashCommandsConfig.RegisterCommands<Sun.ContextCommands.MiscellaneousC>(); //menu context
-
-            //////IMAGECOMMANDS commands
-            Commands.RegisterCommands<Sun.Dimensions.Romance.Pre>(); //prefix
-            SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Romance.Sla>(); //slash
-
-            //////Minigame commands
-            SlashCommandsConfig.RegisterCommands<Sun.Dimensions.Fun.FunSla>(); //slash
-            Commands.RegisterCommands<Sun.Dimensions.Fun.FunPre>(); //prefix
-            
-            //<EVENTS>//
-            //role events handler
-            SuniClient.GuildMemberUpdated += HandlerFunctions.Listeners.Handler.FatherMemberUpdated;
-            
-            //interaction handler
-            SuniClient.ComponentInteractionCreated += HandlerFunctions.Components.InteractionEventHandler;
-            SuniClient.ModalSubmitted += HandlerFunctions.Components.ModalsHandler;
-
-            //errored slash/prefix handler (debugging for canary!)
-            Commands.CommandErrored += ErroredFunctions.CommandsErrored_Handler;
-            SlashCommandsConfig.SlashCommandErrored += ErroredSlashFunctions.SlashCommandsErrored_Handler;
-            SlashCommandsConfig.ContextMenuErrored += ErroredSlashFunctions.MenuContextCommandsErrored_Handler;
-            //<resume>//
+            //build the client
+            SuniClient = SuniBuilder.Build();
 
             Timer task = new Timer(ExecuteTask, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
             var db = new Sun.Functions.DB.DBMethods();
@@ -120,15 +110,27 @@ namespace Sun.Bot
             await Task.Delay(-1);
         }
 
+        private static async Task Client_Ready(DiscordClient client, SessionCreatedEventArgs args)
+        {
+            await Task.CompletedTask;
+        }
+
         private static void ExecuteTask(object state)
         {
-            Console.WriteLine($"task! ({TimerRepeats++}) - Executed at " + DateTime.Now);
-        }
-
-        private static Task Client_Ready(DiscordClient sender, ReadyEventArgs args)
-        {
-            return Task.CompletedTask;
+            Console.WriteLine($"task! ({TimerRepeats++} minutes running) - Executed at " + DateTime.Now);
         }
     }
-}
 
+    public class GatewayController : IGatewayController
+    {
+#pragma warning disable CS1998
+        public async Task HeartbeatedAsync(IGatewayClient client) { }
+        public async Task ResumeAttemptedAsync(IGatewayClient _) { }
+        public async Task ZombiedAsync(IGatewayClient _) { }
+        public async Task ReconnectRequestedAsync(IGatewayClient _) { }
+        public async Task ReconnectFailedAsync(IGatewayClient _) { }
+        public async Task SessionInvalidatedAsync(IGatewayClient _) { }
+        
+    }
+#pragma warning restore CS1998 
+}

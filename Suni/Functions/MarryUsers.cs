@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data.SQLite;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 
 namespace Sun.Dimensions.Romance
 {
@@ -13,7 +8,7 @@ namespace Sun.Dimensions.Romance
         private const int MarriageInitialCost = 10000;
         private const int DailyMarriageCost = 200;
 
-        public static bool MarryAUsers(ulong userId1, ulong userId2, bool splitFinances)
+        public static bool MarryUsers(ulong userId1, ulong userId2, bool splitFinances)
         {
             var db = new Functions.DB.DBMethods();
             using (var connection = new SQLiteConnection($"Data Source={db.dbFilePath};Version=3;"))

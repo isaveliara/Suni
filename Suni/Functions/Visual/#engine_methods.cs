@@ -1,8 +1,5 @@
-using System;
 using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
-using DSharpPlus.Net;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;

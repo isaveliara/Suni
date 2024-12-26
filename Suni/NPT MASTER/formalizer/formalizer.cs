@@ -1,4 +1,4 @@
-using DSharpPlus.CommandsNext;
+using DSharpPlus.Commands;
 using System.Collections.Generic;
 using Sun.NPT.ScriptInterpreter;
 

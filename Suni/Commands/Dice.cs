@@ -1,23 +1,17 @@
 using System.Linq;
-using System.Threading.Tasks;
-using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using Sun.Functions;
-using System;
 
-namespace Sun.PrefixCommands
+namespace Sun.Commands;
+
+public class Dice
 {
-    public partial class Miscellaneous : BaseCommandModule
+    [Command("dice")]
+    [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
+    [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
+    public static async Task DiceCommand(CommandContext ctx, 
+        [Parameter("dices")] int number = 1,
+        [Parameter("sides")] int sides = 6)
     {
-        [Command("dice")]
-        public async Task PREFIXCommandDice(CommandContext ctx,
-        [Option("sides","sides")] byte sides = 6,
-        [Option("number","number for roll")] int number = 1)
-        {
-            if (number > 14){
+        if (number > 14){
                 await ctx.RespondAsync(new DiscordMessageBuilder()
                         .WithContent("Não podes lançar um número de dados maior que 14! :x:"));  return;
             }
@@ -36,6 +30,5 @@ namespace Sun.PrefixCommands
 
             await ctx.RespondAsync(new DiscordMessageBuilder()
                     .WithContent($":game_die: | result: {stringdice} (total {result})"));
-        }
     }
 }

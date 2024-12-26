@@ -52,8 +52,8 @@ namespace Sun.Functions
 
             statistics.AppendLine($"Servidores conectados: {client.Guilds.Count}");
             statistics.AppendLine($"Usuários em cache: {client.Guilds.Values.Sum(g=> g.MemberCount)}");
-            statistics.AppendLine($"Shards: {client.ShardCount}");
-            statistics.AppendLine($"Shard ID: {client.ShardId}");
+            //statistics.AppendLine($"Shards: {client.ShardCount}");
+            //statistics.AppendLine($"Shard ID: {client.ShardId}");
 
             statistics.AppendLine($"Memória usada: {process.WorkingSet64 / (1024 * 1024)}mb");
             statistics.AppendLine($"Memória livre: {GC.GetTotalMemory(false) / (1024 * 1024)}mb");

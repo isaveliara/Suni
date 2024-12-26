@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using static Sun.NPT.ScriptInterpreter.NptSystem;
 
 namespace Sun.NPT.ScriptInterpreter

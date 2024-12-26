@@ -1,4 +1,3 @@
-using System;
 using System.Data.SQLite;
 
 namespace Sun.Functions.DB

@@ -1,4 +1,4 @@
-using DSharpPlus.Entities;
+/*using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using System;
 using System.Collections.Generic;
@@ -143,4 +143,4 @@ namespace Sun.Dimensions.Fun
             await ctx.CreateResponseAsync(embed);
         }
     }
-}
+}*/

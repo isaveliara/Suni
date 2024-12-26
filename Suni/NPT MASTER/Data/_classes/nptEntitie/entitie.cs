@@ -1,7 +1,7 @@
 //controler of npt class
 
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+using DSharpPlus.Commands;
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
@@ -63,14 +63,12 @@ namespace Sun.NPT.ScriptInterpreter
         //npt::ban(You broke a rule!) -> <user id>
         private static async Task<Diagnostics> Ban(CommandContext ctx, ulong userId, string reason)
         {
-            //future: add this if args split by , are stable
-            int del_message_days = 0;
             try{
                 var user = await ctx.Guild.GetMemberAsync(userId);
                 if (user == null)
                     return Diagnostics.NPTInvalidUserException;
 
-                await ctx.Guild.BanMemberAsync(userId, del_message_days, reason);
+                await ctx.Guild.BanMemberAsync(await ctx.Guild.GetMemberAsync(userId), reason:reason);
                 return Diagnostics.Success;
             }
             catch (Exception ex)

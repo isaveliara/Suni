@@ -7,7 +7,7 @@
 //std::outputclean() -> null
 
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+using DSharpPlus.Commands;
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
