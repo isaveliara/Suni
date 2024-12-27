@@ -4,3 +4,4 @@ obj/
 *.env
 *.db
 *.pyc
+*.zip

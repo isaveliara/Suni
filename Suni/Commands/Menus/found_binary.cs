@@ -21,7 +21,7 @@ public partial class Found_Commands
             index++;
             translationsShow += $"\n-# {index} => **'{t}'**";
         }
-        var button = new DiscordButtonComponent(DiscordButtonStyle.Primary, "send_this","Enviar aqui!");
+        //var button = new DiscordButtonComponent(DiscordButtonStyle.Primary, "send_this","Enviar aqui!");
 
         var msg = new DiscordInteractionResponseBuilder()
                     .AsEphemeral(true)
@@ -33,10 +33,10 @@ public partial class Found_Commands
                         .WithFooter($"Mensagem enviada por {targetMessage.Author.Username} e traduzida por {ctx.User.Username}")
                     );
         
-        if (ctx.Member.Permissions.HasPermission(DiscordPermission.ManageChannels))
-            msg = msg.AddComponents(button);
-        else
-            System.Console.WriteLine("No");
+        //if (ctx.Member.Permissions.HasPermission(DiscordPermission.ManageChannels))
+        //    msg = msg.AddComponents(button);
+        //else
+        //    System.Console.WriteLine("No");
 
         await ctx.RespondAsync(msg);
     }

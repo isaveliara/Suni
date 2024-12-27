@@ -4,7 +4,7 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 namespace Sun.Commands;
-[Command("regx")]
+[Command("regex")]
 [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
 [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
 public partial class RegexCommandsGroup
@@ -14,7 +14,7 @@ public partial class RegexCommandsGroup
     [Command("define")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-    public async Task GroupRegexSLASHCommandDefine(CommandContext ctx,
+    public async Task Define(CommandContext ctx,
         [Parameter("regex")] string expression)
     {
         cache[ctx.User.Id] = expression;
@@ -43,7 +43,7 @@ public partial class RegexCommandsGroup
     [Command("try")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-    public async Task GroupRegexSLASHCommandTry(CommandContext ctx,
+    public async Task Try(CommandContext ctx,
         [Parameter("test_string")] [SlashAutoCompleteProvider(typeof(RegexTryAutocompleteProvider))] string test)
     {
         if (!cache.TryGetValue(ctx.User.Id, out string expression)){

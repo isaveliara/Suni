@@ -43,7 +43,7 @@ namespace Sun.Bot
         public static DiscordClient SuniClient;
         public static CommandsExtension Commands { get; private set; }
         public static int Fun { get; private set; }
-        public const string SuniV = "suninstruction_1.2.0a";
+        public const string SuniV = "suninstruction_1.2.0b";
         public static int TimerRepeats { get; private set; } = 0;
 
         static async Task Main()
