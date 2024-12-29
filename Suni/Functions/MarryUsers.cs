@@ -1,6 +1,6 @@
 using System.Data.SQLite;
 
-namespace Sun.Dimensions.Romance
+namespace Sun.Functions.Romance
 {
     public partial class RomanceMethods
     {
@@ -10,7 +10,7 @@ namespace Sun.Dimensions.Romance
 
         public static bool MarryUsers(ulong userId1, ulong userId2, bool splitFinances)
         {
-            var db = new Functions.DB.DBMethods();
+            var db = new Sun.Functions.DB.DBMethods();
             using (var connection = new SQLiteConnection($"Data Source={db.dbFilePath};Version=3;"))
             {
                 connection.Open();

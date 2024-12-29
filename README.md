@@ -1,34 +1,29 @@
 # Suni
-
-A simple C# bot for Discord
+An awesome, cute, multipurpose, and satirical bot for dev and moderation tools for Discord, making everything a better place
 
 ## Hello!
 
-**Suni** is super flexible, designed to bring customizable tools to your server. Whether you want to add interactive features or make administration easier, Suni has a ton of commands to make your server more fun and engaging.
+Meet **Suni**, your flexible and feature-packed Discord companion! Designed to bring a mix of charm and functionality to your server, Suni is here to make administration a breeze and interactions much more entertaining. Whether you're looking for robust moderation tools or quirky social features, Suni has you covered.
+
+Originally developed in C# using DSharpPlus as a fun learning project (and to satisfy my desire to program something a bit close to C++), he quickly evolved to grow more and more.
 
 ---
 
-## What It Can Do
+## What He Can Do
 
-Suni comes packed with features, including customizable commands and useful tools that allow you to interact with your server in new ways.
+**He** comes packed with features, including customizable commands and useful tools that allow you to interact with your server in new ways.
 
-- `&calc <exp>`: Gives a visual representation of the solution or expression you provide.
-- `&npt command <cmd>` : Run an npt code added to your server (can be used by any member)
-
----
-
-## What's New
-
-I'm currently working on a feature called `npt`, which will allow you to run script code as a parallel bot within Suni itself.  You will be able to trigger these scripts with a short command, and even members of your server will be able to use them according to your restrictions.
-
-usage example:
-```markdown
---definitions--
-**onlycase(@get<has_permission_admin>)** -> **kit** // Cancels code execution if user does not have admin
---end--
-**npt::** **banAsync("25d")** -> **messageFirstWord** // enables banning by id and username
-```
+- the functions are summarized as:
+- **Moderation**: manage actions using scripts (NPT, in the future it will be possible to integrate them with events, commands, and timers)
+- **Social**: u can mess ur friends, get married, or beg others for money (these things will probably have some nasty bugs lol)
+- **Help tools**: I have enough knowledge to understand ReGex, mathematical expressions, and other nerdy stuff like decrypting content in messages, which annoying members might send feeling smart, so let me share this with you ^-^
+You can run regex, calculate expressions, translate binary and morse codes, and more!
 
 ---
+## Development Status
 
-Suni is still in development, but I will have the beta version ready for release soon. See you soon!
+**Suni** is still under active development, with a beta version just around the corner. This means frequent updates, exciting new features, and maybe a bug or two to keep things interesting. (trying to alleviate my mistakes xd)
+
+Stay tuned—Suni’s about to make your Discord server better!
+
+**See you soon!**

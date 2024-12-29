@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace Sun.Commands;
 
 public class Dice

@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using DSharpPlus.Commands;
 using DSharpPlus.Commands.EventArgs;
 
 namespace Sun.Events

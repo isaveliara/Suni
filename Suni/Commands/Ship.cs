@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using Sun.Dimensions.Romance;
-
 namespace Sun.Commands;
 
 public partial class Romance
@@ -12,12 +9,13 @@ public partial class Romance
         [Parameter("user1")] DiscordUser user2,
         [Parameter("user2")] DiscordUser user1 = null)
     {
+        await ctx.DeferResponseAsync();
         user2 ??= ctx.User; if (user1 == null) user1 = ctx.User;//defaults
         int percent = (user1.Username + user2.Username).Where(char.IsLetter).Sum(letra => char.ToLower(letra));
         percent = (percent+50) % 100 + 1;
         
         //translation of ship messages
-        var language = Functions.DB.DBMethods.tryFoundUserLang(ctx.User.Id);
+        var language = new Functions.DB.DBMethods().GetUserLanguage(ctx.User.Id, ctx.User.Locale, ctx.User.Username, ctx.User.AvatarUrl);
         var tr = new Globalization.Using(language);
         var (ResultadoShipMsg, response) = tr.Commands.GetShipMessages(percent, user1.Username, user2.Username);
 
@@ -28,7 +26,7 @@ public partial class Romance
         var embed = new DiscordEmbedBuilder()
             .WithDescription($"{ResultadoShipMsg}");
         
-        await ctx.RespondAsync(new DiscordMessageBuilder()
+        await ctx.FollowupAsync(new DiscordMessageBuilder()
             .WithContent(response)
             .AddEmbed(embed).AddFile("file.png", streamImage));
     }

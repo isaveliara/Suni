@@ -41,9 +41,7 @@ namespace Sun.Bot
     public sealed class SunClassBot
     {
         public static DiscordClient SuniClient;
-        public static CommandsExtension Commands { get; private set; }
-        public static int Fun { get; private set; }
-        public const string SuniV = "suninstruction_1.2.0b";
+        public const string SuniV = "build_1.0";
         public static int TimerRepeats { get; private set; } = 0;
 
         static async Task Main()
@@ -63,6 +61,7 @@ namespace Sun.Bot
             });
             SuniBuilder.ConfigureEventHandlers(builder =>
                 builder.HandleSessionCreated(Client_Ready)
+                       .HandleMessageReactionAdded(Sun.Events.ReactionEvents.On_addedReaction)
                        .HandleMessageCreated(Sun.Events.MessageEvents.On_message)
             );
 

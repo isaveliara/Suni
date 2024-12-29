@@ -1,3 +1,5 @@
+//damn
+
 using System.Collections.Generic;
 using Sun.Globalization;
 
@@ -5,61 +7,55 @@ namespace Sun.Functions.DB
 {
     public partial class DBMethods
     {
-        public static SuniSupportedLanguages tryFoundUserLang(ulong userId, string lang = null, string userName = null, string avatar = null)
+        public static bool SetUserLang(ulong userId, string newLanguage)
         {
-            var db = new DBMethods();
-            var values = db.GetUserFields(userId: userId, new List<string> { "primary_lang" });
-            string foundDBUserLang = null;
-            if (values.TryGetValue("primary_lang", out var value) && value != null)
-                foundDBUserLang = value.ToString();
-            
-            SuniSupportedLanguages supported;
-
-            //unknow user
-            if (foundDBUserLang == null)
+            var supported = GlobalizationMethods.TryConvertLanguageToSupported(newLanguage);
+            try
             {
-                Console.WriteLine("Unknow user:");
-                //can't set lang
-                if (lang == null)
-                {
-                    //store user with FROM_CLIENT value
-                    db.InsertUser(userId, userName, avatar, commandNu:1, primaryLang: SuniSupportedLanguages.FROM_CLIENT);
-                    Console.WriteLine($"    User {userId} has stored with FROM_CLIENT value");
-                    return SuniSupportedLanguages.PT;
-                }
-
-                //can set lang
-                Console.WriteLine("    can set lang");
-                supported = GlobalizationMethods.TryConvertLanguageToSupported(lang);
-                db.InsertUser(userId, userName, avatar, commandNu:1, primaryLang: supported);
-                return supported;
+                new DBMethods().UpdateUser(userId, new Dictionary<string, object>
+                    {
+                        { "primary_lang", supported.ToString() }
+                    });
+                return true;
             }
-
-            //knowed user, so we try to get the lang from the DB
-            
-            //if lang exists and foundDBUserLang is a valid lang:
-            if (foundDBUserLang == "FROM_CLIENT" && lang != null){
-                supported = GlobalizationMethods.TryConvertLanguageToSupported(lang);
-
-                db.UpdateUser(userId, new Dictionary<string, object>
-                {
-                    { "primary_lang", supported.ToString() }
-                });
-                Console.WriteLine($"Set FROM_CLIENT language value to {supported} for the {userId} user");
-                return supported;
-            }
-
-            //user exists and has a valid lang
-            if (foundDBUserLang != "FROM_CLIENT")
+            catch (Exception ex)
             {
-                supported = GlobalizationMethods.TryConvertLanguageToSupported(foundDBUserLang);
-                return supported;
+                Console.WriteLine($"Falha ao redefinir idioma do usuário '{userId}': {ex.Message}");
+                return false;
+            }
+        }
+
+        public SuniSupportedLanguages GetUserLanguage(ulong userId, string lang = null, string userName = null, string avatar = null)
+        {
+            var userFields = GetUserFields(userId, new List<string> { "primary_lang" });
+            if (userFields == null)
+                return HandleUnknownUser(userId, lang, userName, avatar);
+            if (!userFields.TryGetValue("primary_lang", out var value) || value == null)
+                return HandleUnknownUser(userId, lang, userName, avatar);
+
+            var foundLang = value.ToString();
+            if (foundLang == "FROM_CLIENT" && lang != null)
+            {
+                var supportedLang = GlobalizationMethods.TryConvertLanguageToSupported(lang);
+                UpdateUser(userId, new Dictionary<string, object> { { "primary_lang", supportedLang.ToString() } });
+                return supportedLang;
             }
 
-            //in this case, user exists in DB, has FROM_CLIENT value, and can't get the Locale lang, returning PT as default
-            Console.WriteLine("returning PT as default because Locale is null and user doesnt eixsts on DB (or has FROM_CLIENT as primary_lang)");
-            return SuniSupportedLanguages.PT;
-            //Console.WriteLine($"Found lang in DB: {foundDBUserLang} >Converted: {supported} - Found in Locale: {lang}");
+            return GlobalizationMethods.TryConvertLanguageToSupported(foundLang);
+        }
+
+        //specific to this methods
+        private static SuniSupportedLanguages HandleUnknownUser(ulong userId, string lang, string userName, string avatar)
+        {
+            if (lang == null)
+            {
+                new DBMethods().InsertUser(userId, userName, avatar, commandNu: 1, primaryLang: SuniSupportedLanguages.FROM_CLIENT);
+                return SuniSupportedLanguages.PT;
+            }
+
+            var supportedLang = GlobalizationMethods.TryConvertLanguageToSupported(lang);
+            new DBMethods().InsertUser(userId, userName, avatar, commandNu: 1, primaryLang: supportedLang);
+            return supportedLang;
         }
     }
 }
