@@ -14,12 +14,13 @@ namespace Sun.Commands
             [SlashChoiceProvider(typeof(Sun.Globalization.LanguagesChoicesProvider))] [Parameter("language")] string language)
         {
             var success = DBMethods.SetUserLang(ctx.User.Id, language);
+            var coverage = new Globalization.Using.GroupTranslationsMessages(language).GetTranslationCoveragePercentage();
             if (!success)
             {
-                await ctx.RespondAsync($"Falha ao definir o idioma para '{language}'!");
+                await ctx.RespondAsync($"Falha ao definir o idioma para '{language}'.");
                 return;
             }
-            await ctx.RespondAsync($"idioma definido para {language}");
+            await ctx.RespondAsync($"idioma definido para {language}!\n{language} tem {string.Format("{0:N}", coverage)}% de tradução com base em meu idioma base.");
         }
     }
 }
