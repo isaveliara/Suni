@@ -15,7 +15,7 @@ public class Quiz
         //trying to find the theme
         var t = await QuizMethods.TryFindTheme(theme);
         if (t == null){
-            await ctx.RespondAsync($"Unable to find theme '{theme}' or failed to connect with api! :x:");
+            await ctx.RespondAsync($"Incapaz de encontrar o tema '{theme}'! (maybe API error) :x:");
             return;
         }
         await ctx.Channel.SendMessageAsync($"Começando minigame com o tema {theme}..");
@@ -38,7 +38,7 @@ public class Quiz
                 QuizquestionData = await QuizMethods.GetQuizQuestion(theme);
                 if (QuizquestionData == null)
                 {
-                    await ctx.Channel.SendMessageAsync("Failed to make request! :warning:\nRetrying...");
+                    await ctx.Channel.SendMessageAsync("Falha em conseguir a resposta! :warning:\nRetrying...");
                     await Task.Delay(500);
                 }
                 else

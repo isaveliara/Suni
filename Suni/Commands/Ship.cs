@@ -14,20 +14,19 @@ public partial class Romance
         int percent = (user1.Username + user2.Username).Where(char.IsLetter).Sum(letra => char.ToLower(letra));
         percent = (percent+50) % 100 + 1;
         
-        //translation of ship messages
-        var language = new Functions.DB.DBMethods().GetUserLanguage(ctx.User.Id, ctx.User.Locale, ctx.User.Username, ctx.User.AvatarUrl);
-        var tr = new Globalization.Using(language);
-        var (ResultadoShipMsg, response) = tr.Commands.GetShipMessages(percent, user1.Username, user2.Username);
+        //translation of messages
+        var solve = await SolveLang.SolveLangAsync(ctx:ctx);
+        var (message, coupleName) = solve.Commands.GetShipMessages(percent, user1.Username, user2.Username);
 
         //build
         var resultImage = await ImageModels.CreateImage.BuildShip(user1.GetAvatarUrl(ImageFormat.Png, 256), user2.GetAvatarUrl(ImageFormat.Png, 256), (byte)percent);
         using var streamImage = await ImageModels.Basics.ToStream(resultImage);
 
         var embed = new DiscordEmbedBuilder()
-            .WithDescription($"{ResultadoShipMsg}");
+            .WithDescription($"{message}");
         
-        await ctx.FollowupAsync(new DiscordMessageBuilder()
-            .WithContent(response)
+        await ctx.RespondAsync(new DiscordMessageBuilder()
+            .WithContent(coupleName)
             .AddEmbed(embed).AddFile("file.png", streamImage));
     }
 }

@@ -20,13 +20,12 @@ public partial class Romance
             error = 2;
 
         //users are already married
-        if (new Functions.DB.DBMethods().AreUsersMarried(ctx.User.Id, user.Id)){
+        if (new DBMethods().AreUsersMarried(ctx.User.Id, user.Id)){
             error = 3;
         }
 
-        var language = new Functions.DB.DBMethods().GetUserLanguage(ctx.User.Id, lang: null, userName:ctx.User.Username, avatar:ctx.User.AvatarUrl);
-        var tr = new Globalization.Using(language);
-        (string message_error, string embedTItle, string embedDescription, string content, string _, string _) = tr.Commands.GetMarryMessages(error, "", "");
+        var solve = await SolveLang.SolveLangAsync(ctx:ctx);
+        var (message_error, embedTitle, embedDescription, content, _, _) = solve.Commands.GetMarryMessages(error, "de", "j");
 
         //some error:
         if (message_error != null)
@@ -39,7 +38,7 @@ public partial class Romance
 
         //creating message
         DiscordEmbed embed = new DiscordEmbedBuilder()
-            .WithTitle(embedTItle)
+            .WithTitle(embedTitle)
             .WithDescription(embedDescription);
 
         await ctx.RespondAsync(new DiscordMessageBuilder()

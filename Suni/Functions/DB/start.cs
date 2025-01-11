@@ -38,11 +38,36 @@ namespace Sun.Functions.DB
                         relation TEXT CHECK(relation IN ('banned', 'limited1', 'partnership','client')),
                         flags CHAR(16),
                         event_data TEXT);";
+                
+                //codes table
+                string createNptsTable = @"
+                    CREATE TABLE IF NOT EXISTS npts (
+                        primary_key INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner_id INTEGER,
+                        npt_name TEXT,
+                        nptcode TEXT,
+                        listen TEXT CHECK(listen IN ('custom_command'))
+                    );";
+                
+                //npt access table
+                string serversAndNptTable = @"
+                    CREATE TABLE IF NOT EXISTS server_npt_access (
+                        server_id INTEGER,
+                        npt_key INTEGER,
+                        FOREIGN KEY (server_id) REFERENCES servers (server_id) ON DELETE CASCADE,
+                        FOREIGN KEY (npt_key) REFERENCES npts (primary_key) ON DELETE CASCADE,
+                        PRIMARY KEY (server_id, npt_key)
+                    );";
 
                 using (var command = new SQLiteCommand(createUsersTable, connection))
                     command.ExecuteNonQuery();
                 using (var command = new SQLiteCommand(createServersTable, connection))
                     command.ExecuteNonQuery();
+                using (var command = new SQLiteCommand(createNptsTable, connection))
+                    command.ExecuteNonQuery();
+                using (var command = new SQLiteCommand(serversAndNptTable, connection))
+                    command.ExecuteNonQuery();
+                
                 Console.WriteLine("created!");
             }
         }

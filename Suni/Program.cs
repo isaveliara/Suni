@@ -24,7 +24,8 @@ namespace Sun.Bot
         internal readonly string SuniToken;
         internal readonly string CanaryToken;
         public readonly string BaseUrlApi;
-        internal readonly object BaseUrl;
+        internal readonly string BaseUrl;
+        internal readonly ulong SupportServerId;
 
         public DotenvItems()
         {
@@ -35,13 +36,16 @@ namespace Sun.Bot
             CanaryToken = Environment.GetEnvironmentVariable("CANARYTOKEN");
             BaseUrlApi = Environment.GetEnvironmentVariable("BASEURLAPI");
             BaseUrl = Environment.GetEnvironmentVariable("BASEURL");
+            SupportServerId = ulong.Parse(Environment.GetEnvironmentVariable("SUPPORTSERVERID"));
         }
     }
 
     public sealed class SunClassBot
     {
         public static DiscordClient SuniClient;
-        public const string SuniV = "build_1.0";
+        public const string SuniV = "build_2.0";
+        public static string BaseUrl = new DotenvItems().BaseUrl;
+        public static ulong SupportServerId = new DotenvItems().SupportServerId;
         public static int TimerRepeats { get; private set; } = 0;
 
         static async Task Main()

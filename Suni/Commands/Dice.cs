@@ -27,6 +27,6 @@ public class Dice
             int result = dice.Sum();
 
             await ctx.RespondAsync(new DiscordMessageBuilder()
-                    .WithContent($":game_die: | result: {stringdice} (total {result})"));
+                    .WithContent($":game_die: | result: {stringdice} (sum of total sides {result})"));
     }
 }

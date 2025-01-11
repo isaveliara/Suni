@@ -8,4 +8,6 @@ global using System.Threading.Tasks;
 global using System.Linq;
 
 global using Sun.Functions;
+global using Sun.Functions.DB;
+global using Sun.Globalization;
 global using Sun.Bot;

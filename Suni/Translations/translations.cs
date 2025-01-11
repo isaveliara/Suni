@@ -1,107 +1,139 @@
-using System.Collections.Generic;
+using System.Collections;
+using System.Globalization;
+using System.Resources;
 
-namespace Sun.Globalization
+namespace Sun.Globalization;
+
+public class SolveLang
 {
-    public partial class Using
+    public SuniSupportedLanguages Language { get; private set; }
+    public GroupTranslationsMessages Commands { get; private set; }
+
+    private SolveLang(SuniSupportedLanguages language)
     {
-        public SuniSupportedLanguages Language { get; }
-        public GroupTranslationsMessages Commands { get; }
-        public Using(SuniSupportedLanguages language){
-            Language = language;
-            Commands = new GroupTranslationsMessages(language.ToString());
+        Language = language;
+        Commands = new GroupTranslationsMessages(language.ToString());
+    }
+
+    public static async Task<SolveLang> SolveLangAsync(string lang = null, CommandContext ctx = null)
+    {
+        if (lang is null && ctx is null)
+        {
+            Console.WriteLine("Error: Both lang and ctx parameters are null. Defaulting to PT.");
+            return new SolveLang(SuniSupportedLanguages.PT);
         }
 
-        public partial class GroupTranslationsMessages
+        var dbMethods = new DBMethods();
+        SuniSupportedLanguages resolvedLang;
+
+        if (ctx != null)
         {
-            private readonly Dictionary<string, string> _messages;
-            private readonly Dictionary<string, string> _baseMessages;
+            // Obtém idioma do banco de dados
+            var dbLang = await dbMethods.GetUserPrimaryLangAsync(ctx.User.Id);
 
-            public GroupTranslationsMessages(string language)
+            if (dbLang == SuniSupportedLanguages.FROM_CLIENT)
             {
-                _baseMessages = GetPortugueseMessages(); //This is Suni's base language, where you will always receive translations first.
-
-                _messages = language switch
-                {
-                    "PT" => _baseMessages,
-                    "RU" => GetRussianMessages(),
-                    _ => GetEnglishMessages()
-                };
-            }
-            public double GetTranslationCoveragePercentage()
-            {
-                int totalKeys = _baseMessages.Count;
-                int matchingKeys = _messages.Count(pair => 
-                    _baseMessages.ContainsKey(pair.Key) );//&& !string.IsNullOrEmpty(pair.Value)
-                
-                return (double)matchingKeys / totalKeys * 100;
-            }
-
-            //group of messages for a single command
-
-            public (string message_error, string embedTItle, string embedDescription, string content, string noMoney, string success) GetMarryMessages(byte error_id, string ctxUserMention, string userMention)
-            {
-                return (_messages[$"Marry_E{error_id}"], //0-3 errors
-                        _messages["Marry_embedTitle"], //"O amor está no ar..."
-                        string.Format(_messages["Marry_embedDescription"], ctxUserMention), //$"{0} te enviou uma proprosta de casamento!\nReaja com :heart: para aceitar..\nLembre-se: casar custará **200 moedas** (metade pra cada usuário) **todos** os dias, e mais **20k de moedas** (metade pra cada usuário também) como **inicialização**!"
-                        string.Format(_messages["Marry_messageContent"], userMention), //$"{0} parece que você recebeu uma proprosta..."
-                        string.Format(_messages["Marry_noMoney"], ctxUserMention, userMention), //$":x: | {0} {1} É necessário 20.000 para poder formar um casal, e em seus fundos não alcançam esse dinheiro!"
-                        string.Format(_messages["Marry_messageContent_OnSuccess"], ctxUserMention, userMention) //$"{0}, {1}, vocês estão casados agora! Felicidades para os dois.."
+                // Se o idioma no banco for FROM_CLIENT ou o usuário não existir, insere no banco
+                dbMethods.InsertUser(
+                    ctx.User.Id,
+                    ctx.User.Username,
+                    ctx.User.AvatarUrl,
+                    primaryLang: GlobalizationMethods.ParseToLanguageSupported(lang ?? ctx.User.Locale)
                 );
+
+                // Reconsulta o idioma após inserir
+                dbLang = await dbMethods.GetUserPrimaryLangAsync(ctx.User.Id);
             }
 
-            public (string, string) GetShipMessages(int percent, string u1, string u2)
+            if (!string.IsNullOrEmpty(ctx.User.Locale) || !string.IsNullOrEmpty(lang))
             {
-                string name = string.Format(_messages["Ship_Response"], u1.Substring(0,u1.Length/2)+u2.Substring(u2.Length/2));
-                return (percent switch
+                Console.WriteLine($"Resolving locale {lang ?? ctx.User.Locale} for user {ctx.User.Id} - translations.cs");
+
+                var userLang = GlobalizationMethods.ParseToLanguageSupported(lang ?? ctx.User.Locale);
+
+                if (dbLang == SuniSupportedLanguages.FROM_CLIENT)
                 {
-                    0 => "...", //same values
-                    <= 13 => _messages["Ship_13"],
-                    <= 24 => _messages["Ship_24"],
-                    <= 49 => _messages["Ship_49"],
-                    <= 69 => _messages["Ship_69"],
-                    <= 89 => new Random().Next(1, 3) == 1
-                             ? string.Format(_messages["Ship_89_1"], u1, u2)
-                             : string.Format(_messages["Ship_89_2"], u2, u1),
-                    90 => _messages["Ship_90"],
-                    _ => "?"
-                }, name); //message content response
+                    // Atualiza o idioma no banco
+                    await dbMethods.UpdateUserPrimaryLangAsync(ctx.User.Id, userLang);
+                    resolvedLang = userLang;
+                }
+                else
+                    resolvedLang = dbLang;
             }
+            else
+                resolvedLang = dbLang;
+        }
+        else
+        {
+            // Converte o parâmetro `lang` para `SuniSupportedLanguages`
+            resolvedLang = GlobalizationMethods.ParseToLanguageSupported(lang);
+        }
 
+        return new SolveLang(resolvedLang);
+    }
 
-            //base translations, located in this file
-            //pt
-            internal Dictionary<string, string> GetPortugueseMessages()
-                => new()
-                {
-                    //ship
-                    { "Ship_Description", "Calcula a porcentagem de compatibilidade entre duas pessoas" },
-                    { "Ship_Response",":heart: | O nome do casal seria {0}\n:heart: | Com uma probabilidade de {0}" },
-                    { "Ship_13", "Esqueça :headskull:" },
-                    { "Ship_24", "Não existe motivo para que esse casal exista!" },
-                    { "Ship_49", "Improvável! Vamos torcer por esses dois..." },
-                    { "Ship_69", "Por que não dar certo? :heart:" },
-                    { "Ship_89_1", "O coração de {0} aquece por {1}" },
-                    { "Ship_89_2", "O coração de {1} aquece por {0}" },
-                    { "Ship_90", "Ownn... Esse seria o casal mais fofinho que eu já vi" },
+    public class GroupTranslationsMessages
+    {
+        private readonly ResourceManager _resourceManager;
+        private readonly ResourceManager _baseResourceManager;
+        private readonly CultureInfo _culture;
 
-                    //marry
-                    { "Marry_E0", null },
-                    { "Marry_E1", "bobinho, não pode se casar com bots!" },
-                    { "Marry_E2", "bobinho, não pode se casar contigo mesmo!" },
-                    { "Marry_E3", "bobinho, não pode se casar com usuários já casados!" },
-                    { "Marry_embedTitle", "O amor está no ar..." },
-                    { "Marry_embedDescription", "{0} te enviou uma proprosta de casamento!\nReaja com :heart: para aceitar..\nLembre-se: casar custará **200 moedas** (metade pra cada usuário) **todos** os dias, e mais **20k de moedas** (metade pra cada usuário também) como **inicialização**!" },
-                    { "Marry_messageContent", "{0} parece que você recebeu uma proprosta..." },
-                    { "Marry_noMoney", ":x: | {0} {1} É necessário 20.000 para poder formar um casal, e em seus fundos não alcançam esse dinheiro!" },
-                    { "Marry_messageContent_OnSuccess", "{0}, {1}, vocês estão casados agora! Felicidades para os dois.." },
+        public GroupTranslationsMessages(string language)
+        {
+            _resourceManager = new ResourceManager("Suni.Resources.Messages", typeof(GroupTranslationsMessages).Assembly);
+            _baseResourceManager = new ResourceManager("Suni.Resources.Messages", typeof(GroupTranslationsMessages).Assembly);
+            _culture = new CultureInfo(language);
+        }
 
-                    //ping command
-                    { "Ping_Description","Mostra a minha latência" },
-                    { "Ping_Message", "Pong! :ping_pong:\n Latência: {0}ms" },
+        public string GetString(string key)
+            => _resourceManager.GetString(key, _culture) ?? _baseResourceManager.GetString(key);
 
-                    //values
-                    { "Language", "Portuguese" }
-                };
+        // Adicionar métodos para casos específicos
+        public double GetTranslationCoveragePercentage()
+        {
+            var baseResourceSet = _baseResourceManager.GetResourceSet(CultureInfo.InvariantCulture, true, true);
+            var localizedResourceSet = _resourceManager.GetResourceSet(_culture, true, true);
+
+            int totalKeys = baseResourceSet.Cast<DictionaryEntry>().Count();
+            int matchingKeys = localizedResourceSet.Cast<DictionaryEntry>()
+                                                    .Count(entry => baseResourceSet.Cast<DictionaryEntry>()
+                                                                                    .Any(baseEntry => baseEntry.Key.Equals(entry.Key) ));//&& !string.IsNullOrEmpty(entry.Value?.ToString())
+
+            return (double)matchingKeys / totalKeys * 100;
+        }
+
+        public (string message, string coupleName) GetShipMessages(int percent, string user1, string user2)
+        {
+            string name = string.Format(GetString("Ship_Response"), 
+                            user1.Substring(0, user1.Length / 2) + user2.Substring(user2.Length / 2));
+
+            string message = percent switch
+            {
+                0 => "...",
+                <= 13 => GetString("Ship_13"),
+                <= 24 => GetString("Ship_24"),
+                <= 49 => GetString("Ship_49"),
+                <= 69 => GetString("Ship_69"),
+                <= 89 => new Random().Next(1, 3) == 1
+                    ? string.Format(GetString("Ship_89_1"), user1, user2)
+                    : string.Format(GetString("Ship_89_2"), user2, user1),
+                90 => GetString("Ship_90"),
+                _ => "?"
+            };
+
+            return (message, name);
+        }
+
+        public (string message_error, string embedTitle, string embedDescription, string content, string noMoney, string success) GetMarryMessages(byte error_id, string ctxUserMention, string userMention)
+        {
+            return (
+                GetString($"Marry_E{error_id}"), // 0-3 erros
+                GetString("Marry_embedTitle"),
+                string.Format(GetString("Marry_embedDescription"), ctxUserMention),
+                string.Format(GetString("Marry_messageContent"), userMention),
+                string.Format(GetString("Marry_noMoney"), ctxUserMention, userMention),
+                string.Format(GetString("Marry_messageContent_OnSuccess"), ctxUserMention, userMention)
+            );
         }
     }
 }

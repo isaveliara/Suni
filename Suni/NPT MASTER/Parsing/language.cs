@@ -23,6 +23,8 @@ namespace Sun.NPT.ScriptInterpreter
         //values
         public List<string> Lines { get; private set; }
         public string ActualLine { get; private set; }
+        public List<List<List<string>>> Indents { get; private set; }
+        public List<List<string>> ActualIndent { get; private set; }
         public Dictionary<string, List<string>> Includes { get; private set; }
         public List<Dictionary<string, NptType>> Variables { get; private set; }
         public Dictionary<string, List<string>> NFuncs { get; private set; } = [];

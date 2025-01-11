@@ -25,6 +25,7 @@ namespace Sun.Functions
                 typeof(Sun.Commands.RegexCommandsGroup),
                 typeof(Sun.Commands.AndresCommandsGroup),
                 typeof(Sun.Commands.LanguageCommands),
+                typeof(Sun.Commands.CustomNptCommands),
             };
             //guild install commands
             List<Type> ProtectedInteractionCommands = new List<Type>

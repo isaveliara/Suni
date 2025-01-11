@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+
+  <!-- Ship Command -->
+  <data name="Ship_Description" xml:space="preserve">
+    <value>Calcula a porcentagem de compatibilidade entre duas pessoas</value>
+  </data>
+  <data name="Ship_Response" xml:space="preserve">
+    <value>:heart: | O nome do casal seria {0}
+    :heart: | Com uma probabilidade de {0}</value>
+  </data>
+  <data name="Ship_13" xml:space="preserve">
+    <value>Esqueça :headskull:</value>
+  </data>
+  <data name="Ship_24" xml:space="preserve">
+    <value>Não existe motivo para que esse casal exista!</value>
+  </data>
+  <data name="Ship_49" xml:space="preserve">
+    <value>Improvável! Vamos torcer por esses dois...</value>
+  </data>
+  <data name="Ship_69" xml:space="preserve">
+    <value>Por que não dar certo? :heart:</value>
+  </data>
+  <data name="Ship_89_1" xml:space="preserve">
+    <value>O coração de {0} aquece por {1}</value>
+  </data>
+  <data name="Ship_89_2" xml:space="preserve">
+    <value>O coração de {1} aquece por {0}</value>
+  </data>
+  <data name="Ship_90" xml:space="preserve">
+    <value>Ownn... Esse seria o casal mais fofinho que eu já vi</value>
+  </data>
+
+  <!-- Marry Command -->
+  <data name="Marry_E0" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Marry_E1" xml:space="preserve">
+    <value>bobinho, não pode se casar com bots!</value>
+  </data>
+  <data name="Marry_E2" xml:space="preserve">
+    <value>bobinho, não pode se casar contigo mesmo!</value>
+  </data>
+  <data name="Marry_E3" xml:space="preserve">
+    <value>bobinho, não pode se casar com usuários já casados!</value>
+  </data>
+  <data name="Marry_embedTitle" xml:space="preserve">
+    <value>O amor está no ar...</value>
+  </data>
+  <data name="Marry_embedDescription" xml:space="preserve">
+    <value>{0} te enviou uma proprosta de casamento!
+    Reaja com :heart: para aceitar..
+    Lembre-se: casar custará **200 moedas** (metade pra cada usuário) **todos** os dias, e mais **20k de moedas** (metade pra cada usuário também) como **inicialização**!</value>
+  </data>
+  <data name="Marry_messageContent" xml:space="preserve">
+    <value>{0} parece que você recebeu uma proprosta...</value>
+  </data>
+  <data name="Marry_noMoney" xml:space="preserve">
+    <value>:x: | {0} {1} É necessário 20.000 para poder formar um casal, e em seus fundos não alcançam esse dinheiro!</value>
+  </data>
+  <data name="Marry_messageContent_OnSuccess" xml:space="preserve">
+    <value>{0}, {1}, vocês estão casados agora! Felicidades para os dois..</value>
+  </data>
+
+  <!-- SetLang Command -->
+  <data name="SetLang" xml:space="preserve">
+    <value>Responderei você usando o idioma {0}!
+    {0} possui {1}% da tradução completa no meu idioma base. (PT)</value>
+  </data>
+  <data name="SetLangF" xml:space="preserve">
+    <value>Falha ao definir o idioma para '{0}'.</value>
+  </data>
+
+  <!-- Aboutme Commands -->>
+  <data name="sun" xml:space="preserve">
+  <value>Você pode ver meus detalhes em meu [website]({0})!</value>
+  </data>
+
+  <!-- Marry Command -->
+  <data name="nerd" xml:space="preserve">
+  <value>Você pode ver meus detalhes em meu [website]({0})!</value>
+  </data>
+
+  <!-- Quiz Command -->
+  <data name="failQuizFoundTheme" xml:space="preserve">
+    <value>Incapaz de encontrar o tema '{0}'! (maybe API error) :x:</value>
+  </data>
+  <data name="failQuizMakeQuestion" xml:space="preserve">
+    <value>Falha em conseguir a resposta! :warning:
+    Retrying...</value>
+  </data>
+  <data name="quizMakeQuestion" xml:space="preserve">
+    <value>:small_blue_diamond: Próxima pergunta em: **{0} seconds**</value>
+  </data>
+  <data name="quizFoundTheme" xml:space="preserve">
+    <value>Começando minigame com o tema {0}..</value>
+  </data>
+
+  <!-- General Values -->
+  <data name="Language" xml:space="preserve">
+    <value>Português</value>
+  </data>
+  <data name="aboutMe" xml:space="preserve">
+    <value>Você pode ver meus detalhes em meu [website]({0})!</value>
+  </data>
+
+  <data name="failWebhook" xml:space="preserve">
+    <value>Erro ao criar/usar a webhook.</value>
+  </data>
+  <data name="failTime" xml:space="preserve">
+    <value>Sem respostas no tempo esperado!</value>
+  </data>
+</root>

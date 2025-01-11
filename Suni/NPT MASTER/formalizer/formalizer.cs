@@ -48,18 +48,18 @@ namespace Sun.NPT.ScriptFormalizer
                 if (!isString && currentChar == '#')
                 {
                     var keyword = Help.keywordLookahead(code, i);
-                    if (keyword.Chars == "definitions")
+                    if (keyword.Letters == "definitions")
                     {
                         inDefinitionsBlock = true;
-                        i += keyword.Chars.Length;  // Avançar o índice
-                        currentLine = "";  // Limpar linha
+                        i += keyword.Letters.Length;  //advance index
+                        currentLine = "";  //clean line
                         continue;
                     }
-                    else if (keyword.Chars == "ends")
+                    else if (keyword.Letters == "ends")
                     {
                         inDefinitionsBlock = false;
-                        i += keyword.Chars.Length;  // Avançar o índice
-                        currentLine = "";  // Limpar linha
+                        i += keyword.Letters.Length;  //advance index
+                        currentLine = "";  //clean line
                         continue;
                     }
                 }
@@ -98,10 +98,10 @@ namespace Sun.NPT.ScriptFormalizer
                     lines.Add(currentLine.Trim());
             
             //display (DEBUGGING)
-            System.Console.WriteLine($"suni instruction\n>\n    ]{string.Join("\n    ]", Deflines)}\n<");
-            System.Console.WriteLine($"suni query\n>\n    ]{string.Join("\n    ]", lines)}\n<\n");
+            Console.WriteLine($"suni instruction\n>\n    ]{string.Join("\n    ]", Deflines)}\n<");
+            Console.WriteLine($"suni query\n>\n    ]{string.Join("\n    ]", lines)}\n<\n");
 
-            //we can just ignore this
+            //we can just ignore this:
             //if (!hasDefinitionsBlock)
             //    return (null, Diagnostics.NotFoundDefinitionsBlock);
             

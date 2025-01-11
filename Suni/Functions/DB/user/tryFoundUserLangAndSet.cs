@@ -1,61 +1,50 @@
-//damn
+using System.Data.SQLite;
 
-using System.Collections.Generic;
-using Sun.Globalization;
+namespace Sun.Functions.DB;
 
-namespace Sun.Functions.DB
+public partial class DBMethods
 {
-    public partial class DBMethods
+    public async Task<SuniSupportedLanguages> GetUserPrimaryLangAsync(ulong userId)
     {
-        public static bool SetUserLang(ulong userId, string newLanguage)
+        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
         {
-            var supported = GlobalizationMethods.TryConvertLanguageToSupported(newLanguage);
-            try
+            connection.Open();
+            string query = "SELECT primary_lang FROM users WHERE user_id = @userId";
+            using (var cmd = new SQLiteCommand(query, connection))
             {
-                new DBMethods().UpdateUser(userId, new Dictionary<string, object>
-                    {
-                        { "primary_lang", supported.ToString() }
-                    });
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Falha ao redefinir idioma do usuário '{userId}': {ex.Message}");
-                return false;
+                cmd.Parameters.AddWithValue("@userId", userId);
+                var result = await cmd.ExecuteScalarAsync();
+                
+                var l = result != null
+                    ? GlobalizationMethods.ParseToLanguageSupported(result.ToString())
+                    : SuniSupportedLanguages.FROM_CLIENT;
+                
+                Console.WriteLine($"(maybe error?) Got {l} as user language (for {userId}) - tryFoundUserLangAndSet.cs");
+                
+                return l;
             }
         }
+    }
 
-        public SuniSupportedLanguages GetUserLanguage(ulong userId, string lang = null, string userName = null, string avatar = null)
+    public async Task<bool> UpdateUserPrimaryLangAsync(ulong userId, SuniSupportedLanguages newLang)
+    {
+        Console.WriteLine($"Updated user language to {newLang}! (for {userId}) - tryFoundUserLangAndSet.cs");
+        try{
+        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
         {
-            var userFields = GetUserFields(userId, new List<string> { "primary_lang" });
-            if (userFields == null)
-                return HandleUnknownUser(userId, lang, userName, avatar);
-            if (!userFields.TryGetValue("primary_lang", out var value) || value == null)
-                return HandleUnknownUser(userId, lang, userName, avatar);
-
-            var foundLang = value.ToString();
-            if (foundLang == "FROM_CLIENT" && lang != null)
+            connection.Open();
+            string query = "UPDATE users SET primary_lang = @newLang WHERE user_id = @userId";
+            using (var cmd = new SQLiteCommand(query, connection))
             {
-                var supportedLang = GlobalizationMethods.TryConvertLanguageToSupported(lang);
-                UpdateUser(userId, new Dictionary<string, object> { { "primary_lang", supportedLang.ToString() } });
-                return supportedLang;
+                cmd.Parameters.AddWithValue("@newLang", newLang.ToString());
+                cmd.Parameters.AddWithValue("@userId", userId);
+                await cmd.ExecuteNonQueryAsync();
             }
-
-            return GlobalizationMethods.TryConvertLanguageToSupported(foundLang);
         }
-
-        //specific to this methods
-        private static SuniSupportedLanguages HandleUnknownUser(ulong userId, string lang, string userName, string avatar)
-        {
-            if (lang == null)
-            {
-                new DBMethods().InsertUser(userId, userName, avatar, commandNu: 1, primaryLang: SuniSupportedLanguages.FROM_CLIENT);
-                return SuniSupportedLanguages.PT;
-            }
-
-            var supportedLang = GlobalizationMethods.TryConvertLanguageToSupported(lang);
-            new DBMethods().InsertUser(userId, userName, avatar, commandNu: 1, primaryLang: supportedLang);
-            return supportedLang;
+        return true;
+        }
+        catch (Exception){
+            return false;
         }
     }
 }

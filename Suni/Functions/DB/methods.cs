@@ -8,6 +8,9 @@ namespace Sun.Functions.DB
     public enum ServerStatusTypes{
         banned, limited1, partnership, client
     }
+    public enum NptListeners{
+        custom_command,
+    }
 
     public partial class DBMethods
     {

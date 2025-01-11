@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using DSharpPlus.EventArgs;
 using Sun.Functions.Romance;
+using YamlDotNet.Serialization.TypeResolvers;
 
 namespace Sun.Events
 {
@@ -65,9 +66,9 @@ namespace Sun.Events
             }
             
             Console.WriteLine($"<{u1}> aceitou o(a) <{u2}>");
-            var language = new Functions.DB.DBMethods().GetUserLanguage(e.User.Id, lang: null, userName:e.User.Username, avatar:e.User.AvatarUrl);
-            var tr = new Globalization.Using(language);
-            (string _, string _, string _, string _, string noMoney, string success) = tr.Commands.GetMarryMessages(0, $"<@{u1}>", $"<@{u2}>");
+            var lang = await new DBMethods().GetUserPrimaryLangAsync(e.User.Id);
+            var solve = await SolveLang.SolveLangAsync(lang.ToString());
+            (string _, string _, string _, string _, string noMoney, string success) = solve.Commands.GetMarryMessages(0, $"<@{u1}>", $"<@{u2}>");
             bool re = RomanceMethods.MarryUsers(u1Id, u2Id, true);
             if (!re)
             {
