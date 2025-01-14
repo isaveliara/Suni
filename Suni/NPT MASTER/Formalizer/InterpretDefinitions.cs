@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Sun.NPT.ScriptInterpreter;
 using System.Linq;
+using System.Text.RegularExpressions;
+using static Sun.NPT.ScriptInterpreter.NptSystem;
 
 namespace Sun.NPT.ScriptFormalizer
 {
@@ -43,24 +45,56 @@ namespace Sun.NPT.ScriptFormalizer
                 if (currentLine.StartsWith("~set"))
                 {
                     var parts = currentLine.Substring(4).Trim().Split(' ', 2);
-
                     if (parts.Length == 2)
                     {
                         string variableName = parts[0].Trim();
-                        var (result, typedValue) = Help.GetType(parts[1]);
-                        if (result != Diagnostics.Success)
-                            return (null, null, result); //error
+                        Console.WriteLine($"Detectado ~set para variável ou função: {variableName}");
 
-                        //add the variable with typed value
-                        variables.Add(new Dictionary<string, NptSystem.NptType> { { variableName, typedValue } });
-                        System.Console.WriteLine($"Variable '{variableName}' set with type '{typedValue.Type}' and value '{typedValue.Value}'");
+                        var fnMatch = Regex.Match(variableName, @"\[(\w+)<([^>]*)>\]");
+                        if (fnMatch.Success)
+                        {
+                            string fnName = fnMatch.Groups[1].Value;
+                            var parameters = fnMatch.Groups[2].Value
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(param => param.Trim())
+                                .ToList();
+                            string code = parts[1].Trim().Trim('"');
+
+                            Console.WriteLine($"Registering function: {fnName}\nParameters: {string.Join(", ", parameters)}");
+                            Console.WriteLine($"Function body: {code}");
+
+                            var function = new NptFunction(fnName, parameters, code);
+                            variables.Add(new Dictionary<string, NptType>
+                            {
+                                { fnName, new NptType(Types.Fn, function) }
+                            });
+
+                            Console.WriteLine($"Function '{fnName}' registered successfully.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Processing as common variable: {variableName}");
+                            var (result, typedValue) = Help.GetType(parts[1]);
+                            if (result != Diagnostics.Success)
+                            {
+                                Console.WriteLine($"Error interpreting variable '{variableName}': {result}");
+                                return (null, null, result);
+                            }
+
+                            variables.Add(new Dictionary<string, NptType> { { variableName, typedValue } });
+                            Console.WriteLine($"Variable '{variableName}' registered with value: {typedValue}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Sintax error in ~set: '{currentLine}'");
+                        return (null, null, Diagnostics.SyntaxException);
                     }
                 }
             }
 
-
-            System.Console.WriteLine($">> Includes: {string.Join(", ", includes.Keys)}");
-            System.Console.WriteLine($">> Variables: {string.Join(", ", variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
+            Console.WriteLine($">> Includes: {string.Join(", ", includes.Keys)}");
+            Console.WriteLine($">> Variables: {string.Join(", ", variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
 
             return (includes, variables, Diagnostics.Success);
         }

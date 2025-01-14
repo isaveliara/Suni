@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using static Sun.NPT.ScriptInterpreter.NptSystem;
 
 namespace Sun.NPT.ScriptInterpreter
@@ -29,7 +30,7 @@ namespace Sun.NPT.ScriptInterpreter
         {
             value = value.Trim();
 
-            // null (nil)
+            //null (nil)
             if (value == "nil")
                 return (Diagnostics.Success, new NptType(Types.Nil, null));
 
@@ -95,7 +96,22 @@ namespace Sun.NPT.ScriptInterpreter
                 return (Diagnostics.Success, new NptType(Types.Dict, pairs));
             }
 
-            //unknow
+            //function (e.g., [name<params>] "code")
+            var fnMatch = Regex.Match(value, @"^\[(\w+)<([^>]*)>\]\s*""(.*)""$");
+            if (fnMatch.Success)
+            {
+                string fnName = fnMatch.Groups[1].Value;
+                var parameters = fnMatch.Groups[2].Value
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(param => param.Trim())
+                    .ToList();
+                string fnBody = fnMatch.Groups[3].Value;
+
+                var function = new NptFunction(fnName, parameters, fnBody);
+                return (Diagnostics.Success, new NptType(Types.Fn, function));
+            }
+
+            //unknown
             return (Diagnostics.UnknowTypeException, null);
         }
     }

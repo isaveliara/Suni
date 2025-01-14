@@ -43,7 +43,7 @@ namespace Sun.Bot
     public sealed class SunClassBot
     {
         public static DiscordClient SuniClient;
-        public const string SuniV = "build_2.0";
+        public const string SuniV = "build_2.1";
         public static string BaseUrl = new DotenvItems().BaseUrl;
         public static ulong SupportServerId = new DotenvItems().SupportServerId;
         public static int TimerRepeats { get; private set; } = 0;

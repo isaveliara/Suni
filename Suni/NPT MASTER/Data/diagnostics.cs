@@ -22,7 +22,7 @@ public enum Diagnostics
     //language errors (errors because of me)
     UnknowException,
 
-    //npt errors
+    //other/npt errors
     NPTInvalidChannelException, NPTMissingPermissionsException, NPTDeniedException,
     NPTInvalidMessageException, NPTInvalidUserException,
     UnknowTypeException,
@@ -31,4 +31,6 @@ public enum Diagnostics
     MissingOperandsForEvaluation,
     BadToken,
     SyntaxException,
+    FunctionNotFound,
+    ArgumentMismatch,
 }
