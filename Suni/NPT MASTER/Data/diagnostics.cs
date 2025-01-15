@@ -34,4 +34,5 @@ public enum Diagnostics
     FunctionNotFound,
     ArgumentMismatch,
     Forgotten, //hide the output/debug result
+    UnlistedProperty,
 }
