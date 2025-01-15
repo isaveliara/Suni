@@ -15,10 +15,16 @@ using System.Linq;
 
 namespace Sun.NPT.ScriptInterpreter
 {
-    //class for parser and execution
+    /// <summary>
+    /// class for parser and execution
+    /// </summary>
     public partial class NptSystem
     {
-        //objects that interact with the class itself
+        public static readonly List<string> MainControlerLibMethods = new List<string> { "nout", "noutset", "ncls", "list_var", "list_libs" };
+
+        /// <summary>
+        /// objects that interact with the main class itself (the parser)
+        /// </summary>
         public Diagnostics STDControler(string method, List<string> args, string pointer)
         {
             switch (method)
@@ -39,7 +45,7 @@ namespace Sun.NPT.ScriptInterpreter
                     _outputs.Add($">> Includes: {string.Join("\n   ", Includes.Keys)}");
                     break;
                 default:
-                    return Diagnostics.NotFoundObjectException;
+                    return Diagnostics.NotFoundIncludedObjectException;
             }
             return Diagnostics.Success;
         }

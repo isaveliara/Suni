@@ -23,7 +23,7 @@ namespace Sun.NPT.ScriptInterpreter
 
                 if (className == null){
                     _outputs.Add($"Method '{methodName}' not associated with any class in includes.");
-                    return Diagnostics.NotFoundClassException;
+                    return Diagnostics.IncludeNotFoundException;
                 }
             }
 

@@ -17,8 +17,7 @@ namespace Sun.Events
             if (messageSeed % 333 == 0)
                 await e.Message.RespondAsync(e.Message.Content);
 
-            //73 in 10,000 (0.73%)
-            if (messageSeed % 137 == 0)
+            if (messageSeed % 100 == 0)
             {
                 var emojis = new[]
                 {
@@ -27,7 +26,8 @@ namespace Sun.Events
                     DiscordEmoji.FromName(client, ":heart:"),
                     DiscordEmoji.FromName(client, ":fire:"),
                     DiscordEmoji.FromName(client, ":ox:"),
-                    DiscordEmoji.FromName(client, ":star:")
+                    DiscordEmoji.FromName(client, ":star:"),
+                    DiscordEmoji.FromName(client, ":sweat:"),
                 };
 
                 int emojiIndex = messageSeed % emojis.Length;

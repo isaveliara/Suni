@@ -33,6 +33,8 @@ public class NptCommands
         string response = $"Result (Debugging) of SuniNPT code `{Bot.SunClassBot.SuniV}` is here:```\n";
         NptSystem parser = new NptSystem();
         var result = await parser.ParseScriptAsync(code, ctx);
+        if (result.result == Diagnostics.Forgotten)
+            return;
         //first output
         foreach (var output in result.outputs)
             response += $"\n{output}";
@@ -44,8 +46,7 @@ public class NptCommands
         
         if (result.result == Diagnostics.Success)
             response += $"```\nResult Program: **{result.result}**\n[Finished] :white_check_mark:";
-        else
-            response += $"```\nOcorreu um erro ao executar o código:\n**{result.result}**\n[Finished] :x:";
+        else response += $"```\nOcorreu um erro ao executar o código:\n**{result.result}**\n[Finished] :x:";
 
         await ctx.RespondAsync(response);
     }
@@ -74,14 +75,15 @@ public class NptCommands
         string response = $"OUTPUT of SuniNPT code `{Bot.SunClassBot.SuniV}` is here:```\n";
         NptSystem parser = new NptSystem();
         var result = await parser.ParseScriptAsync(code, ctx);
+        if (result.result == Diagnostics.Forgotten)
+            return;
         //output
         foreach (var output in result.outputs)
             response += $"\n{output}";
         
         if (result.result == Diagnostics.Success)
             response += $"```\nResult Program: **{result.result}**\n[Finished] :white_check_mark:";
-        else
-            response += $"```\nOcorreu um erro ao executar o código:\n**{result.result}**\n[Finished] :x:";
+        else response += $"```\nOcorreu um erro ao executar o código:\n**{result.result}**\n[Finished] :x:";
 
         await ctx.RespondAsync(response);
     }

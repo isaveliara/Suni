@@ -10,7 +10,7 @@ public enum Diagnostics
     DivisionByZeroException,
 
     //class/object errors
-    NotFoundObjectException, NotFoundClassException, InvalidArgsException,
+    NotFoundIncludedObjectException, IncludeNotFoundException, InvalidArgsException,
 
     //syntax errors
     UnrecognizedLineException, InvalidKeywordException,
@@ -33,4 +33,5 @@ public enum Diagnostics
     SyntaxException,
     FunctionNotFound,
     ArgumentMismatch,
+    Forgotten, //hide the output/debug result
 }

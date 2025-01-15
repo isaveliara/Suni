@@ -37,9 +37,31 @@ public partial class NptSystem
 
             if (ActualLine.StartsWith("&")){
                 var keyWordName = Help.keywordLookahead(ActualLine, 0);
-                _debugs.Add($"Identificado keyword: >>{keyWordName.Chars}<<");
+                _debugs.Add($"Identified keyword: >>{keyWordName.Chars}<<");
 
-                if (keyWordName.Letters == "call"){
+                if (keyWordName.Letters == "if"){
+                    var ifMatch = Regex.Match(ActualLine.Substring(2), @"\(([^)]+)\)\s*&do{", RegexOptions.None);
+                    if (ifMatch.Success){
+                        string condition = ifMatch.Groups[1].Value;
+                        var (r, conditionResult) = NptStatements.IFStatement(condition);
+                        if (r != Diagnostics.Success)
+                            return (_debugs, _outputs, r);
+
+                        _debugs.Add($"A condição '{condition}' é {conditionResult}");
+                        //creating a new block based on the "if" condition
+                        blockStack.Push(new CodeBlock
+                        {
+                            IndentLevel = blockStack.Peek().IndentLevel + 1,
+                            CanExecute = conditionResult //control whether the block can be executed based on the result of the condition
+                        });
+
+                        continue;
+                    }
+                    else
+                        return (_debugs, _outputs, Diagnostics.SyntaxException);
+                }
+                
+                else if (keyWordName.Letters == "call"){
                     var funcMatch = Regex.Match(ActualLine, @"call\s+(\w+)\(([^)]*)\)");
                     if (funcMatch.Success){
                         string functionName = funcMatch.Groups[1].Value;
@@ -79,6 +101,20 @@ public partial class NptSystem
                         return (_debugs, _outputs, Diagnostics.SyntaxException);
                 }
 
+                else if (keyWordName.Letters == "goto"){
+                    if (int.TryParse(keyWordName.Chars.Substring(4), out int targetLineIndex)){
+                        if (targetLineIndex >= 1 && targetLineIndex - 1 < Lines.Count){
+                            Lines[i] = "";
+                            i = targetLineIndex - 2;
+                            continue;
+                        }
+                        else
+                            return (_debugs, _outputs, Diagnostics.OutOfRangeException);
+                    }
+                    else
+                        return (_debugs, _outputs, Diagnostics.SyntaxException);
+                }
+
                 if (keyWordName.Chars == "do{"){
                     blockStack.Push(new CodeBlock{
                         IndentLevel = blockStack.Peek().IndentLevel + 1,
@@ -95,6 +131,20 @@ public partial class NptSystem
                     _debugs.Add($"Fechando bloco do tipo '{closingBlock.Type}' no nível de indentação {closingBlock.IndentLevel}");
                     continue;
                 }
+                else if (keyWordName.Letters == "kit"){
+                    _debugs.Add("Script interrompido pela palavra-chave 'kit'.");
+                    return (_debugs, _outputs, Diagnostics.EarlyTermination);
+                }
+                else if (keyWordName.Letters == "forget"){
+                    return (null, null, Diagnostics.Forgotten);
+                }
+
+                else if (keyWordName.Letters == "raizeEx"){
+                    _debugs.Add("Exceção levantada pela palavra-chave 'raizeEx'.");
+                    return (_debugs, _outputs, Diagnostics.RaisedException);
+                }
+                else
+        return (_debugs, _outputs, Diagnostics.InvalidKeywordException);
             }
 
             if (!blockStack.Peek().CanExecute)
@@ -150,11 +200,11 @@ public partial class NptSystem
                 }
 
                 _debugs.Add($"Internal Error: Method 'Controler' not found in '{classNameProper}'.");
-                return Diagnostics.NotFoundClassException;
+                return Diagnostics.IncludeNotFoundException;
             }
 
             _debugs.Add($"Error: '{classNameProper}' not found.");
-            return Diagnostics.NotFoundClassException;
+            return Diagnostics.IncludeNotFoundException;
         }
         catch (Exception ex){
             _outputs.Add($"Unknown Error while executing '{className}::{methodName}': {ex.Message}");
