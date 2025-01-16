@@ -6,28 +6,19 @@ namespace Sun.Events;
 
 public partial class ReactionEvents
 {
+    private static bool IsReactionValid(MessageReactionAddedEventArgs e)
+    {
+        if (e.Emoji.GetDiscordName() != ":heart:") return true;
+
+        if (!e.User.IsBot) return true;
+
+        if (e.Message.Author != null || e.Message.Author.IsCurrent) return true;
+        return false;
+    }
     internal static async Task OnAddedReaction(DiscordClient client, MessageReactionAddedEventArgs e)
     {
-        if (e.Emoji.GetDiscordName() != ":heart:")
-        {
-            Console.WriteLine($"não é o emoji. ({e.Emoji.GetDiscordName()})");
-            return;
-        }
-
-        if (e.User.IsBot)
-        {
-            Console.WriteLine("É bot.");
-            return;
-        }
-        
-        if (e.Message.Author == null || !e.Message.Author.IsCurrent)
-        {
-            Console.WriteLine($"Não é mensagem do próprio bot ou então uma mensagem antiga.");
-            return;
-        }
-        
         bool botReacted = false;
-
+        if (!IsReactionValid(e)) return;
         await foreach (var user in e.Message.GetReactionsAsync(e.Emoji))
         {
             if (user.Id == client.CurrentUser.Id)
@@ -41,7 +32,7 @@ public partial class ReactionEvents
             Console.WriteLine("o bot não reagiu a mensagem dele para ser um casamento valido");
             return;
         }
-        
+
         //get the users
         var matchU1 = Regex.Match(e.Message.Content, @"<@!?(\d+)>");
         var matchU2 = Regex.Match(e.Message.Embeds.First().Description[..32], @"<@!?(\d+)>");
@@ -62,7 +53,7 @@ public partial class ReactionEvents
             Console.WriteLine($"Invalido: A proposta lançada para {u1} foi reagida por ({e.User.Id})");
             return;
         }
-        
+
         Console.WriteLine($"<{u1}> aceitou o(a) <{u2}>");
         var lang = await new DBMethods().GetUserPrimaryLangAsync(e.User.Id);
         var solve = await SolveLang.SolveLangAsync(lang.ToString());

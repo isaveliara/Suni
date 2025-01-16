@@ -1,5 +1,5 @@
 using System.Data.SQLite;
-namespace Sun.Functions.DB;
+namespace Suni.Suni.Functions.DB;
 
 public partial class DBMethods
 {
@@ -16,7 +16,8 @@ public partial class DBMethods
         lastActive = lastActive ?? DateTime.Now;
         string value = DBInsertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
 
-        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;")){
+        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
+        {
             connection.Open();
             string insertUserQuery = value + @" INTO users (user_id, username, avatar_url, married_with, balance, flags, badges,
                                     event_data, primary_lang, status, xp, reputation, commandNu, last_active)
@@ -24,7 +25,8 @@ public partial class DBMethods
                         @eventData, @primaryLang, @status, @xp, @reputation, @commandNu, @lastActive);
             ";
 
-            using (var command = new SQLiteCommand(insertUserQuery, connection)){
+            using (var command = new SQLiteCommand(insertUserQuery, connection))
+            {
                 command.Parameters.AddWithValue("@userId", (long)userId);
                 command.Parameters.AddWithValue("@username", username);
                 command.Parameters.AddWithValue("@avatarUrl", avatarUrl);
