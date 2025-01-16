@@ -17,7 +17,7 @@ public partial class JoinScript
             //{ "npt", new List<string>{"log", "ban", "unban", "react"} },
         };
         var variables = new List<Dictionary<string, NptSystem.NptType>>{
-            new Dictionary<string, NptSystem.NptType> { { "__version__", new NptSystem.NptType(NptSystem.Types.Str, Bot.SunClassBot.SuniV) } },
+            new Dictionary<string, NptSystem.NptType> { { "__version__", new NptSystem.NptType(NptSystem.Types.Str, SunClassBot.SuniV) } },
             new Dictionary<string, NptSystem.NptType> { { "__time__", new NptSystem.NptType(NptSystem.Types.Str, System.DateTime.Now.ToString()) } }
         };
 
@@ -30,7 +30,7 @@ public partial class JoinScript
             {
                 var includeName = currentLine.Substring(9).Trim();
                 Console.WriteLine($"{includeName} included by line: {currentLine}");
-                
+
                 if (!string.IsNullOrWhiteSpace(includeName) && !includes.ContainsKey(includeName))
                 {
                     string classNameProper = char.ToUpper(includeName[0]) + includeName.Substring(1).ToLower() + "Entitie";

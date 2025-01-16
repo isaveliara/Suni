@@ -14,7 +14,8 @@ public class NptCommands
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
     public static async Task NptRunDebuggingCommand(CommandContext ctx, [RemainingText] string msg)
     {
-        if (ctx.Guild == null && !ctx.Member.Permissions.HasPermission(DiscordPermission.Administrator)){
+        if (ctx.Guild == null && !ctx.Member.Permissions.HasPermission(DiscordPermission.Administrator))
+        {
             await ctx.RespondAsync("Voçê não pode executar isso.");
             return;
         }
@@ -28,9 +29,9 @@ public class NptCommands
         }
         code = match.Groups[1].Value;
         Console.WriteLine(code);
-        
+
         //building response
-        string response = $"Result (Debugging) of SuniNPT code `{Bot.SunClassBot.SuniV}` is here:```\n";
+        string response = $"Result (Debugging) of SuniNPT code `{SunClassBot.SuniV}` is here:```\n";
         NptSystem parser = new NptSystem();
         var result = await parser.ParseScriptAsync(code, ctx);
         if (result.result == Diagnostics.Forgotten)
@@ -43,7 +44,7 @@ public class NptCommands
         //debug
         foreach (var debug in result.debugs)
             response += $"\n    {debug}";
-        
+
         if (result.result == Diagnostics.Success)
             response += $"```\nResult Program: **{result.result}**\n[Finished] :white_check_mark:";
         else response += $"```\nOcorreu um erro ao executar o código:\n**{result.result}**\n[Finished] :x:";
@@ -56,7 +57,8 @@ public class NptCommands
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
     public static async Task NptRunCommand(CommandContext ctx, [RemainingText] string msg)
     {
-        if (ctx.Guild != null && !(ctx.Member?.Permissions.HasPermission(DiscordPermission.Administrator) ?? false)){
+        if (ctx.Guild != null && !(ctx.Member?.Permissions.HasPermission(DiscordPermission.Administrator) ?? false))
+        {
             await ctx.RespondAsync("Voçê não pode executar isso.");
             return;
         }
@@ -70,9 +72,9 @@ public class NptCommands
         }
         code = match.Groups[1].Value;
         Console.WriteLine(code);
-        
+
         //building response
-        string response = $"OUTPUT of SuniNPT code `{Bot.SunClassBot.SuniV}` is here:```\n";
+        string response = $"OUTPUT of SuniNPT code `{SunClassBot.SuniV}` is here:```\n";
         NptSystem parser = new NptSystem();
         var result = await parser.ParseScriptAsync(code, ctx);
         if (result.result == Diagnostics.Forgotten)
@@ -80,7 +82,7 @@ public class NptCommands
         //output
         foreach (var output in result.outputs)
             response += $"\n{output}";
-        
+
         if (result.result == Diagnostics.Success)
             response += $"```\nResult Program: **{result.result}**\n[Finished] :white_check_mark:";
         else response += $"```\nOcorreu um erro ao executar o código:\n**{result.result}**\n[Finished] :x:";

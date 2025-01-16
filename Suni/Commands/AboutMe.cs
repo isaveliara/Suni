@@ -1,15 +1,16 @@
 using System.Text.RegularExpressions;
+using Suni.Suni.Configuration.Interfaces;
 
 namespace Sun.Commands;
 
-public class AboutMe
+public class AboutMe(IAppConfig config)
 {
     [Command("sun")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-    public static async Task About(CommandContext ctx)
+    public async Task About(CommandContext ctx)
         =>
-            await ctx.RespondAsync($"Você pode ver meus detalhes em meu [website]({SunClassBot.BaseUrl})!");
+            await ctx.RespondAsync($"Você pode ver meus detalhes em meu [website]({config.BaseUrl})!");
 
     [Command("nerd")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
@@ -17,17 +18,17 @@ public class AboutMe
     public static async Task Nerd(CommandContext ctx)
         =>
             await ctx.RespondAsync(Functions.Functions.GetSuniStatistics());
-    
+
     [Command("ping")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-    public static async Task Ping(CommandContext ctx)
+    public async Task Ping(CommandContext ctx)
     {
         await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("Ping!"));
-        ulong s = new DotenvItems().SupportServerId;
+        ulong s = config.SupportServerId;
 
         var websocketPing = ctx.Client.GetConnectionLatency(
-            ctx.Channel.IsPrivate? ctx.Guild?.Id ?? s
+            ctx.Channel.IsPrivate ? ctx.Guild?.Id ?? s
                                  : s
         ).TotalMilliseconds;
 
