@@ -9,7 +9,7 @@ namespace Sun.Functions
     {
         public static async Task<(MemoryStream, string)> CalculateExpression(string exp)
         {
-            var client = new RestClient(new Sun.Bot.DotenvItems().BaseUrlApi);
+            var client = new RestClient(new DotenvItems().BaseUrlApi);
             var request = new RestRequest($"/calc/{exp}", Method.Get);
             byte[] response = await client.DownloadDataAsync(request);
             if (response == null || response.Length == 0)

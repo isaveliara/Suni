@@ -42,6 +42,7 @@ public sealed class SunClassBot
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<IAppConfig, DotenvItems>();
+
         var SuniBuilder = DiscordClientBuilder.CreateDefault(
             new DotenvItems().CanaryToken,
             DiscordIntents.All.RemoveIntent(DiscordIntents.GuildPresences),
@@ -64,11 +65,6 @@ public sealed class SunClassBot
                     .HandleMessageReactionAdded(Sun.Events.ReactionEvents.On_addedReaction)
                     .HandleMessageCreated(Sun.Events.MessageEvents.On_message)
         );
-
-        //SuniBuilder.UseInteractivity(new InteractivityConfiguration{
-        //    PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
-        //    Timeout = TimeSpan.FromSeconds(30)
-        //});
         
         var prefixes = new string[] { "&" };
         SuniBuilder.UseCommands((_, extension) =>{
