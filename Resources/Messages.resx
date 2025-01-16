@@ -116,10 +116,31 @@
     <value>Você pode ver meus detalhes em meu [website]({0})!</value>
   </data>
 
+
   <data name="failWebhook" xml:space="preserve">
     <value>Erro ao criar/usar a webhook.</value>
   </data>
   <data name="failTime" xml:space="preserve">
     <value>Sem respostas no tempo esperado!</value>
+  </data>
+  <data name="failUnauthorized" xml:space="preserve">
+    <value>:x: | Você não possui as permissões suficientes para executar esta ação!</value>
+  </data>
+  <data name="failNoResources" xml:space="preserve">
+    <value>Sem recursos para analizar aqui!</value>
+  </data>
+  <data name="internalError" xml:space="preserve">
+    <value>:x: Aconteceu um erro interno...</value>
+  </data>
+  <data name="unknownError" xml:space="preserve">
+    <value>:x: Aconteceu um erro desconhecido...</value>
+  </data>
+
+
+  <data name="automodUnflaggedText" xml:space="preserve">
+    <value>:white_check_mark: | O texto fornecido não foi sinalizado por nenhuma regra de AutoMod.</value>
+  </data>
+  <data name="automodFlaggedText" xml:space="preserve">
+    <value>:white_check_mark: | O texto fornecido foi sinalizado pelas seguintes regras de AutoMod:</value>
   </data>
 </root>

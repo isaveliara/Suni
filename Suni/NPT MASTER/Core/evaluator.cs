@@ -37,8 +37,7 @@ partial class NptStatements
 
         string[] tokens = Tokenize(expression);
 
-        foreach (string token in tokens)
-        {
+        foreach (string token in tokens){
             if (token == "[")
                 stackOperators.Push(token);
             else if (token == "]"){
@@ -70,8 +69,7 @@ partial class NptStatements
             }
         }
 
-        while (stackOperators.Count > 0)
-        {
+        while (stackOperators.Count > 0){
             var error = ApplyOperator(stackValues, stackOperators.Pop());
             if (error != Diagnostics.Success)
                 return (error, null);
@@ -82,8 +80,7 @@ partial class NptStatements
             : (Diagnostics.MalformedExpression, null);
     }
 
-    private static Diagnostics ApplyOperatorOrFunction(Stack<object> stackValues, string token)
-    {
+    private static Diagnostics ApplyOperatorOrFunction(Stack<object> stackValues, string token){
         if (token.Contains('#'))
             return ApplyFunctionWithFormat(stackValues, token);
 
@@ -94,10 +91,8 @@ partial class NptStatements
     {
         if (stackValues.Count < 2)
             return Diagnostics.IncompleteBinaryIFOperation;
-
         var b = stackValues.Pop();
         var a = stackValues.Pop();
-
         try
         {
             switch (Operator){
@@ -109,11 +104,9 @@ partial class NptStatements
                         return Diagnostics.TypeMismatchException;
                     break;
                 case "==":
-                    stackValues.Push(Equals(a, b));
-                    break;
+                    stackValues.Push(Equals(a, b));    break;
                 case "~=":
-                    stackValues.Push(!Equals(a, b));
-                    break;
+                    stackValues.Push(!Equals(a, b));   break;
                 case ">":
                 case "<":
                 case ">=":
@@ -134,14 +127,11 @@ partial class NptStatements
                     break;
                 
                 case "+":
-                    stackValues.Push(Add(a, b));
-                    break;
+                    stackValues.Push(Add(a, b));        break;
                 case "-":
-                    stackValues.Push(Subtract(a, b));
-                    break;
+                    stackValues.Push(Subtract(a, b));   break;
                 case "*":
-                    stackValues.Push(Multiply(a, b));
-                    break;
+                    stackValues.Push(Multiply(a, b));   break;
                 case "/":
                     if (b is int intB && intB == 0)
                         return Diagnostics.DivisionByZeroException;
@@ -157,8 +147,7 @@ partial class NptStatements
 
         return Diagnostics.Success;
     }
-    private static object Add(object a, object b)
-    {
+    private static object Add(object a, object b){
         return a switch{
             int intA when b is int intB => intA + intB,
             double doubleA when b is double doubleB => doubleA + doubleB,
@@ -167,8 +156,7 @@ partial class NptStatements
         };
     }
 
-    private static double Subtract(object a, object b)
-    {
+    private static double Subtract(object a, object b){
         return a switch{
             int intA when b is int intB => intA - intB,
             double doubleA when b is double doubleB => doubleA - doubleB,
@@ -176,8 +164,7 @@ partial class NptStatements
         };
     }
 
-    private static double Multiply(object a, object b)
-    {
+    private static double Multiply(object a, object b){
         return a switch{
             int intA when b is int intB => intA * intB,
             double doubleA when b is double doubleB => doubleA * doubleB,
@@ -185,8 +172,7 @@ partial class NptStatements
         };
     }
 
-    private static double Divide(object a, object b)
-    {
+    private static double Divide(object a, object b){
         return a switch{
             int intA when b is int intB && intB != 0 => intA / intB,
             double doubleA when b is double doubleB && doubleB != 0.0 => doubleA / doubleB,
