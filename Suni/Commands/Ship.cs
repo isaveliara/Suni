@@ -1,3 +1,4 @@
+using Sun.Functions.Visual;
 namespace Sun.Commands;
 
 public partial class Romance
@@ -19,8 +20,8 @@ public partial class Romance
         var (message, coupleName) = solve.Commands.GetShipMessages(percent, user1.Username, user2.Username);
 
         //build
-        var resultImage = await ImageModels.CreateImage.BuildShip(user1.GetAvatarUrl(ImageFormat.Png, 256), user2.GetAvatarUrl(ImageFormat.Png, 256), (byte)percent);
-        using var streamImage = await ImageModels.Basics.ToStream(resultImage);
+        var resultImage = await CreateImage.BuildShip(user1.GetAvatarUrl(ImageFormat.Png, 256), user2.GetAvatarUrl(ImageFormat.Png, 256), (byte)percent);
+        using var streamImage = await Basics.ToStream(resultImage);
 
         var embed = new DiscordEmbedBuilder()
             .WithDescription($"{message}");

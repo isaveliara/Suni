@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-
 namespace Sun.Commands;
 
 public partial class Romance
@@ -48,7 +47,6 @@ public partial class Romance
             );
         
         var msg = await ctx.GetResponseAsync();
-        
         await msg.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":heart:"));
     }
 }

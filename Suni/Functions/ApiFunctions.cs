@@ -15,7 +15,7 @@ namespace Sun.Functions
             byte[] response = await client.DownloadDataAsync(request);
             if (response == null || response.Length == 0)
             {
-                var erroredImg = await Sun.ImageModels.Basics.ErroredImage();
+                var erroredImg = await Visual.Basics.ErroredImage();
                 return (erroredImg, "failed to conect with api. Trying to solve this calc in basic form calculator:\n:x: not implemented");
             }
 

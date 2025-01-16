@@ -1,6 +1,6 @@
 using System.Data.SQLite;
 
-namespace Sun.Functions.Romance
+namespace Sun.Functions
 {
     public partial class RomanceMethods
     {

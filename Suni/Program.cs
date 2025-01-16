@@ -9,10 +9,8 @@ using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using Microsoft.Extensions.DependencyInjection;
 using Suni.Suni.Configuration;
 using Suni.Suni.Configuration.Interfaces;
+
 namespace Suni.Suni;
-
-
-
 public sealed class SunClassBot
 {
     public static DiscordClient SuniClient;
@@ -46,8 +44,8 @@ public sealed class SunClassBot
         });
         SuniBuilder.ConfigureEventHandlers(builder =>
             builder.HandleSessionCreated(Client_Ready)
-                    .HandleMessageReactionAdded(Sun.Events.ReactionEvents.On_addedReaction)
-                    .HandleMessageCreated(Sun.Events.MessageEvents.On_message)
+                    .HandleMessageReactionAdded(Sun.Events.ReactionEvents.OnAddedReaction)
+                    .HandleMessageCreated(Sun.Events.MessageEvents.OnMessage)
         );
 
         var prefixes = new string[] { "&" };
