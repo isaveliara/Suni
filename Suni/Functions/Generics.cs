@@ -1,12 +1,5 @@
-/*
-File responsible for generate the messages/other things to be used by suni.
-The translation sys. could be here, but I got lazy and decided to wait until square cloud BD support is ready.
-*/
-
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 
 namespace Sun.Functions

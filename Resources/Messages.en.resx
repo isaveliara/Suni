@@ -127,7 +127,7 @@
     <value>:x: | You do not have sufficient permissions to execute this action!</value>
   </data>
   <data name="failNoResources" xml:space="preserve">
-    <value>No resources to analyze!</value>
+    <value>No resources to analyze here!</value>
   </data>
   <data name="internalError" xml:space="preserve">
     <value>:x: An internal error occurred...</value>

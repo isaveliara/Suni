@@ -79,7 +79,7 @@
                 },
             "response": "Sim! A resposta pode ser &{answer_provided}",
             "answers": [
-                "(?i)^suvirval jeff the killer$"
+                "(?i)^suvirval the jeff the killer$"
             ]
         },
         {
@@ -98,7 +98,7 @@
             "index" : 8,  "worth": 3,"response_file" : null,
             "build": {
                 "title": "Doors Q8",
-                "description": "Qual a única entidade que torna possível matar outros jogadores diretamente? (Difícil)",
+                "description": "Qual a única entidade que torna possível matar outros jogadores diretamente?",
                 "color": "#FF5733",  "file" : null,  "footer": "1 resposta válida"
                 },
             "response": "Sim! A resposta pode ser &{answer_provided}",

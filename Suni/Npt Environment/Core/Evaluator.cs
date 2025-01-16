@@ -224,4 +224,8 @@ partial class NptStatements
                 return Diagnostics.UnlistedProperty;
         }
     }
+    internal static bool IsOperator(string token)
+        =>
+            new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "-&", "+&" }
+                .Contains(token);
 }

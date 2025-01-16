@@ -1,10 +1,3 @@
-/*
-This file is responsible for building the jooj function.
-Expect:(type, url-of-image)
-    >*Pass the type as integer (1, 2, 3 or 4)
-*/
-///TODO: fix the 3 and 4 types.
-
 using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

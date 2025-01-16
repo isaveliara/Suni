@@ -4,7 +4,6 @@ namespace Sun.Functions.Romance
 {
     public partial class RomanceMethods
     {
-        
         private const int MarriageInitialCost = 10000;
         private const int DailyMarriageCost = 200;
 
