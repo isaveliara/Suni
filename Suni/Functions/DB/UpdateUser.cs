@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
-namespace Suni.Suni.Functions.DB;
+namespace Sun.Functions.DB;
 
 public partial class DBMethods
 {

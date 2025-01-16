@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using Suni.Suni.Configuration.Interfaces;
 
-namespace Suni.Suni.Functions
+namespace Sun.Functions
 {
     //bruh
     public partial class Functions

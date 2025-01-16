@@ -1,5 +1,5 @@
 using System.Data.SQLite;
-namespace Suni.Suni.Functions.DB;
+namespace Sun.Functions.DB;
 
 public partial class DBMethods
 {
@@ -8,8 +8,7 @@ public partial class DBMethods
     /// </summary>
     public bool AreUsersMarried(ulong userId1, ulong userId2)
     {
-        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
-        {
+        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;")){
             connection.Open();
             string query = @"
                 SELECT COUNT(1)
@@ -18,8 +17,7 @@ public partial class DBMethods
                 AND married_with IS NOT NULL
                 AND married_with != 0;";
 
-            using (var command = new SQLiteCommand(query, connection))
-            {
+            using (var command = new SQLiteCommand(query, connection)){
                 command.Parameters.AddWithValue("@userId1", (long)userId1);
                 command.Parameters.AddWithValue("@userId2", (long)userId2);
 

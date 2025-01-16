@@ -5,7 +5,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Suni.Suni.Functions.Visual
+namespace Sun.Functions.Visual
 {
     public partial class Basics
     {
@@ -13,7 +13,7 @@ namespace Suni.Suni.Functions.Visual
             //light is a hottie :3
             =>
                 await ToStream(Image.Load<Rgba32>("./assets/images/lightzinho.png"));
-
+        
         public static async Task<MemoryStream> ImagemPreceptor()
             =>
                 await ToStream(Image.Load<Rgba32>("./assets/images/preceptor.png"));

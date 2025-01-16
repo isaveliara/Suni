@@ -15,7 +15,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Suni.Suni.Functions.Visual
+namespace Sun.Functions.Visual
 {
     public partial class CreateImage
     {
@@ -54,7 +54,7 @@ namespace Suni.Suni.Functions.Visual
                     return null;
             }
             Console.WriteLine($"banner: {banner}\nnome: {name}\n" +
-                              $"money: {money}\nBadges: {string.Join(' ', badges)}"); //DEBUG
+                              $"money: {money}\nBadges: {string.Join(' ',badges)}"); //DEBUG
             return await Basics.ToStream(background);
         }
     }

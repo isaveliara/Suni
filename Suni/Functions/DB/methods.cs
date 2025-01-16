@@ -1,4 +1,4 @@
-namespace Suni.Suni.Functions.DB;
+namespace Sun.Functions.DB;
 
 public enum UserStatusTypes{
     client, owner, staff, limited1, banned

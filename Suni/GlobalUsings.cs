@@ -7,7 +7,7 @@ global using System;
 global using System.Threading.Tasks;
 global using System.Linq;
 
-global using Suni.Suni.Functions;
-global using Suni.Suni.Functions.DB;
+global using Sun.Functions;
+global using Sun.Functions.DB;
 global using Sun.Globalization;
 global using Suni.Suni;
