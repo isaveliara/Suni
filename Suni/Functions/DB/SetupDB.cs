@@ -41,10 +41,10 @@ public partial class DBMethods
             string createNptsTable = @"
                 CREATE TABLE IF NOT EXISTS npts (
                     primary_key INTEGER PRIMARY KEY AUTOINCREMENT,
-                    owner_id INTEGER,
-                    npt_name TEXT,
-                    nptcode TEXT,
-                    listen TEXT CHECK(listen IN ('custom_command'))
+                    owner_id INTEGER NOT NULL,
+                    npt_name TEXT NOT NULL,
+                    nptcode TEXT NOT NULL,
+                    listen TEXT CHECK(listen IN ('custom_command')) NOT NULL
                 );";
             
             //npt access table
@@ -55,6 +55,15 @@ public partial class DBMethods
                     FOREIGN KEY (server_id) REFERENCES servers (server_id) ON DELETE CASCADE,
                     FOREIGN KEY (npt_key) REFERENCES npts (primary_key) ON DELETE CASCADE,
                     PRIMARY KEY (server_id, npt_key));";
+            
+            string insertDefaultNpts = @"
+            INSERT OR IGNORE INTO npts (primary_key, npt_name, nptcode, listen)
+            VALUES 
+                (1, 'hello', 'std::nout() -> Hello World', 'custom_command'),
+                (2, 'ping', 'npt::respond(pong :ping_pong:) -> embedded', 'custom_command');";
+
+        using (var command = new SQLiteCommand(insertDefaultNpts, connection))
+            command.ExecuteNonQuery();
 
             using (var command = new SQLiteCommand(createUsersTable, connection))
                 command.ExecuteNonQuery();

@@ -2,16 +2,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Sun.NPT.ScriptInterpreter;
+namespace Sun.NptEnvironment.Data;
 
-public enum BlockType
-{
-    Root,         //root (indent 0)
-    IfStatement,  //if block
-    Anonymous     //unknown/generic block
-}
-
-public partial class NptSystem
+public partial class NptData
 {
     public enum Types
     {

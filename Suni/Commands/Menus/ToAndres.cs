@@ -15,7 +15,6 @@ public partial class Found_Commands
     public static async Task ToAndres_Context(MessageCommandContext ctx, DiscordMessage targetMessage)
     {
         var (fullTranslation, _) = await new AndresTranslationService().GetLastWordSuggestions(targetMessage.Content, true);
-
         var msg = new DiscordInteractionResponseBuilder()
                     .AsEphemeral(true)
                     .AddEmbed(new DiscordEmbedBuilder()

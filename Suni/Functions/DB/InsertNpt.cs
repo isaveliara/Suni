@@ -4,14 +4,14 @@ namespace Sun.Functions.DB;
 public partial class DBMethods
 {
     /// <summary>
-    /// Inserts a not code on db.
+    /// Inserts a npt code on db.
     /// </summary>
     public void InsertNptCode(ulong owner_id, string npt_name, string nptcode,
-        NptListeners listen, bool DBInsertOrIgnore = true)
+        NptListeners listen, bool InsertOrIgnore = true)
     {
         using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
         {
-            string value = DBInsertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
+            string value = InsertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
             connection.Open();
             string insertUserQuery = value + @" INTO ntps (owner_id, npt_name, nptcode, listen)
                 VALUES (@owner_id, @npt_name, @nptcode, @listen);

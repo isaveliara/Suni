@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sun.NPT.ScriptInterpreter;
+namespace Sun.NptEnvironment.Data;
 
 public class NptFunction
 {

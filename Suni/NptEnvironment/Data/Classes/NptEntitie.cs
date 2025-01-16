@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using System.Reflection;
 
-namespace Sun.NPT.ScriptInterpreter;
+namespace Sun.NptEnvironment.Data.Classes;
 
 public static partial class NptEntitie
 {
@@ -185,15 +185,3 @@ public static partial class NptEntitie
         }
     }
 }
-
-
-//test
-
-//string script = @"
-//    --definitions--
-//    @set<ban_duration, '27days'>
-//    --end--
-//
-//    npt::BanAsync(@get<ban_duration>, 'Fez alguma coisa') -> 12345678910
-//    sys::Object('arg1', 'arg2', 99) -> Pointer
-//    ";

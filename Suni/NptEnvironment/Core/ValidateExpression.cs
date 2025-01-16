@@ -1,21 +1,20 @@
-namespace Sun.NPT.ScriptInterpreter
+namespace Sun.NptEnvironment.Core;
+
+partial class NptStatements
 {
-    partial class NptStatements
+    internal static bool ValidateExpression(string expression)
     {
-        internal static bool ValidateExpression(string expression)
+        int balancingBrackets = 0;
+
+        foreach (char c in expression)
         {
-            int balancingBrackets = 0;
+            if (c == '[') balancingBrackets++;
+            if (c == ']') balancingBrackets--;
 
-            foreach (char c in expression)
-            {
-                if (c == '[') balancingBrackets++;
-                if (c == ']') balancingBrackets--;
-
-                if (balancingBrackets < 0)
-                    return false;
-            }
-
-            return balancingBrackets == 0;
+            if (balancingBrackets < 0)
+                return false;
         }
+
+        return balancingBrackets == 0;
     }
 }

@@ -7,6 +7,7 @@ public partial class DBMethods
     /// <summary>
     /// Get an Npt by PrimaryKey or Name
     /// </summary>
+    /// 
     public (int? primaryKey, ulong ownerId, string nptName, string nptCode, string listen)? GetNptByKeyOrName(int? primaryKey = null, string nptName = null, ulong? serverId = null)
     {
         if (primaryKey == null && string.IsNullOrEmpty(nptName) && serverId == null)

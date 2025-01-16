@@ -1,0 +1,18 @@
+namespace Sun.NptEnvironment.Data;
+
+public partial class NptData
+{
+    public static int Precedence(string Operator)
+    {
+        return Operator switch
+        {
+            "[" => 4,
+            "!" => 3,
+            "*" or "/" => 2,
+            "+" or "-" or "-&" or "+&" => 1,
+            "&&" => 0,
+            "||" => -1,
+            _ => -2
+        };
+    }
+}

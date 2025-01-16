@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using static Sun.NPT.ScriptInterpreter.NptSystem;
-
-namespace Sun.NPT.ScriptInterpreter
+using Sun.NptEnvironment.Data;
+using static Sun.NptEnvironment.Data.NptData;
+namespace Sun.NptEnvironment.Core
 {
     public partial class Help
     {
