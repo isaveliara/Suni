@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using DSharpPlus.Commands;
 
-namespace Sun.Functions
+namespace Suni.Suni
 {
     public class Helpers
     {
@@ -11,7 +11,7 @@ namespace Sun.Functions
             //owner server
             List<Type> privateInteractionCommands = new List<Type>
             {
-                
+
             };
             //user install and guild install commands
             List<Type> publicInteractionCommands = new List<Type>

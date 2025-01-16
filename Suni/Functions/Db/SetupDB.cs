@@ -1,11 +1,12 @@
 using System.Data.SQLite;
-namespace Sun.Functions.DB;
+namespace Suni.Suni.Functions.DB;
 
 public partial class DBMethods
 {
     public void Setup()
     {
-        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;")){
+        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
+        {
             connection.Open();
             //users table
             string createUsersTable = @"
@@ -36,7 +37,7 @@ public partial class DBMethods
                     relation TEXT CHECK(relation IN ('banned', 'limited1', 'partnership','client')),
                     flags CHAR(16),
                     event_data TEXT);";
-            
+
             //codes table
             string createNptsTable = @"
                 CREATE TABLE IF NOT EXISTS npts (
@@ -46,7 +47,7 @@ public partial class DBMethods
                     nptcode TEXT NOT NULL,
                     listen TEXT CHECK(listen IN ('custom_command')) NOT NULL
                 );";
-            
+
             //npt access table
             string serversAndNptTable = @"
                 CREATE TABLE IF NOT EXISTS server_npt_access (
@@ -73,7 +74,7 @@ public partial class DBMethods
                 command.ExecuteNonQuery();
             using (var command = new SQLiteCommand(serversAndNptTable, connection))
                 command.ExecuteNonQuery();
-            
+
             Console.WriteLine("created!");
         }
     }

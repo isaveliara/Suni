@@ -1,6 +1,5 @@
 using System.Data.SQLite;
-namespace Sun.Functions.DB;
-
+namespace Suni.Suni.Functions.DB;
 public partial class DBMethods
 {
     public void InsertServer(ulong serverId, string serverName, string urlIcon, ServerStatusTypes relation = ServerStatusTypes.client,
