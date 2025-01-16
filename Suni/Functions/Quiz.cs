@@ -3,17 +3,19 @@ using System.Text.RegularExpressions;
 using DSharpPlus.Interactivity.Extensions;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using Suni.Suni.Configuration.Interfaces;
 
 namespace Sun.Functions.Quiz
 {
     public class QuizMethods
     {
-        internal static async Task<ThemeData> TryFindTheme(string theme)
+        internal static async Task<ThemeData> TryFindTheme(string theme, IAppConfig config)
         {
-            string baseUrl = new Bot.DotenvItems().BaseUrlApi;
+            string baseUrl = config.BaseUrlApi;
             string apiUrl = $"{baseUrl}/quiz/theme/{theme}";
 
-            try{
+            try
+            {
                 var client = new RestClient(apiUrl);
                 var request = new RestRequest();
                 var response = await client.ExecuteAsync(request);
@@ -36,15 +38,16 @@ namespace Sun.Functions.Quiz
                 }
                 else Console.WriteLine($"Error: {response.StatusCode} - {response.ErrorMessage}");
             }
-            catch (Exception ex){
+            catch (Exception ex)
+            {
                 Console.WriteLine($"failed to get the theme:\n{ex}");
             }
             return null;
         }
 
-        internal static async Task<QuizQuestionData> GetQuizQuestion(string theme)
+        internal static async Task<QuizQuestionData> GetQuizQuestion(string theme, IAppConfig config)
         {
-            string baseUrl = new Bot.DotenvItems().BaseUrlApi;
+            string baseUrl = config.BaseUrlApi;
             string apiUrl = $"{baseUrl}/quiz/question/{theme}";
 
             try
@@ -89,9 +92,9 @@ namespace Sun.Functions.Quiz
             foreach (var answer in validAnswers)
                 if (Regex.IsMatch(userResponse, answer.ToLower(), RegexOptions.IgnoreCase))
                     return true;
-            
+
             return false;
-        }   
+        }
 
         internal static async Task<(string, ulong)> GetUserResponseWithCountdown(CommandContext ctx, int rate, int rateVariance, List<string> QuizquestionData)
         {
@@ -173,7 +176,7 @@ namespace Sun.Functions.Quiz
     internal class QuizData
     {
         internal JObject QuestionData { get; private set; }
-        
+
         public QuizData(JObject data)
         {
             QuestionData = (JObject)data["response"];
@@ -190,7 +193,7 @@ namespace Sun.Functions.Quiz
         internal int Index => (int)QuestionData["index"];
         internal string ResponseFile => (string)QuestionData["response_file"];
     }
-    
+
     //json
     internal class QuizQuestionData
     {

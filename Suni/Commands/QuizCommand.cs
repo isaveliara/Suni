@@ -1,20 +1,22 @@
 using System.Collections.Generic;
 using System.Text;
 using Sun.Functions.Quiz;
+using Suni.Suni.Configuration.Interfaces;
 
 namespace Sun.Commands;
 
-public class Quiz
+public class Quiz(IAppConfig config)
 {
     [Command("quiz")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild)]
-    public static async Task QuizCommand(CommandContext ctx,
+    public async Task QuizCommand(CommandContext ctx,
         [Parameter("theme")] string theme = "doors")
     {
         //trying to find the theme
-        var t = await QuizMethods.TryFindTheme(theme);
-        if (t == null){
+        var t = await QuizMethods.TryFindTheme(theme, config);
+        if (t == null)
+        {
             await ctx.RespondAsync($"Incapaz de encontrar o tema '{theme}'! (maybe API error) :x:");
             return;
         }
@@ -35,7 +37,7 @@ public class Quiz
             QuizQuestionData QuizquestionData;
             while (true)
             {
-                QuizquestionData = await QuizMethods.GetQuizQuestion(theme);
+                QuizquestionData = await QuizMethods.GetQuizQuestion(theme, config);
                 if (QuizquestionData == null)
                 {
                     await ctx.Channel.SendMessageAsync("Falha em conseguir a resposta! :warning:\nRetrying...");
@@ -62,10 +64,10 @@ public class Quiz
                     Text = QuizquestionData.Build.Footer
                 }
             };
-            
+
             await ctx.RespondAsync(embed); //message with question
 
-            for (int y = 0; y !=  attempts; y++)//-1
+            for (int y = 0; y != attempts; y++)//-1
             {
                 //the main function
                 var (userResponse, whoResponder) = await QuizMethods.GetUserResponseWithCountdown(ctx, rate, rateVariance, QuizquestionData.Answers);
@@ -80,10 +82,11 @@ public class Quiz
                     }
                     continue;
                 }
-                
-                if (usersPoints.ContainsKey(whoResponder)){
+
+                if (usersPoints.ContainsKey(whoResponder))
+                {
                     var has = usersPoints[whoResponder];
-                    usersPoints[whoResponder] = (has.Item1 + QuizquestionData.Worth, has.Item2+1);
+                    usersPoints[whoResponder] = (has.Item1 + QuizquestionData.Worth, has.Item2 + 1);
                 }
                 else
                     usersPoints[whoResponder] = (QuizquestionData.Worth, 1);
@@ -91,22 +94,22 @@ public class Quiz
                 //usersPoints[whoResponder] = usersPoints.ContainsKey(whoResponder)
                 //    ? usersPoints[whoResponder] + QuizquestionData.Worth //true
                 //    : QuizquestionData.Worth; //false
-                
+
 
                 var scoreBoard = new StringBuilder();
                 var top10 = usersPoints
                     .OrderByDescending(us => us.Value)
                     .Take(10);
-                
+
                 foreach (var u in top10) scoreBoard.AppendLine($"<@{u.Key}> : **{u.Value.Item1}** pontos com **{u.Value.Item2}** respostas");
-                
+
                 await ctx.Channel.SendMessageAsync(new DiscordMessageBuilder()
                     .AddEmbed(new DiscordEmbedBuilder()
                         .WithTitle("Placar")
                         .WithDescription(scoreBoard.ToString())
                     )); //sends scoreboard
                 //sends time for next question
-                await ctx.Channel.SendMessageAsync($"{QuizquestionData.Response.Replace("&{answer_provided}", userResponse)}\n:small_blue_diamond: Próxima pergunta em: **{(rate + new Random().Next(-rateVariance, rateVariance))>>2} seconds**");
+                await ctx.Channel.SendMessageAsync($"{QuizquestionData.Response.Replace("&{answer_provided}", userResponse)}\n:small_blue_diamond: Próxima pergunta em: **{(rate + new Random().Next(-rateVariance, rateVariance)) >> 2} seconds**");
                 break;
             }
             await Task.Delay((rate + new Random().Next(-rateVariance, rateVariance)) * 500);

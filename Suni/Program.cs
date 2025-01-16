@@ -7,44 +7,26 @@ using DSharpPlus.Net.Gateway;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using Microsoft.Extensions.DependencyInjection;
+using Suni.Suni.Configuration;
+using Suni.Suni.Configuration.Interfaces;
+namespace Suni.Suni;
 
-namespace Sun.Bot;
 
-public class DotenvItems : IAppConfig
-{
-    public string SuniToken { get; private set; }
-    public string CanaryToken { get; private set; }
-    public string BaseUrlApi { get; private set; }
-    public string BaseUrl { get; private set; }
-    public ulong SupportServerId { get; private set; }
-
-    public DotenvItems()
-    {
-        Env.Load();
-
-        SuniToken = Environment.GetEnvironmentVariable("SUNITOKEN");
-        CanaryToken = Environment.GetEnvironmentVariable("CANARYTOKEN");
-        BaseUrlApi = Environment.GetEnvironmentVariable("BASEURLAPI");
-        BaseUrl = Environment.GetEnvironmentVariable("BASEURL");
-        SupportServerId = ulong.Parse(Environment.GetEnvironmentVariable("SUPPORTSERVERID"));
-    }
-}
 
 public sealed class SunClassBot
 {
     public static DiscordClient SuniClient;
     public const string SuniV = "build_3";
-    public static string BaseUrl = new DotenvItems().BaseUrl;
-    public static ulong SupportServerId = new DotenvItems().SupportServerId;
+    public static IAppConfig Config = AppConfig.NewAppConfig();
     public static int TimerRepeats { get; private set; } = 0;
 
     static async Task Main()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<IAppConfig, DotenvItems>();
+        serviceCollection.AddSingleton<IAppConfig>(Config);
 
         var SuniBuilder = DiscordClientBuilder.CreateDefault(
-            new DotenvItems().CanaryToken,
+            Config.CanaryToken,
             DiscordIntents.All.RemoveIntent(DiscordIntents.GuildPresences),
             serviceCollection
         );
@@ -52,11 +34,13 @@ public sealed class SunClassBot
         //SuniBuilder.SetLogLevel(LogLevel.Debug);
         SuniBuilder.SetLogLevel(LogLevel.Information);
 
-        SuniBuilder.ConfigureServices(services =>{
+        SuniBuilder.ConfigureServices(services =>
+        {
             services.Replace<IGatewayController, GatewayController>();
         });
 
-        SuniBuilder.ConfigureExtraFeatures(config =>{
+        SuniBuilder.ConfigureExtraFeatures(config =>
+        {
             config.LogUnknownAuditlogs = false;
             config.LogUnknownEvents = false;
         });
@@ -65,9 +49,10 @@ public sealed class SunClassBot
                     .HandleMessageReactionAdded(Sun.Events.ReactionEvents.On_addedReaction)
                     .HandleMessageCreated(Sun.Events.MessageEvents.On_message)
         );
-        
+
         var prefixes = new string[] { "&" };
-        SuniBuilder.UseCommands((_, extension) =>{
+        SuniBuilder.UseCommands((_, extension) =>
+        {
             TextCommandProcessor textCommandProcessor = new(new()
             {
                 PrefixResolver = new DefaultPrefixResolver(true, prefixes).ResolvePrefixAsync,
@@ -125,6 +110,6 @@ public class GatewayController : IGatewayController
     public async Task ReconnectRequestedAsync(IGatewayClient _) { }
     public async Task ReconnectFailedAsync(IGatewayClient _) { }
     public async Task SessionInvalidatedAsync(IGatewayClient _) { }
-    
+
 }
 #pragma warning restore CS1998 

@@ -1,4 +1,4 @@
-namespace Sun.Bot;
+namespace Suni.Suni.Configuration.Interfaces;
 
 public interface IAppConfig
 {

@@ -8,17 +8,17 @@ namespace Sun.Functions
     {
         public static IEnumerable<int> Dice(int sides = 6, int number = 1)
         {
-            if (sides < 1 || number < 1) throw new Exception("Invalid usage of dice. 'sides' and 'number' must be greater than 0.");            
+            if (sides < 1 || number < 1) throw new Exception("Invalid usage of dice. 'sides' and 'number' must be greater than 0.");
             Random random = new Random();
 
             for (int p = 0; p < number; p++)
                 yield return random.Next(1, sides + 1);
         }
-                
+
         public static string HelloWorld()
             =>
                 "Hello World!";
-        
+
         internal static string GetShipMessage(int percent, string u1, string u2)
             => percent switch
             {
@@ -27,24 +27,24 @@ namespace Sun.Functions
                 <= 24 => "Não existe motivo para que esse casal exista!",
                 <= 49 => "Improvável! Vamos torcer por esses dois...",
                 <= 69 => "Por que não dar certo? :heart:",
-                <= 89 => new Random().Next(1,3) == 1
+                <= 89 => new Random().Next(1, 3) == 1
                          ? $"O coração de {u1} aquece por {u2}"
                          : $"O coração de {u2} aquece por {u1}",
-                   90 => "Ownn... Esse seria o casal mais fofinho que eu já vi",
-                   _ => "?"
+                90 => "Ownn... Esse seria o casal mais fofinho que eu já vi",
+                _ => "?"
             };
-        
-        
+
+
         public static string GetSuniStatistics()
         {
             var statistics = new StringBuilder();
-            var client = Sun.Bot.SunClassBot.SuniClient;
+            var client = SunClassBot.SuniClient;
             var process = Process.GetCurrentProcess();
 
             statistics.AppendLine("Ambiente: DEVELOPMENT\n");
 
             statistics.AppendLine($"Servidores conectados: {client.Guilds.Count}");
-            statistics.AppendLine($"Usuários em cache: {client.Guilds.Values.Sum(g=> g.MemberCount)}");
+            statistics.AppendLine($"Usuários em cache: {client.Guilds.Values.Sum(g => g.MemberCount)}");
             //statistics.AppendLine($"Shards: {client.ShardCount}");
             //statistics.AppendLine($"Shard ID: {client.ShardId}");
 
@@ -62,7 +62,7 @@ namespace Sun.Functions
             var cpuUsage = (totalCpuTime / uptime) * 100;
             return cpuUsage;
         }
-        
+
         //others
     }
 }
