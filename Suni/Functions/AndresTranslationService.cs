@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 
-namespace Sun.Functions;
+namespace Suni.Suni.Functions;
 
 public class AndresTranslationService
 {
@@ -74,7 +74,8 @@ public class AndresTranslationService
         return results;
     }
 
-    private string NormalizeWord(string word){
+    private string NormalizeWord(string word)
+    {
         var allowedAccents = "áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ";
         word = word.ToLower();
         return new string(word.Where(c => char.IsLetter(c) || allowedAccents.Contains(c)).ToArray());

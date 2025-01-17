@@ -1,6 +1,6 @@
 using DSharpPlus.Commands.EventArgs;
 
-namespace Sun.Events
+namespace Suni.Suni.Events
 {
     public partial class ErrorEvents
     {

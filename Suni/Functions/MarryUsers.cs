@@ -1,6 +1,6 @@
 using System.Data.SQLite;
-
-namespace Sun.Functions
+using Suni.Suni.Functions.DB;
+namespace Suni.Suni.Functions
 {
     public partial class RomanceMethods
     {
@@ -9,7 +9,7 @@ namespace Sun.Functions
 
         public static bool MarryUsers(ulong userId1, ulong userId2, bool splitFinances)
         {
-            var db = new Sun.Functions.DB.DBMethods();
+            var db = new DBMethods();
             using (var connection = new SQLiteConnection($"Data Source={db.dbFilePath};Version=3;"))
             {
                 connection.Open();

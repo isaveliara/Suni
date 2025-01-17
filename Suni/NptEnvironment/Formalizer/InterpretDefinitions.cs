@@ -1,25 +1,24 @@
 using System.Collections.Generic;
+using Sun.NPT.ScriptInterpreter;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Sun.NptEnvironment.Data;
+using static Sun.NPT.ScriptInterpreter.NptSystem;
 using System.Reflection;
-using Sun.NptEnvironment.Core;
-using static Sun.NptEnvironment.Data.NptData;
 
-namespace Sun.NptEnvironment.Formalizer;
+namespace Sun.NPT.ScriptFormalizer;
 
 public partial class JoinScript
 {
-    public static (Dictionary<string, List<string>> includes, List<Dictionary<string, NptData.NptType>> variables, Diagnostics) InterpretDefinitionsBlock(List<string> lines)
+    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, NptSystem.NptType>> variables, Diagnostics) InterpretDefinitionsBlock(List<string> lines)
     {
         //(default)
         var includes = new Dictionary<string, List<string>>{
             { "std", NptSystem.MainControlerLibMethods }
             //{ "npt", new List<string>{"log", "ban", "unban", "react"} },
         };
-        var variables = new List<Dictionary<string, NptData.NptType>>{
-            new Dictionary<string, NptData.NptType> { { "__version__", new NptData.NptType(NptData.Types.Str, SunClassBot.SuniV) } },
-            new Dictionary<string, NptData.NptType> { { "__time__", new NptData.NptType(NptData.Types.Str, System.DateTime.Now.ToString()) } }
+        var variables = new List<Dictionary<string, NptSystem.NptType>>{
+            new Dictionary<string, NptSystem.NptType> { { "__version__", new NptSystem.NptType(NptSystem.Types.Str, SunClassBot.SuniV) } },
+            new Dictionary<string, NptSystem.NptType> { { "__time__", new NptSystem.NptType(NptSystem.Types.Str, System.DateTime.Now.ToString()) } }
         };
 
         for (int i = 0; i < lines.Count; i++)

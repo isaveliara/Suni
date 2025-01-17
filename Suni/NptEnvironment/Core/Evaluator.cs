@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Sun.NptEnvironment.Data;
 
-namespace Sun.NptEnvironment.Core;
+namespace Sun.NPT.ScriptInterpreter;
 
 partial class NptStatements
 {
@@ -36,7 +35,7 @@ partial class NptStatements
         var stackValues = new Stack<object>();
         var stackOperators = new Stack<string>();
 
-        string[] tokens = NptData.Tokenize(expression);
+        string[] tokens = Tokenize(expression);
 
         foreach (string token in tokens){
             if (token == "[")
@@ -55,7 +54,7 @@ partial class NptStatements
                     return (error, null);
             }
             else if (IsOperator(token)){
-                while (stackOperators.Count > 0 && NptData.Precedence(stackOperators.Peek()) >= NptData.Precedence(token)){
+                while (stackOperators.Count > 0 && Precedence(stackOperators.Peek()) >= Precedence(token)){
                     var error = ApplyOperator(stackValues, stackOperators.Pop());
                     if (error != Diagnostics.Success)
                         return (error, null);

@@ -1,4 +1,4 @@
-namespace Sun.NptEnvironment.Data;
+namespace Sun.NPT.ScriptInterpreter;
 
 //enum for status
 public enum Diagnostics

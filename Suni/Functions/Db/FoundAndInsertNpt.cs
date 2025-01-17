@@ -1,17 +1,16 @@
 using System.Data.SQLite;
-namespace Sun.Functions.DB;
-
+namespace Suni.Suni.Functions.DB;
 public partial class DBMethods
 {
     /// <summary>
-    /// Inserts a npt code on db.
+    /// Inserts a not code on db.
     /// </summary>
     public void InsertNptCode(ulong owner_id, string npt_name, string nptcode,
-        NptListeners listen, bool InsertOrIgnore = true)
+        NptListeners listen, bool DBInsertOrIgnore = true)
     {
         using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
         {
-            string value = InsertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
+            string value = DBInsertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
             connection.Open();
             string insertUserQuery = value + @" INTO ntps (owner_id, npt_name, nptcode, listen)
                 VALUES (@owner_id, @npt_name, @nptcode, @listen);

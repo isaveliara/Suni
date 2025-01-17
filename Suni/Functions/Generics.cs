@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Sun.Functions
+namespace Suni.Suni.Functions
 {
     public partial class Functions
     {

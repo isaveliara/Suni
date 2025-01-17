@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Sun.Functions
+namespace Suni.Suni.Functions
 {
     public partial class Functions
     {
@@ -11,7 +11,7 @@ namespace Sun.Functions
             char[] ASCIICharacteres = new char[binaryValues.Length];
             for (int i = 0; i < binaryValues.Length; i++)
                 ASCIICharacteres[i] = (char)Convert.ToInt32(binaryValues[i], 2);
-            
+
             return new string(ASCIICharacteres);
         }
 

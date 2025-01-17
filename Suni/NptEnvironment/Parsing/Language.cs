@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Sun.NptEnvironment.Data;
-using Sun.NptEnvironment.Formalizer;
-using static Sun.NptEnvironment.Data.NptData;
-namespace Sun.NptEnvironment.Core;
+
+namespace Sun.NPT.ScriptInterpreter;
 
 public partial class NptSystem
 {
@@ -22,7 +20,7 @@ public partial class NptSystem
     public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(
     string script, CommandContext ctx)
     {
-        var (lines, includes, variables, resultFormalization) = new JoinScript().JoinHere(script, ctx);
+        var (lines, includes, variables, resultFormalization) = new ScriptFormalizer.JoinScript().JoinHere(script, ctx);
         if (resultFormalization != Diagnostics.Success)
             return (_debugs, _outputs, resultFormalization);
 

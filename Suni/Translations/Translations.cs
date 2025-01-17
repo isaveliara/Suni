@@ -2,10 +2,18 @@ namespace Sun.Globalization;
 
 public partial class SolveLang
 {
-    /// <summary>
-    /// Creates a new instance of SolveLang.
-    /// If ctx is not null, will try to store the context guild and user.
-    /// </summary>
+    public SuniSupportedLanguages Language { get; private set; }
+    public GroupTranslationsMessages Commands { get; private set; }
+    public GroupGenericMessages GenericMessages { get; private set; }
+    
+    private SolveLang(SuniSupportedLanguages language)
+    {
+        Language = language;
+        Commands = new GroupTranslationsMessages(language.ToString());
+        GenericMessages = new GroupGenericMessages(language.ToString());
+    }
+
+    /// <summary>Creates a new instance of SolveLang.</summary>
     public static async Task<SolveLang> SolveLangAsync(string lang = null, CommandContext ctx = null)
     {
         if (lang is null && ctx is null){
@@ -17,17 +25,6 @@ public partial class SolveLang
         SuniSupportedLanguages resolvedLang;
 
         if (ctx != null){
-            //also try to store the guild:
-            if (ctx.Guild is not null)
-            {
-                dbMethods.InsertServer(
-                    ctx.Guild.Id,
-                    ctx.Guild.Name,
-                    ctx.Guild.IconUrl,
-                    relation: ServerStatusTypes.client
-                );
-            }
-
             //get language from database
             var dbLang = await dbMethods.GetUserPrimaryLangAsync(ctx.User.Id);
 

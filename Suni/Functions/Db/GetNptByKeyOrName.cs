@@ -1,19 +1,19 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
-namespace Sun.Functions.DB;
+namespace Suni.Suni.Functions.DB;
 
 public partial class DBMethods
 {
     /// <summary>
     /// Get an Npt by PrimaryKey or Name
     /// </summary>
-    /// 
     public (int? primaryKey, ulong ownerId, string nptName, string nptCode, string listen)? GetNptByKeyOrName(int? primaryKey = null, string nptName = null, ulong? serverId = null)
     {
         if (primaryKey == null && string.IsNullOrEmpty(nptName) && serverId == null)
             return null;
 
-        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;")){
+        using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
+        {
             connection.Open();
 
             string query = @"
@@ -34,7 +34,8 @@ public partial class DBMethods
 
             query += string.Join(" AND ", conditions) + " LIMIT 1;";
 
-            using (var command = new SQLiteCommand(query, connection)){
+            using (var command = new SQLiteCommand(query, connection))
+            {
                 if (primaryKey.HasValue)
                     command.Parameters.AddWithValue("@primaryKey", primaryKey.Value);
                 if (!string.IsNullOrEmpty(nptName))
@@ -43,8 +44,10 @@ public partial class DBMethods
                     command.Parameters.AddWithValue("@serverId", (long)serverId.Value);
 
                 //execute and read values to return them
-                using (var reader = command.ExecuteReader()){
-                    if (reader.Read()){
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
                         return (
                             reader.GetInt32(0), //primary_key
                             (ulong)reader.GetInt64(1), //owner_id

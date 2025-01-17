@@ -11,7 +11,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Sun.Functions.Visual
+namespace Suni.Suni.Functions.Visual
 {
     public partial class CreateImage
     {
@@ -27,12 +27,12 @@ namespace Sun.Functions.Visual
                 ctx.DrawImage(avatar2, new Point(375, 75), 1f);
                 ctx.Fill(Color.Black, new RectangleF(100, 350, 500, 25));
                 ctx.Fill(Color.Red, new RectangleF(100, 350, (500 * (percent / 100f)), 25));
-                
+
                 var collection = new FontCollection();
                 var family = collection.Add("./assets/fonts/Roboto-Light.ttf");
                 var font = family.CreateFont(27, FontStyle.Regular);
 
-                ctx.DrawText($"{percent}%", font, Color.White, new PointF(100 + (500 * (percent / 100f))+5, 350));
+                ctx.DrawText($"{percent}%", font, Color.White, new PointF(100 + (500 * (percent / 100f)) + 5, 350));
             });
             return result;
         }
