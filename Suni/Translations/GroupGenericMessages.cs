@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Resources;
 
-namespace Suni.Suni.Globalization;
+namespace Suni.Suni.Translations;
 
 public partial class SolveLang
 {

@@ -35,7 +35,7 @@ namespace Suni.Suni.Commands
     }
 }
 
-namespace Suni.Suni.Globalization{
+namespace Suni.Suni.Translations{
     public class LanguagesChoicesProvider : IChoiceProvider
     {
         private static readonly IReadOnlyList<DiscordApplicationCommandOptionChoice> Languages =
