@@ -12,8 +12,9 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
+using Suni.Suni.NptEnvironment.Data;
 
-namespace Sun.NPT.ScriptInterpreter
+namespace Suni.Suni.NptEnvironment.Core
 {
     /// <summary>
     /// class for parser and execution

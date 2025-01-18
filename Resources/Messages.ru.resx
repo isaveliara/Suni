@@ -115,11 +115,4 @@
   <data name="aboutMe" xml:space="preserve">
     <value>Вы можете узнать детали обо мне на моем [сайте]({0})!</value>
   </data>
-
-  <data name="failWebhook" xml:space="preserve">
-    <value>Ошибка при создании/использовании вебхука.</value>
-  </data>
-  <data name="failTime" xml:space="preserve">
-    <value>Нет ответа в течение ожидаемого времени!</value>
-  </data>
 </root>

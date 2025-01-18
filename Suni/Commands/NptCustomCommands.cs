@@ -1,6 +1,7 @@
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Trees.Metadata;
-using Sun.NPT.ScriptInterpreter;
+using Suni.Suni.NptEnvironment.Core;
+using Suni.Suni.NptEnvironment.Data;
 
 namespace Suni.Suni.Commands;
 

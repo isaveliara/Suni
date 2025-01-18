@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using Sun.NPT.ScriptInterpreter;
+using Suni.Suni.NptEnvironment.Core;
+using Suni.Suni.NptEnvironment.Data;
 
-namespace Sun.NPT.ScriptFormalizer
+namespace Suni.Suni.NptEnvironment.Formalizer
 {
-    public partial class JoinScript
+    public partial class FormalizingScript
     {
-        public (List<string>, Dictionary<string, List<string>>, List<Dictionary<string, NptSystem.NptType>>, Diagnostics) JoinHere(string code, CommandContext ctx)
+        public (List<string>, Dictionary<string, List<string>>, List<Dictionary<string, NptTypes.NptType>>, Diagnostics) Formalize(string code, CommandContext ctx)
         {
             var (result, resultp) = SetPlaceHolders(code, ctx);
             if (resultp != Diagnostics.Success)

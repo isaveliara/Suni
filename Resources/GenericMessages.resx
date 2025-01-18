@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+
+
+  <data name="failWebhook" xml:space="preserve">
+    <value>Erro ao criar/usar a webhook.</value>
+  </data>
+  <data name="failTime" xml:space="preserve">
+    <value>Sem respostas no tempo esperado!</value>
+  </data>
+  <data name="failUnauthorized" xml:space="preserve">
+    <value>:x: | Você não possui as permissões suficientes para executar esta ação!</value>
+  </data>
+  <data name="failNoResources" xml:space="preserve">
+    <value>Sem recursos para analizar aqui!</value>
+  </data>
+  <data name="internalError" xml:space="preserve">
+    <value>:x: Aconteceu um erro interno...</value>
+  </data>
+  <data name="unknownError" xml:space="preserve">
+    <value>:x: Aconteceu um erro desconhecido...</value>
+  </data>
+</root>

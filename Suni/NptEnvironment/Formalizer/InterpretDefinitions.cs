@@ -1,24 +1,24 @@
 using System.Collections.Generic;
-using Sun.NPT.ScriptInterpreter;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static Sun.NPT.ScriptInterpreter.NptSystem;
+using Suni.Suni.NptEnvironment.Data;
 using System.Reflection;
+using Suni.Suni.NptEnvironment.Core;
 
-namespace Sun.NPT.ScriptFormalizer;
+namespace Suni.Suni.NptEnvironment.Formalizer;
 
-public partial class JoinScript
+public partial class FormalizingScript
 {
-    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, NptSystem.NptType>> variables, Diagnostics) InterpretDefinitionsBlock(List<string> lines)
+    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, NptTypes.NptType>> variables, Diagnostics) InterpretDefinitionsBlock(List<string> lines)
     {
         //(default)
         var includes = new Dictionary<string, List<string>>{
             { "std", NptSystem.MainControlerLibMethods }
             //{ "npt", new List<string>{"log", "ban", "unban", "react"} },
         };
-        var variables = new List<Dictionary<string, NptSystem.NptType>>{
-            new Dictionary<string, NptSystem.NptType> { { "__version__", new NptSystem.NptType(NptSystem.Types.Str, SunClassBot.SuniV) } },
-            new Dictionary<string, NptSystem.NptType> { { "__time__", new NptSystem.NptType(NptSystem.Types.Str, System.DateTime.Now.ToString()) } }
+        var variables = new List<Dictionary<string, NptTypes.NptType>>{
+            new Dictionary<string, NptTypes.NptType> { { "__version__", new NptTypes.NptType(NptTypes.Types.Str, SunClassBot.SuniV) } },
+            new Dictionary<string, NptTypes.NptType> { { "__time__", new NptTypes.NptType(NptTypes.Types.Str, DateTime.Now.ToString()) } }
         };
 
         for (int i = 0; i < lines.Count; i++)
@@ -90,9 +90,9 @@ public partial class JoinScript
                         Console.WriteLine($"Function body: {code}");
 
                         var function = new NptFunction(fnName, parameters, code);
-                        variables.Add(new Dictionary<string, NptType>
+                        variables.Add(new Dictionary<string, NptTypes.NptType>
                         {
-                            { fnName, new NptType(Types.Fn, function) }
+                            { fnName, new NptTypes.NptType(NptTypes.Types.Fn, function) }
                         });
 
                         Console.WriteLine($"Function '{fnName}' registered successfully.");
@@ -107,7 +107,7 @@ public partial class JoinScript
                             return (null, null, result);
                         }
 
-                        variables.Add(new Dictionary<string, NptType> { { variableName, typedValue } });
+                        variables.Add(new Dictionary<string, NptTypes.NptType> { { variableName, typedValue } });
                         Console.WriteLine($"Variable '{variableName}' registered with value: {typedValue}");
                     }
                 }

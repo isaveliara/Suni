@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Text;
-using Sun.NPT.ScriptInterpreter;
+using Suni.Suni.NptEnvironment.Data;
 
-namespace Sun.NPT.ScriptFormalizer
+namespace Suni.Suni.NptEnvironment.Formalizer
 {
-    public partial class JoinScript
+    public partial class FormalizingScript
     {
         internal static (string, Diagnostics) SetPlaceHolders(string script, CommandContext ctx)
         {

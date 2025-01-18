@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Suni.Suni.NptEnvironment.Data;
+using Suni.Suni.NptEnvironment.Formalizer;
 
-namespace Sun.NPT.ScriptInterpreter;
+namespace Suni.Suni.NptEnvironment.Core;
 
 public partial class NptSystem
 {
@@ -14,13 +16,13 @@ public partial class NptSystem
     public List<string> Lines { get; private set; }
     public string ActualLine { get; private set; }
     public Dictionary<string, List<string>> Includes { get; private set; }
-    public List<Dictionary<string, NptType>> Variables { get; private set; }
-    public Dictionary<string, List<string>> NFuncs { get; private set; } = new();
+    public List<Dictionary<string, NptTypes.NptType>> Variables { get; private set; }
+    public Dictionary<string, List<string>> NFuncs { get; private set; } = [];
 
     public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(
     string script, CommandContext ctx)
     {
-        var (lines, includes, variables, resultFormalization) = new ScriptFormalizer.JoinScript().JoinHere(script, ctx);
+        var (lines, includes, variables, resultFormalization) = new FormalizingScript().Formalize(script, ctx);
         if (resultFormalization != Diagnostics.Success)
             return (_debugs, _outputs, resultFormalization);
 
@@ -69,7 +71,7 @@ public partial class NptSystem
 
                         //localize the function
                         var functionVar = Variables.FirstOrDefault(dict => dict.ContainsKey(functionName));
-                        if (functionVar != null && functionVar[functionName].Type == Types.Fn){
+                        if (functionVar != null && functionVar[functionName].Type == NptTypes.Types.Fn){
                             var fn = (NptFunction)functionVar[functionName].Value;
                             _debugs.Add($"Chamando função '{fn.Name}' com argumentos: {string.Join(", ", args)}");
 
@@ -163,8 +165,8 @@ public partial class NptSystem
         return Regex.Replace(line, @"\${(\w+)}", match => {
             string varName = match.Groups[1].Value;
             if (Variables.Any(v => v.ContainsKey(varName))){
-                NptType value = Variables.First(v => v.ContainsKey(varName))[varName];
-                if (value.Type == Types.Fn)
+                NptTypes.NptType value = Variables.First(v => v.ContainsKey(varName))[varName];
+                if (value.Type == NptTypes.Types.Fn)
                     return value.ToString();
                 return value?.ToString() ?? "nil";
             }

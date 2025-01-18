@@ -116,26 +116,6 @@
     <value>You can check out my details on my [website]({0})!</value>
   </data>
 
-
-  <data name="failWebhook" xml:space="preserve">
-    <value>Error creating/using the webhook.</value>
-  </data>
-  <data name="failTime" xml:space="preserve">
-    <value>No response within the expected time!</value>
-  </data>
-  <data name="failUnauthorized" xml:space="preserve">
-    <value>:x: | You do not have sufficient permissions to execute this action!</value>
-  </data>
-  <data name="failNoResources" xml:space="preserve">
-    <value>No resources to analyze here!</value>
-  </data>
-  <data name="internalError" xml:space="preserve">
-    <value>:x: An internal error occurred...</value>
-  </data>
-  <data name="unknownError" xml:space="preserve">
-    <value>:x: An unknown error occurred...</value>
-  </data>
-
   <data name="automodUnflaggedText" xml:space="preserve">
     <value>:white_check_mark: | The text provided was not flagged by any AutoMod rules.</value>
   </data>

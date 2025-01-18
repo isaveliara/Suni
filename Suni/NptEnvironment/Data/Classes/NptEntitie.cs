@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using System.Reflection;
 
-namespace Sun.NPT.ScriptInterpreter;
+namespace Suni.Suni.NptEnvironment.Data.Classes;
 
 public static partial class NptEntitie
 {
