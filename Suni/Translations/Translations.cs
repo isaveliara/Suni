@@ -1,4 +1,4 @@
-namespace Sun.Globalization;
+namespace Suni.Suni.Globalization;
 
 public partial class SolveLang
 {

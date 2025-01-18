@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using DSharpPlus.EventArgs;
 
-namespace Sun.Events;
+namespace Suni.Suni.Events;
 
 public partial class ReactionEvents
 {

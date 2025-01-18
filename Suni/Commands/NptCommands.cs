@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using DSharpPlus.Commands.ArgumentModifiers;
 using Sun.NPT.ScriptInterpreter;
 
-namespace Sun.Commands;
+namespace Suni.Suni.Commands;
 
 [Command("npt")]
 [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
@@ -95,7 +95,7 @@ public class NptCommands
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
     public static async Task NptEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
     {
-        var (formalizedExp, _) = NPT.ScriptFormalizer.JoinScript.SetPlaceHolders(expression, ctx);
+        var (formalizedExp, d) = Sun.NPT.ScriptFormalizer.JoinScript.SetPlaceHolders(expression, ctx);
         var (diagnostic, result) = NptStatements.EvaluateExpression(formalizedExp);
         await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExp}`` :\n```{result}```\nWhith Result: {diagnostic}");
     }

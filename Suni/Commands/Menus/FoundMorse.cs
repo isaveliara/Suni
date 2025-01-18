@@ -3,9 +3,9 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees.Metadata;
 
-namespace Sun.Commands.ContextMenus;
+namespace Suni.Suni.Commands.Menus;
 
-public partial class Found_Commands
+public partial class FoundCommands
 {
     [Command("found Morse Code")]
     [AllowedProcessors(typeof(UserCommandProcessor))]
@@ -14,7 +14,7 @@ public partial class Found_Commands
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.PrivateChannel)]
     public static async Task FoundMorseCode_Context(MessageCommandContext ctx, DiscordMessage targetMessage)
     {
-        var (translatedText, translations) = new Sun.Functions.Functions().GetMorsePart(targetMessage.Content);
+        var (translatedText, translations) = new Functions.Functions().GetMorsePart(targetMessage.Content);
         string translationsShow = "";
         int index = 0;
         foreach (string t in translations){

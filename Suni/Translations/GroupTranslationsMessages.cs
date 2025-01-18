@@ -2,7 +2,7 @@ using System.Collections;
 using System.Globalization;
 using System.Resources;
 
-namespace Sun.Globalization;
+namespace Suni.Suni.Globalization;
 
 public partial class SolveLang
 {

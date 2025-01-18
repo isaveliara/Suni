@@ -16,23 +16,23 @@ namespace Suni.Suni
             //user install and guild install commands
             List<Type> publicInteractionCommands = new List<Type>
             {
-                typeof(Sun.Commands.AboutMe),
-                typeof(Sun.Commands.Calculate),
-                typeof(Sun.Commands.ContextMenus.Found_Commands),
-                typeof(Sun.Commands.Dice),
-                typeof(Sun.Commands.NptCommands),
-                typeof(Sun.Commands.Romance),
-                typeof(Sun.Commands.RegexCommandsGroup),
-                typeof(Sun.Commands.AndresCommandsGroup),
-                typeof(Sun.Commands.LanguageCommands),
-                typeof(Sun.Commands.CustomNptCommands),
+                typeof(Suni.Commands.AboutMe),
+                typeof(Suni.Commands.Calculate),
+                typeof(Suni.Commands.Menus.FoundCommands),
+                typeof(Suni.Commands.Dice),
+                typeof(Suni.Commands.NptCommands),
+                typeof(Suni.Commands.Romance),
+                typeof(Suni.Commands.UsesAutoComplete.RegexCommandsGroup),
+                typeof(Suni.Commands.UsesAutoComplete.AndresCommandsGroup),
+                typeof(Suni.Commands.LanguageCommands),
+                typeof(Suni.Commands.CustomNptCommands),
             };
             //guild install commands
             List<Type> ProtectedInteractionCommands = new List<Type>
             {
-                typeof(Sun.Commands.Quiz),
-                typeof(Sun.Commands.Summon),
-                typeof(Sun.Commands.TestCommands),
+                typeof(Suni.Commands.Quiz),
+                typeof(Suni.Commands.Summon),
+                typeof(Suni.Commands.TestCommands),
             };
 
             //e.AddCommands(privateInteractionCommands, 123456789);

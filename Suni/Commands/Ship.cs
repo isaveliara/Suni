@@ -1,5 +1,5 @@
-using Sun.Functions.Visual;
-namespace Sun.Commands;
+using Suni.Suni.Functions.Visual;
+namespace Suni.Suni.Commands;
 
 public partial class Romance
 {

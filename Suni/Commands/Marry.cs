@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-namespace Sun.Commands;
+namespace Suni.Suni.Commands;
 
 public partial class Romance
 {

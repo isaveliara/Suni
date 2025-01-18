@@ -1,5 +1,3 @@
-using Suni.Suni.Functions.DB;
-
 namespace Suni.Suni.Configuration;
 
 public class DatabaseConfiguration

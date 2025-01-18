@@ -1,5 +1,5 @@
 using DSharpPlus.EventArgs;
-namespace Sun.Events;
+namespace Suni.Suni.Events;
 
 public partial class MessageEvents
 {

@@ -1,4 +1,4 @@
-namespace Sun.Globalization
+namespace Suni.Suni.Globalization
 {
     public enum SuniSupportedLanguages{
         PT, EN, RU, ES_MX, FROM_CLIENT
@@ -9,7 +9,6 @@ namespace Sun.Globalization
         {
             if (string.IsNullOrWhiteSpace(lang))
                 return SuniSupportedLanguages.PT; //default
-            Console.WriteLine($"parsing lang: {lang} - SuniSupportedLanguages.cs");
             
             return lang.ToLower() switch
             {

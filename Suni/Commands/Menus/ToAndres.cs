@@ -3,9 +3,9 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees.Metadata;
 
-namespace Sun.Commands.ContextMenus;
+namespace Suni.Suni.Commands.Menus;
 
-public partial class Found_Commands
+public partial class FoundCommands
 {
     [Command("translate To Andrês")]
     [AllowedProcessors(typeof(UserCommandProcessor))]

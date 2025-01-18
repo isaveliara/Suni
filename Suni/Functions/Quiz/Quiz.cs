@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using Suni.Suni.Configuration.Interfaces;
 
-namespace Sun.Functions.Quiz;
+namespace Suni.Suni.Functions.Quiz;
 public class QuizMethods
 {
     internal static async Task<ThemeData> TryFindTheme(string theme, IAppConfig config)

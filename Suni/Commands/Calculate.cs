@@ -1,7 +1,7 @@
 using DSharpPlus.Commands.ArgumentModifiers;
 using Suni.Suni.Configuration.Interfaces;
 
-namespace Sun.Commands;
+namespace Suni.Suni.Commands;
 
 public class Calculate(IAppConfig config)
 {
@@ -11,7 +11,7 @@ public class Calculate(IAppConfig config)
     public async Task CalculateCommand(CommandContext ctx,
         [RemainingText] string expression)
     {
-        var (image, result) = await Sun.Functions.Functions.CalculateExpression(expression, config);
+        var (image, result) = await Functions.Functions.CalculateExpression(expression, config);
 
         var embed = new DiscordEmbedBuilder()
             .WithTitle($"{expression}")

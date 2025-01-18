@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Text;
-using Sun.Functions.Quiz;
+using Suni.Suni.Functions.Quiz;
 using Suni.Suni.Configuration.Interfaces;
 
-namespace Sun.Commands;
+namespace Suni.Suni.Commands;
 
 public class Quiz(IAppConfig config)
 {

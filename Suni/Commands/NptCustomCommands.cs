@@ -2,7 +2,7 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Trees.Metadata;
 using Sun.NPT.ScriptInterpreter;
 
-namespace Sun.Commands;
+namespace Suni.Suni.Commands;
 
 public class CustomNptCommands
 {

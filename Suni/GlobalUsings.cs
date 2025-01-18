@@ -9,5 +9,5 @@ global using System.Linq;
 
 global using Suni.Suni.Functions;
 global using Suni.Suni.Functions.DB;
-global using Sun.Globalization;
+global using Suni.Suni.Globalization;
 global using Suni.Suni;

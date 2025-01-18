@@ -1,4 +1,4 @@
-namespace Sun.Commands;
+namespace Suni.Suni.Commands;
 
 public class Dice
 {
@@ -22,7 +22,7 @@ public class Dice
                         .WithContent($"erro ao calcular! :x:"));  return;
             }
 
-            var dice = Sun.Functions.Functions.Dice((int)sides, number).ToList();
+            var dice = Functions.Functions.Dice((int)sides, number).ToList();
             var stringdice = string.Join(" , ", dice);
             int result = dice.Sum();
 

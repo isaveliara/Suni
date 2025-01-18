@@ -39,8 +39,8 @@ public class SuniBuilder
         });
         SuniBuilder.ConfigureEventHandlers(builder =>
             builder.HandleSessionCreated(Client_Ready)
-                    .HandleMessageReactionAdded(Sun.Events.ReactionEvents.OnAddedReaction)
-                    .HandleMessageCreated(Sun.Events.MessageEvents.OnMessage)
+                    .HandleMessageReactionAdded(ReactionEvents.OnAddedReaction)
+                    .HandleMessageCreated(MessageEvents.OnMessage)
         );
         var prefixes = new string[] { "&" };
         SuniBuilder.UseCommands((_, extension) =>
@@ -65,6 +65,5 @@ public class SuniBuilder
     private static async Task Client_Ready(DiscordClient client, SessionCreatedEventArgs args)
     {
         await Task.CompletedTask;
-
     }
 }

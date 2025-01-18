@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Trees;
 
-namespace Sun.Commands
+namespace Suni.Suni.Commands
 {
     public class LanguageCommands
     {
@@ -35,7 +35,7 @@ namespace Sun.Commands
     }
 }
 
-namespace Sun.Globalization{
+namespace Suni.Suni.Globalization{
     public class LanguagesChoicesProvider : IChoiceProvider
     {
         private static readonly IReadOnlyList<DiscordApplicationCommandOptionChoice> Languages =

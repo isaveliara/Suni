@@ -4,7 +4,7 @@ using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees.Metadata;
 
-namespace Sun.Commands;
+namespace Suni.Suni.Commands.UsesAutoComplete;
 
 [Command("andres")]
 [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]

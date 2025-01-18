@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Suni.Suni.Configuration.Interfaces;
-using Sun.Functions.Visual;
+using Suni.Suni.Functions.Visual;
 
-namespace Sun.Commands;
+namespace Suni.Suni.Commands;
 
 [Command("summon")]
 [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall)]
