@@ -54,7 +54,7 @@ public class SuniBuilder
 
             extension.CommandErrored += ErrorEvents.CommandErrored;
 
-            Helpers.RegisterAllCommands(extension);
+            CommandsConfigs.RegisterCommands(extension);
         }, new CommandsConfiguration
         {
             UseDefaultCommandErrorHandler = false
@@ -63,7 +63,6 @@ public class SuniBuilder
         return SuniBuilder.Build();
     }
     private static async Task Client_Ready(DiscordClient client, SessionCreatedEventArgs args)
-    {
-        await Task.CompletedTask;
-    }
+        =>
+            await Task.CompletedTask;
 }

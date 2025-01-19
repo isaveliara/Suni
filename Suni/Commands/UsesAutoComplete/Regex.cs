@@ -55,19 +55,26 @@ public partial class RegexCommandsGroup
             return;
         }
 
-        string matchResults;
         try{
             var regex = new Regex(expression);
             var matches = regex.Matches(test);
-
-            string result = $"**Regular Expression:** `{expression}`\n**Matches:** {matches.Count}";
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle(expression)
+                .WithColor(DiscordColor.IndianRed)
+                .WithDescription($"String: `{test}`\n\\* The first 10 results will be taken.");
+            
+            
             if (matches.Count > 0){
                 var matchList = matches.Cast<Match>().Take(10).Select((m, i) => $"- [{i + 1}] {m.Value}");
-                matchResults = string.Join("\n", matchList);
-            }
-            else matchResults = solved.GenericMessages.ErrNoResources;
+                //add the fields
+                foreach (var (match, index) in matches.Cast<Match>().Take(10).Select((m, i) => (m, i + 1)))
+                    embed.AddField($"Match [{index}]", $"[{match.Value}]", inline: false);
 
-            await ctx.RespondAsync($"**Regular Expression:** `{expression}`\n**Test String:** `{test}`\n\n**Results Found (first 10):**\n{matchResults}");
+                await ctx.RespondAsync(embed);
+                return;
+            }
+            
+            await ctx.RespondAsync(content: solved.GenericMessages.ErrNoResources, embed: embed);
         }
         catch (Exception){
             await ctx.RespondAsync(solved.GenericMessages.ErrInternal);

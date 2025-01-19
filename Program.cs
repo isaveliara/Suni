@@ -1,6 +1,6 @@
 ﻿using Suni.Suni.Configuration;
 using Suni.Suni.Configuration.Interfaces;
-namespace Suni.Suni;
+namespace Suni;
 public sealed class SunClassBot
 {
     public static DiscordClient SuniClient;
