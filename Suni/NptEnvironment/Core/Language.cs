@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Suni.Suni.NptEnvironment.Data;
 using Suni.Suni.NptEnvironment.Formalizer;
-
 namespace Suni.Suni.NptEnvironment.Core;
 
 public partial class NptSystem

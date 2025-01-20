@@ -87,11 +87,13 @@ public partial class RegexCommandsGroup
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild)]
     public async Task AutomodDenies(CommandContext ctx,
-        [Parameter("test_string")] string testString)
+        [Parameter("test_string")] string testString,
+        [Parameter("asEphemeral")] bool asEphemeral = false)
     {
         var solved = await SolveLang.SolveLangAsync(ctx:ctx);
 
         if (!ctx.Member.Permissions.HasPermission(DiscordPermission.Administrator & DiscordPermission.ManageGuild)){
+            //here don't need to check asEphemeral cuz the user doesn't have permission.
             await ctx.RespondAsync(solved.GenericMessages.ErrUnauthorized);
             return;
         }
@@ -100,6 +102,7 @@ public partial class RegexCommandsGroup
 
         if (automodRules is null || automodRules.Count == 0){
             await ctx.RespondAsync(solved.GenericMessages.ErrNoResources);
+            //here don't need to check asEphemeral cuz there are no automod rules.
             return;
         }
         var triggeredRules = new List<string>();
@@ -132,10 +135,10 @@ public partial class RegexCommandsGroup
         if (triggeredRules.Count > 0){
             string response = solved.Commands.GetString("automodFlaggedText") +
                             $"\n{string.Join("\n", triggeredRules.Select(rule => $"- {rule}"))}";
-            await ctx.RespondAsync(response);
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AsEphemeral(asEphemeral).WithContent(response));
             return;
         }
-        await ctx.RespondAsync(solved.Commands.GetString("automodUnflaggedText"));
+        await ctx.RespondAsync(new DiscordInteractionResponseBuilder().AsEphemeral(asEphemeral).WithContent(solved.Commands.GetString("automodUnflaggedText")));
     }
 
     //check if a keyword matches the text
