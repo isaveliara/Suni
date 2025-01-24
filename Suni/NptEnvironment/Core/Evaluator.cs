@@ -1,76 +1,81 @@
 using System.Collections.Generic;
 using Suni.Suni.NptEnvironment.Data;
-
 namespace Suni.Suni.NptEnvironment.Core;
 
 partial class NptStatements
 {
     private static object ConvertToken(string token)
     {
-        if (int.TryParse(token, out int intValue))
-            return intValue;
+        if (int.TryParse(token, out int intValue)) return intValue;
+        if (double.TryParse(token, out double doubleValue)) return doubleValue;
+        if (bool.TryParse(token, out bool boolValue)) return boolValue;
+        if (token == "nil") return null;
+        if (token.StartsWith("s'") && token.EndsWith('\'') && token.Length >= 3) return token[2..^1];
+        if (token.StartsWith("c'") && token.EndsWith('\'') && token.Length == 4) return token[2];
 
-        if (double.TryParse(token, out double doubleValue))
-            return doubleValue;
-
-        if (bool.TryParse(token, out bool boolValue))
-            return boolValue;
-
-        if (token == "nil")
-            return null;
-
-        if (token.StartsWith("s'") && token.EndsWith("'"))
-            return token.Substring(2, token.Length - 3);
-
-        if (token.StartsWith("c'") && token.EndsWith("'"))
-            return token[2];
-
-        return token;
+        return Diagnostics.BadToken;
     }
 
     public static (Diagnostics, object) EvaluateExpression(string expression)
     {
-        if (!ValidateExpression(expression))
-            return (Diagnostics.MalformedExpression, null);
+        if (!ValidateExpression(expression)) return (Diagnostics.MalformedExpression, null);
 
         var stackValues = new Stack<object>();
         var stackOperators = new Stack<string>();
-
         string[] tokens = Tokens.Tokenize(expression);
 
-        foreach (string token in tokens){
+        for (int i = 0; i < tokens.Length; i++)
+        {
+            string token = tokens[i];
             if (token == "[")
                 stackOperators.Push(token);
-            else if (token == "]"){
-                while (stackOperators.Count > 0 && stackOperators.Peek() != "["){
+            else if (token == "]")
+            {
+                while (stackOperators.Count > 0 && stackOperators.Peek() != "[")
+                {
                     var result = ApplyOperatorOrFunction(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
                         return (result, null);
                 }
-                stackOperators.Pop(); //removes "["
+
+                if (stackOperators.Count == 0 || stackOperators.Pop() != "[")
+                    return (Diagnostics.MalformedExpression, null);
             }
-            else if (token.Contains('#')){
-                var result = ApplyFunctionWithFormat(stackValues, token);
+            else if (IsFunction(token))
+            {
+                if (i + 1 >= tokens.Length)
+                    return (Diagnostics.MalformedExpression, null);
+
+                string nextToken = tokens[++i];
+                var value = ConvertToken(nextToken);
+                if (value is Diagnostics diagnostic)
+                    return (diagnostic, null);
+
+                var result = ApplyFunction(stackValues, value, token);
                 if (result != Diagnostics.Success)
                     return (result, null);
             }
-            else if (IsOperator(token)){
-                while (stackOperators.Count > 0 && Tokens.Precedence(stackOperators.Peek()) >= Tokens.Precedence(token)){
+            else if (IsOperator(token))
+            {
+                while (stackOperators.Count > 0 && Tokens.Precedence(stackOperators.Peek()) >= Tokens.Precedence(token))
+                {
                     var result = ApplyOperator(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
                         return (result, null);
                 }
                 stackOperators.Push(token);
             }
-            else{
+            else
+            {
                 var converted = ConvertToken(token);
-                if (converted is Diagnostics)
-                    return ((Diagnostics)converted, null);
+                if (converted is Diagnostics diagnostic)
+                    return (diagnostic, null);
                 stackValues.Push(converted);
             }
         }
 
-        while (stackOperators.Count > 0){
+        while (stackOperators.Count > 0)
+        {
             var result = ApplyOperator(stackValues, stackOperators.Pop());
             if (result != Diagnostics.Success)
                 return (result, null);
@@ -78,13 +83,13 @@ partial class NptStatements
 
         return stackValues.Count == 1
             ? (Diagnostics.Success, stackValues.Pop())
-            //: (Diagnostics.MalformedExpression, null); //here a error goes. i commented this and now works (other things bug btw i think)
-            : (Diagnostics.Success, stackValues.Pop());
+            : (Diagnostics.MalformedExpression, null);
     }
 
-    private static Diagnostics ApplyOperatorOrFunction(Stack<object> stackValues, string token){
-        if (token.Contains('#'))
-            return ApplyFunctionWithFormat(stackValues, token);
+    private static Diagnostics ApplyOperatorOrFunction(Stack<object> stackValues, string token)
+    {
+        if (IsFunction(token))
+            return Diagnostics.MalformedExpression;
 
         return ApplyOperator(stackValues, token);
     }
@@ -93,111 +98,98 @@ partial class NptStatements
     {
         if (stackValues.Count < 2)
             return Diagnostics.IncompleteBinaryIFOperation;
+
         var b = stackValues.Pop();
         var a = stackValues.Pop();
-        try
-        {
-            switch (Operator){
-                case "&&":
-                case "||":
-                    if (a is bool boolA && b is bool boolB)
-                        stackValues.Push(Operator == "&&" ? boolA && boolB : boolA || boolB);
-                    else
-                        return Diagnostics.TypeMismatchException;
-                    break;
-                case "==":
-                    stackValues.Push(Equals(a, b));    break;
-                case "~=":
-                    stackValues.Push(!Equals(a, b));   break;
-                case ">":
-                case "<":
-                case ">=":
-                case "<=":
-                    if (a is IComparable comparableA && b is IComparable comparableB && a.GetType() == b.GetType()){
-                        int comparison = comparableA.CompareTo(comparableB);
-                        stackValues.Push(Operator switch
-                        {
-                            ">" => comparison > 0,
-                            "<" => comparison < 0,
-                            ">=" => comparison >= 0,
-                            "<=" => comparison <= 0,
-                            _ => throw new InvalidOperationException("Unsupported comparison operator.")
-                        });
-                    }
-                    else
-                        return Diagnostics.TypeMismatchException;
-                    break;
-                case "?":
-                    stackValues.Push(b.ToString().Contains(a.ToString()));   break;
-                
-                case "+":
-                    stackValues.Push(Add(a, b));        break;
-                case "-":
-                    stackValues.Push(Subtract(a, b));   break;
-                case "*":
-                    stackValues.Push(Multiply(a, b));   break;
-                case "/":
-                    if (b is int intB && intB == 0)
-                        return Diagnostics.DivisionByZeroException;
-                    stackValues.Push(Divide(a, b));
-                    break;
-                default:
-                    return Diagnostics.InvalidOperator;
-            }
-        }
-        catch{
-            return Diagnostics.TypeMismatchException;
-        }
 
+        switch (Operator)
+        {
+            //bool operators
+            case "&&":
+            case "||":
+                if (a is bool boolA && b is bool boolB)
+                    stackValues.Push(Operator == "&&" ? boolA && boolB : boolA || boolB);
+                else
+                    return Diagnostics.TypeMismatchException;
+                break;
+            case "==":
+                stackValues.Push(Equals(a, b));   break;
+            case "~=":
+                stackValues.Push(!Equals(a, b));  break;
+            case ">":
+            case "<":
+            case ">=":
+            case "<=":
+                if (a is IComparable comparableA && b is IComparable && a.GetType() == b.GetType()){
+                    int comparison = comparableA.CompareTo(b);
+                    stackValues.Push(Operator switch{
+                        ">" => comparison > 0,
+                        "<" => comparison < 0,
+                        ">=" => comparison >= 0,
+                        "<=" => comparison <= 0,
+                        _ => false
+                    });
+                }
+                else
+                    return Diagnostics.TypeMismatchException;
+                break;
+
+            case "?":
+                stackValues.Push(b.ToString().Contains(a.ToString()));
+                break;
+            
+            //other objects operators
+            case "+":
+                if (a is string || b is string)
+                    stackValues.Push(a?.ToString() + b?.ToString());
+                else if (a is int intA && b is int intB)
+                    stackValues.Push(intA + intB);
+                else if (a is double doubleA && b is double doubleB)
+                    stackValues.Push(doubleA + doubleB);
+                else
+                    return Diagnostics.TypeMismatchException;
+                break;
+
+            case "-":
+            case "*":
+            case "/":
+                return ApplyArithmeticOperator(stackValues, a, b, Operator);
+
+            default:
+                return Diagnostics.InvalidOperator;
+        }
         return Diagnostics.Success;
     }
-    private static object Add(object a, object b){
-        return a switch{
-            int intA when b is int intB => intA + intB,
-            double doubleA when b is double doubleB => doubleA + doubleB,
-            string strA => strA + b?.ToString(),
-            _ => throw new InvalidOperationException("Unsupported types for addition.")
-        };
-    }
 
-    private static double Subtract(object a, object b){
-        return a switch{
-            int intA when b is int intB => intA - intB,
-            double doubleA when b is double doubleB => doubleA - doubleB,
-            _ => throw new InvalidOperationException("Unsupported types for subtraction.")
-        };
-    }
-
-    private static double Multiply(object a, object b){
-        return a switch{
-            int intA when b is int intB => intA * intB,
-            double doubleA when b is double doubleB => doubleA * doubleB,
-            _ => throw new InvalidOperationException("Unsupported types for multiplication.")
-        };
-    }
-
-    private static double Divide(object a, object b){
-        return a switch{
-            int intA when b is int intB && intB != 0 => intA / intB,
-            double doubleA when b is double doubleB && doubleB != 0.0 => doubleA / doubleB,
-            _ => throw new InvalidOperationException("Unsupported types or division by zero.")
-        };
-    }
-
-    private static Diagnostics ApplyFunctionWithFormat(Stack<object> stackValues, string token)
+    private static Diagnostics ApplyArithmeticOperator(Stack<object> stackValues, object a, object b, string op)
     {
-        var parts = token.Split('#'); //len#s'hi guys' | must return '7'
-        if (parts.Length != 2)
-            return Diagnostics.MalformedExpression;
-
-        string function = parts[0];
-        string valueToken = token.Substring(parts[0].Length+1); //ignores 'function#'
-
-        var value = ConvertToken(valueToken);
-        if (value is Diagnostics)
-            return Diagnostics.BadToken;
-
-        return ApplyFunction(stackValues, value, function);
+        if (a is int intA && b is int intB)
+        {
+            switch (op)
+            {
+                case "-": stackValues.Push(intA - intB); break;
+                case "*": stackValues.Push(intA * intB); break;
+                case "/":
+                    if (intB == 0) return Diagnostics.DivisionByZeroException;
+                    stackValues.Push(intA / intB);
+                    break;
+            }
+        }
+        else if (a is double doubleA && b is double doubleB)
+        {
+            switch (op)
+            {
+                case "-": stackValues.Push(doubleA - doubleB); break;
+                case "*": stackValues.Push(doubleA * doubleB); break;
+                case "/":
+                    if (doubleB == 0.0) return Diagnostics.DivisionByZeroException;
+                    stackValues.Push(doubleA / doubleB);
+                    break;
+            }
+        }
+        else
+            return Diagnostics.TypeMismatchException;
+        return Diagnostics.Success;
     }
 
     private static Diagnostics ApplyFunction(Stack<object> stackValues, object value, string function)
@@ -210,16 +202,16 @@ partial class NptStatements
                 }
                 return Diagnostics.TypeMismatchException;
 
-            case "uper":
-                if (value is string s){
-                    stackValues.Push(s.ToUpper());
+            case "upper":
+                if (value is string strU){
+                    stackValues.Push(strU.ToUpper());
                     return Diagnostics.Success;
                 }
                 return Diagnostics.TypeMismatchException;
 
             case "lower":
-                if (value is string sLower){
-                    stackValues.Push(sLower.ToLower());
+                if (value is string strL){
+                    stackValues.Push(strL.ToLower());
                     return Diagnostics.Success;
                 }
                 return Diagnostics.TypeMismatchException;
@@ -228,10 +220,13 @@ partial class NptStatements
                 return Diagnostics.UnlistedProperty;
         }
     }
-    internal static bool IsOperator(string token)
-        =>
-            new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "?" }
-                .Contains(token);
+
+    private static bool IsFunction(string token)
+        => new HashSet<string> { "len", "upper", "lower" }.Contains(token);
+
+    internal static bool IsOperator(string token) =>
+        new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "?" }
+            .Contains(token);
 }
 
 ///examples of expressions:
