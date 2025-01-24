@@ -88,7 +88,7 @@ public partial class RegexCommandsGroup
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild)]
     public async Task AutomodDenies(CommandContext ctx,
         [Parameter("test_string")] string testString,
-        [Parameter("asEphemeral")] bool asEphemeral = false)
+        [Parameter("asEphemeral")] bool asEphemeral = true)
     {
         var solved = await SolveLang.SolveLangAsync(ctx:ctx);
 

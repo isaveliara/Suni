@@ -8,6 +8,8 @@ namespace Suni.Suni.NptEnvironment.Formalizer
     {
         internal static (string, Diagnostics) SetPlaceHolders(string script, CommandContext ctx)
         {
+            if (ctx is null)
+                return (script, Diagnostics.Success);
             //stringBuilder for building the script
             var sb = new StringBuilder(script);
 

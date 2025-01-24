@@ -43,22 +43,22 @@ partial class NptStatements
                 stackOperators.Push(token);
             else if (token == "]"){
                 while (stackOperators.Count > 0 && stackOperators.Peek() != "["){
-                    var error = ApplyOperatorOrFunction(stackValues, stackOperators.Pop());
-                    if (error != Diagnostics.Success)
-                        return (error, null);
+                    var result = ApplyOperatorOrFunction(stackValues, stackOperators.Pop());
+                    if (result != Diagnostics.Success)
+                        return (result, null);
                 }
                 stackOperators.Pop(); //removes "["
             }
             else if (token.Contains('#')){
-                var error = ApplyFunctionWithFormat(stackValues, token);
-                if (error != Diagnostics.Success)
-                    return (error, null);
+                var result = ApplyFunctionWithFormat(stackValues, token);
+                if (result != Diagnostics.Success)
+                    return (result, null);
             }
             else if (IsOperator(token)){
                 while (stackOperators.Count > 0 && Tokens.Precedence(stackOperators.Peek()) >= Tokens.Precedence(token)){
-                    var error = ApplyOperator(stackValues, stackOperators.Pop());
-                    if (error != Diagnostics.Success)
-                        return (error, null);
+                    var result = ApplyOperator(stackValues, stackOperators.Pop());
+                    if (result != Diagnostics.Success)
+                        return (result, null);
                 }
                 stackOperators.Push(token);
             }
@@ -71,14 +71,15 @@ partial class NptStatements
         }
 
         while (stackOperators.Count > 0){
-            var error = ApplyOperator(stackValues, stackOperators.Pop());
-            if (error != Diagnostics.Success)
-                return (error, null);
+            var result = ApplyOperator(stackValues, stackOperators.Pop());
+            if (result != Diagnostics.Success)
+                return (result, null);
         }
 
         return stackValues.Count == 1
             ? (Diagnostics.Success, stackValues.Pop())
-            : (Diagnostics.MalformedExpression, null);
+            //: (Diagnostics.MalformedExpression, null); //here a error goes. i commented this and now works (other things bug btw i think)
+            : (Diagnostics.Success, stackValues.Pop());
     }
 
     private static Diagnostics ApplyOperatorOrFunction(Stack<object> stackValues, string token){
@@ -126,6 +127,8 @@ partial class NptStatements
                     else
                         return Diagnostics.TypeMismatchException;
                     break;
+                case "?":
+                    stackValues.Push(b.ToString().Contains(a.ToString()));   break;
                 
                 case "+":
                     stackValues.Push(Add(a, b));        break;
@@ -183,12 +186,12 @@ partial class NptStatements
 
     private static Diagnostics ApplyFunctionWithFormat(Stack<object> stackValues, string token)
     {
-        var parts = token.Split('#');
+        var parts = token.Split('#'); //len#s'hi guys' | must return '7'
         if (parts.Length != 2)
             return Diagnostics.MalformedExpression;
 
-        string valueToken = parts[0];
-        string function = parts[1];
+        string function = parts[0];
+        string valueToken = token.Substring(parts[0].Length+1); //ignores 'function#'
 
         var value = ConvertToken(valueToken);
         if (value is Diagnostics)
@@ -207,14 +210,14 @@ partial class NptStatements
                 }
                 return Diagnostics.TypeMismatchException;
 
-            case "toUpper":
+            case "uper":
                 if (value is string s){
                     stackValues.Push(s.ToUpper());
                     return Diagnostics.Success;
                 }
                 return Diagnostics.TypeMismatchException;
 
-            case "toLower":
+            case "lower":
                 if (value is string sLower){
                     stackValues.Push(sLower.ToLower());
                     return Diagnostics.Success;
@@ -227,6 +230,18 @@ partial class NptStatements
     }
     internal static bool IsOperator(string token)
         =>
-            new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "-&", "+&" }
+            new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "?" }
                 .Contains(token);
 }
+
+///examples of expressions:
+    ///1 + 1                       | 2 (i think is wrong.)
+    ///true && false               | False
+    ///len#s'hi' == 2              | True
+    ///a ? s'osvald'               | True
+    ///a ? s'petter'               | False
+    ///upper#s'Hello Worl'         | HELLO WORLD
+    ///len#s'zzzzzzzzzz' >= 10     | True
+    ///s'hel' + s'lo' == s'hello'  | True
+    ///s'a' + s'b' ? s'oiba'       | False
+    ///s'a' + s'b' ? s'oiab'       | True

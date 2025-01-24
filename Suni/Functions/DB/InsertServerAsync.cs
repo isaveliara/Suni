@@ -5,12 +5,12 @@ public partial class DBMethods
     /// <summary>
     /// Inserts a server in my database.
     /// </summary>
-    public void InsertServer(ulong serverId, string serverName, string urlIcon, ServerStatusTypes relation = ServerStatusTypes.client,
+    public async Task InsertServerAsync(ulong serverId, string serverName, string urlIcon, ServerStatusTypes relation = ServerStatusTypes.client,
                                     string flags = "", string eventData = "")
     {
         using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
         {
-            connection.Open();
+            await connection.OpenAsync();
             string insertServerQuery = @"
                 INSERT INTO servers (server_id, server_name, url_icon, relation, flags, event_data)
                 VALUES (@serverId, @serverName, @urlIcon, @relation, @flags, @eventData);
@@ -25,7 +25,7 @@ public partial class DBMethods
                 command.Parameters.AddWithValue("@flags", flags);
                 command.Parameters.AddWithValue("@eventData", eventData);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
                 Console.WriteLine($"add server {serverName} ({serverId})!");
             }
         }
