@@ -5,7 +5,7 @@ partial class Tokens
 {
     public static string[] Tokenize(string expression)
     {
-        string pattern = @"(s\'[^']*\'|c\'[^\']\'|\[|\]|\|\||&&|==|~=|>=|<=|>|<|!|\?|\+|\-|\*|\/|\s+)";
+        string pattern = @"(s\'[^']*\'|c\'[^\']\'|\[|\]|\|\||&&|==|~=|>=|<=|>|<|!|\?|#|\+|\-|\*|\/|\s+)";
         return Regex.Split(expression, pattern)
                     .Where(token => !string.IsNullOrWhiteSpace(token))
                     .ToArray();

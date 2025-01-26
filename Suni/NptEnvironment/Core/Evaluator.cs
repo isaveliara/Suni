@@ -2,8 +2,11 @@ using System.Collections.Generic;
 using Suni.Suni.NptEnvironment.Data;
 namespace Suni.Suni.NptEnvironment.Core;
 
-partial class NptStatements
+partial class NptSystem
 {
+    private static readonly Random _randomGenerator = new();
+
+    //fix this after
     private static object ConvertToken(string token)
     {
         if (int.TryParse(token, out int intValue)) return intValue;
@@ -139,6 +142,9 @@ partial class NptStatements
                 break;
             
             //other objects operators
+            case "#":
+                stackValues.Push(_randomGenerator.Next(0, 2) == 0 ? a : b);
+                break;
             case "+":
                 if (a is string || b is string)
                     stackValues.Push(a?.ToString() + b?.ToString());
@@ -225,7 +231,7 @@ partial class NptStatements
         => new HashSet<string> { "len", "upper", "lower" }.Contains(token);
 
     internal static bool IsOperator(string token) =>
-        new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "+", "-", "*", "/", "?" }
+        new HashSet<string> { "&&", "||", "!", "==", "~=", ">", "<", ">=", "<=", "#", "+", "-", "*", "/", "?" }
             .Contains(token);
 }
 

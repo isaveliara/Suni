@@ -44,7 +44,7 @@ public partial class NptSystem
                     var ifMatch = Regex.Match(ActualLine.Substring(2), @"\(([^)]+)\)\s*&do{", RegexOptions.None);
                     if (ifMatch.Success){
                         string condition = ifMatch.Groups[1].Value;
-                        var (r, conditionResult) = NptStatements.IFStatement(condition);
+                        var (r, conditionResult) = NptSystem.IFStatement(condition);
                         if (r != Diagnostics.Success)
                             return (_debugs, _outputs, r);
 

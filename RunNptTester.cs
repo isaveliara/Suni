@@ -48,7 +48,7 @@ public class Tests
             if (isEval)
             {
                 var (formalizedExp, d) = FormalizingScript.SetPlaceHolders(code, ctx);
-                var (diagnostic, resultEval) = NptStatements.EvaluateExpression(formalizedExp);
+                var (diagnostic, resultEval) = NptSystem.EvaluateExpression(formalizedExp);
                 Console.WriteLine($"Result of Evaluation for '{formalizedExp}' :");
 
                 if (diagnostic != Diagnostics.Success)

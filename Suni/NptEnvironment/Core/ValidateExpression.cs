@@ -1,6 +1,6 @@
 namespace Suni.Suni.NptEnvironment.Core;
 
-partial class NptStatements
+partial class NptSystem
 {
     internal static bool ValidateExpression(string expression)
     {

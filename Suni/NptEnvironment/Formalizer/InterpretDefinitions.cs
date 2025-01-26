@@ -92,7 +92,7 @@ public partial class FormalizingScript
                         Console.WriteLine($"Processing as common variable: {variableName}");
                         //var (result, typedValue) = Help.GetType(parts[1]);
                         
-                        var (resEvaluateVar, evaluatedVar) = NptStatements.EvaluateExpression(parts[1]);
+                        var (resEvaluateVar, evaluatedVar) = NptSystem.EvaluateExpression(parts[1]);
                         Console.WriteLine($"{evaluatedVar.ToString()}");
                         if (resEvaluateVar != Diagnostics.Success)
                             return (null, null, resEvaluateVar);

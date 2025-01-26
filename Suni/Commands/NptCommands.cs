@@ -98,7 +98,7 @@ public class NptCommands
     public static async Task NptEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
     {
         var (formalizedExp, d) = FormalizingScript.SetPlaceHolders(expression, ctx);
-        var (diagnostic, result) = NptStatements.EvaluateExpression(formalizedExp);
+        var (diagnostic, result) = NptSystem.EvaluateExpression(formalizedExp);
         await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExp}`` :\n```{result}```\nWhith Result: {diagnostic}");
     }
 }
