@@ -111,7 +111,7 @@ public partial class Help
             return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Fn, function));
         }
 
-        //unknown
-        return (Diagnostics.UnknowTypeException, null);
+        //convert a possible evaluated literal to a string (idk if it should be treated differently as this)
+        return (Diagnostics.Anomaly, new NptTypes.NptType(NptTypes.Types.Str, value));
     }
 }
