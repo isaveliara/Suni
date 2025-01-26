@@ -232,11 +232,11 @@ partial class NptStatements
 ///examples of expressions:
     ///1 + 1                       | 2 (i think is wrong.)
     ///true && false               | False
-    ///len#s'hi' == 2              | True
+    ///len s'hi' == 2              | True
     ///a ? s'osvald'               | True
     ///a ? s'petter'               | False
-    ///upper#s'Hello Worl'         | HELLO WORLD
-    ///len#s'zzzzzzzzzz' >= 10     | True
+    ///upper s'Hello Worl'         | HELLO WORLD
+    ///len s'zzzzzzzzzz' >= 10     | True
     ///s'hel' + s'lo' == s'hello'  | True
     ///s'a' + s'b' ? s'oiba'       | False
     ///s'a' + s'b' ? s'oiab'       | True

@@ -14,7 +14,6 @@ public partial class FormalizingScript
         //(default)
         var includes = new Dictionary<string, List<string>>{
             { "std", NptSystem.MainControlerLibMethods }
-            //{ "npt", new List<string>{"log", "ban", "unban", "react"} },
         };
         var variables = new List<Dictionary<string, NptTypes.NptType>>{
             new Dictionary<string, NptTypes.NptType> { { "__version__", new NptTypes.NptType(NptTypes.Types.Str, SunClassBot.SuniV) } },
@@ -26,41 +25,33 @@ public partial class FormalizingScript
             string currentLine = lines[i].Trim();
 
             //process "include" statements
-            if (currentLine.StartsWith("~include"))
-            {
+            if (currentLine.StartsWith("~include")){
                 var includeName = currentLine.Substring(9).Trim();
                 Console.WriteLine($"{includeName} included by line: {currentLine}");
 
-                if (!string.IsNullOrWhiteSpace(includeName) && !includes.ContainsKey(includeName))
-                {
+                if (!string.IsNullOrWhiteSpace(includeName) && !includes.ContainsKey(includeName)){
                     string classNameProper = char.ToUpper(includeName[0]) + includeName.Substring(1).ToLower() + "Entitie";
                     Type type = Type.GetType($"Sun.NPT.ScriptInterpreter.{classNameProper}");
 
-                    if (type != null)
-                    {
+                    if (type != null){
                         var libMethodsProperty = type.GetProperty("LibMethods", BindingFlags.Static | BindingFlags.Public);
-                        if (libMethodsProperty != null)
-                        {
+                        if (libMethodsProperty != null){
                             var methods = libMethodsProperty.GetValue(null) as List<string>;
-                            if (methods != null && methods.Any())
-                            {
+                            if (methods != null && methods.Any()){
                                 includes[includeName] = methods;
                                 Console.WriteLine($"Library '{includeName}' registered with methods: {string.Join(", ", methods)}");
                             }
-                            else
-                            {
+                            else{
                                 includes[includeName] = new List<string>();
                                 Console.WriteLine($"Library '{includeName}' registered but no methods found.");
                             }
                         }
-                        else
-                        {
+                        else{
                             includes[includeName] = new List<string>();
                             Console.WriteLine($"Library '{includeName}' found, but 'LibMethods' property is missing.");
                         }
                     }
-                    else
-                    {
+                    else{
                         Console.WriteLine($"Error: Library '{includeName}' class '{classNameProper}' not found.");
                         return (null, null, Diagnostics.IncludeNotFoundException);
                     }
@@ -74,7 +65,7 @@ public partial class FormalizingScript
                 if (parts.Length == 2)
                 {
                     string variableName = parts[0].Trim();
-                    Console.WriteLine($"Detectado ~set para variável ou função: {variableName}");
+                    Console.WriteLine($"Detected ~set for variable or function: {variableName}");
 
                     var fnMatch = Regex.Match(variableName, @"\[(\w+)<([^>]*)>\]");
                     if (fnMatch.Success)
@@ -97,8 +88,7 @@ public partial class FormalizingScript
 
                         Console.WriteLine($"Function '{fnName}' registered successfully.");
                     }
-                    else
-                    {
+                    else{
                         Console.WriteLine($"Processing as common variable: {variableName}");
                         var (result, typedValue) = Help.GetType(parts[1]);
                         if (result != Diagnostics.Success)
@@ -111,8 +101,7 @@ public partial class FormalizingScript
                         Console.WriteLine($"Variable '{variableName}' registered with value: {typedValue}");
                     }
                 }
-                else
-                {
+                else{
                     Console.WriteLine($"Sintax error in ~set: '{currentLine}'");
                     return (null, null, Diagnostics.SyntaxException);
                 }
