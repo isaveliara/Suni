@@ -1,15 +1,21 @@
 ﻿using Suni.Suni.Configuration;
 using Suni.Suni.Configuration.Interfaces;
 namespace Suni;
+
 public sealed class SunClassBot
 {
     public static DiscordClient SuniClient;
-    public const string SuniV = "build_3";
+    public const string SuniV = "build_3.3";
     private static readonly IAppConfig Config = AppConfig.NewAppConfig();
     public static int TimerRepeats { get; private set; } = 0;
 
-    static async Task Main()
+    static async Task Main(string[] args)
     {
+        if (args.Length > 0 && args[0].ToLower().Contains("test")) //runs the npt tester
+        {
+            await Tests.RunNptTester();
+        }
+
         SuniClient = SuniBuilder.Configure(Config);
         DatabaseConfiguration.Configure();
         await SuniClient.ConnectAsync();

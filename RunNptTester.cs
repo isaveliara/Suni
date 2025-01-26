@@ -1,11 +1,11 @@
-/*using Suni;
 using Suni.Suni.NptEnvironment.Core;
 using Suni.Suni.NptEnvironment.Data;
 using Suni.Suni.NptEnvironment.Formalizer;
+namespace Suni;
 
 public class Tests
 {
-    static async Task Main()
+    internal static async Task RunNptTester()
     {
         Console.Clear();
         Console.WriteLine($"Running SuniNPT '{SunClassBot.SuniV}'.\nType '#help' for help.\n\n");
@@ -96,5 +96,10 @@ public class Tests
                 Console.WriteLine($"Result Program: **{result.result}**\n[Finished]");
             }
         }
+
+        //normal program
+        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+        Console.WriteLine("Running Suni;\n");
+        Console.ResetColor();
     }
-}*/
+}

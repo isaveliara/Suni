@@ -66,7 +66,7 @@ public partial class DBMethods
             using (var command = new SQLiteCommand(serversAndNptTable, connection))
                 command.ExecuteNonQuery();
 
-            Console.WriteLine("created!");
+            Console.WriteLine("database configured!");
         }
     }
 }
