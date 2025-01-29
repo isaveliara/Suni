@@ -91,11 +91,11 @@ public partial class FormalizingScript
                     else{
                         Console.WriteLine($"Processing as common variable: {variableName}");
                         //var (result, typedValue) = Help.GetType(parts[1]);
-                        
-                        var (resEvaluateVar, evaluatedVar) = NptSystem.EvaluateExpression(parts[1]);
+                        var (resEvaluatedVar, evaluatedVar) = NptSystem.EvaluateExpression(parts[1]);
+
                         Console.WriteLine($"{evaluatedVar.ToString()}");
-                        if (resEvaluateVar != Diagnostics.Success)
-                            return (null, null, resEvaluateVar);
+                        if (resEvaluatedVar != Diagnostics.Success)
+                            return (null, null, resEvaluatedVar);
                             
                         var (result, typedValue) = Help.GetType(evaluatedVar.ToString());
                         if (result != Diagnostics.Success && result != Diagnostics.Anomaly)

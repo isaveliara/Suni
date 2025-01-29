@@ -97,9 +97,9 @@ public class Tests
             }
         }
 
-        //normal program
+        //normal program running
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
-        Console.WriteLine("Running Suni;\n");
+        Console.WriteLine("Running Suni;");
         Console.ResetColor();
     }
 }

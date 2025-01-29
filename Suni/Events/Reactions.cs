@@ -21,17 +21,13 @@ public partial class ReactionEvents
         if (!IsReactionValid(e)) return;
         await foreach (var user in e.Message.GetReactionsAsync(e.Emoji))
         {
-            if (user.Id == client.CurrentUser.Id)
-            {
+            if (user.Id == client.CurrentUser.Id){
                 botReacted = true;
                 break;
             }
         }
         if (!botReacted)
-        {
-            Console.WriteLine("o bot não reagiu a mensagem dele para ser um casamento valido");
             return;
-        }
 
         //get the users
         var matchU1 = Regex.Match(e.Message.Content, @"<@!?(\d+)>");
@@ -49,18 +45,14 @@ public partial class ReactionEvents
         var u2Id = ulong.Parse(u2);
 
         if (e.User.Id.ToString() != u1)
-        {
-            Console.WriteLine($"Invalido: A proposta lançada para {u1} foi reagida por ({e.User.Id})");
             return;
-        }
 
         Console.WriteLine($"<{u1}> aceitou o(a) <{u2}>");
         var lang = await new DBMethods().GetUserPrimaryLangAsync(e.User.Id);
         var solve = await SolveLang.SolveLangAsync(lang.ToString());
         (string _, string _, string _, string _, string noMoney, string success) = solve.Commands.GetMarryMessages(0, $"<@{u1}>", $"<@{u2}>");
         bool re = RomanceMethods.MarryUsers(u1Id, u2Id, true);
-        if (!re)
-        {
+        if (!re){
             await e.Message.RespondAsync(noMoney);
             return;
         }

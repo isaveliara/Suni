@@ -36,7 +36,7 @@ partial class NptSystem
             {
                 while (stackOperators.Count > 0 && stackOperators.Peek() != "[")
                 {
-                    var result = ApplyOperatorOrFunction(stackValues, stackOperators.Pop());
+                    var result = IsApplyOperatorOrFunction(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
                         return (result, null);
                 }
@@ -89,7 +89,7 @@ partial class NptSystem
             : (Diagnostics.MalformedExpression, null);
     }
 
-    private static Diagnostics ApplyOperatorOrFunction(Stack<object> stackValues, string token)
+    private static Diagnostics IsApplyOperatorOrFunction(Stack<object> stackValues, string token)
     {
         if (IsFunction(token))
             return Diagnostics.MalformedExpression;
@@ -142,9 +142,12 @@ partial class NptSystem
                 break;
             
             //other objects operators
-            case "#":
+            case "#": //selects a or b randomly
                 stackValues.Push(_randomGenerator.Next(0, 2) == 0 ? a : b);
                 break;
+            case "~":
+                break;
+
             case "+":
                 if (a is string || b is string)
                     stackValues.Push(a?.ToString() + b?.ToString());
