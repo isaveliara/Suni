@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using Suni.Suni.NptEnvironment.Core;
 using Suni.Suni.NptEnvironment.Data;
+using Suni.Suni.NptEnvironment.Data.Types;
 
 namespace Suni.Suni.NptEnvironment.Formalizer
 {
     public partial class FormalizingScript
     {
-        public (List<string>, Dictionary<string, List<string>>, List<Dictionary<string, NptTypes.NptType>>, Diagnostics) Formalize(string code, CommandContext ctx)
+        public (List<string> codeFormalized, Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables, Diagnostics diagnostic) Formalize(string code, CommandContext ctx)
         {
             var (result, resultp) = SetPlaceHolders(code, ctx);
             if (resultp != Diagnostics.Success)

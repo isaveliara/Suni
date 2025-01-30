@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 namespace Suni.Suni.NptEnvironment.Data;
 
 public partial class NptTypes
@@ -31,28 +31,6 @@ public partial class NptTypes
                 _ => Value?.ToString() ?? "unknown"
             };
         }
-
-        public (Diagnostics, NptType) ConvertTo(Types targetType)
-        {
-            var strValue = Value as string;
-            if (strValue == null)
-                return (Diagnostics.UnknowException, null);
-
-            try{
-                return targetType switch
-                {
-                    Types.Nil => strValue == "nil" ? (Diagnostics.Success, new NptType(Types.Nil, null)) : (Diagnostics.CannotConvertType, null),
-                    Types.Bool => bool.TryParse(strValue, out var boolVal) ? (Diagnostics.Success, new NptType(Types.Bool, boolVal)) : (Diagnostics.CannotConvertType, null),
-                    Types.Int => int.TryParse(strValue, out var intVal) ? (Diagnostics.Success, new NptType(Types.Int, intVal)) : (Diagnostics.CannotConvertType, null),
-                    Types.Float => float.TryParse(strValue, out var floatVal) ? (Diagnostics.Success, new NptType(Types.Float, floatVal)) : (Diagnostics.CannotConvertType, null),
-                    Types.Char => strValue.Length == 1 ? (Diagnostics.Success, new NptType(Types.Char, strValue[0])) : (Diagnostics.CannotConvertType, null),
-                    Types.Str => (Diagnostics.Success, this),
-                    _ => (Diagnostics.UnknowException, null)
-                };
-            }
-            catch{
-                return (Diagnostics.UnknowException, null);
-            }
-        }
     }
 }
+*/

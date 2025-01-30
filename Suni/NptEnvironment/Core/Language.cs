@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Suni.Suni.NptEnvironment.Data;
+using Suni.Suni.NptEnvironment.Data.Types;
 using Suni.Suni.NptEnvironment.Formalizer;
 namespace Suni.Suni.NptEnvironment.Core;
 
@@ -15,7 +16,7 @@ public partial class NptSystem
     public List<string> Lines { get; private set; }
     public string ActualLine { get; private set; }
     public Dictionary<string, List<string>> Includes { get; private set; }
-    public List<Dictionary<string, NptTypes.NptType>> Variables { get; private set; }
+    public List<Dictionary<string, SType>> Variables { get; private set; }
     public Dictionary<string, List<string>> NFuncs { get; private set; } = [];
 
     public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(
@@ -70,7 +71,7 @@ public partial class NptSystem
 
                         //localize the function
                         var functionVar = Variables.FirstOrDefault(dict => dict.ContainsKey(functionName));
-                        if (functionVar != null && functionVar[functionName].Type == NptTypes.Types.Fn){
+                        if (functionVar != null && functionVar[functionName].Type == STypes.Function){
                             var fn = (NptFunction)functionVar[functionName].Value;
                             _debugs.Add($"Chamando função '{fn.Name}' com argumentos: {string.Join(", ", args)}");
 
@@ -164,8 +165,8 @@ public partial class NptSystem
         return Regex.Replace(line, @"\${(\w+)}", match => {
             string varName = match.Groups[1].Value;
             if (Variables.Any(v => v.ContainsKey(varName))){
-                NptTypes.NptType value = Variables.First(v => v.ContainsKey(varName))[varName];
-                if (value.Type == NptTypes.Types.Fn)
+                SType value = Variables.First(v => v.ContainsKey(varName))[varName];
+                if (value.Type == STypes.Function)
                     return value.ToString();
                 return value?.ToString() ?? "nil";
             }

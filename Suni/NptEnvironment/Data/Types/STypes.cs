@@ -19,11 +19,29 @@ public abstract class SType
     public abstract object Value { get; }
     public override string ToString() => Value?.ToString() ?? "nil";
     /// <summary>
-    /// Convert to the specified SType. **Not implemented** yet.
+    /// Convert to the specified SType.
     /// </summary>
     public virtual (Diagnostics, SType) ConvertTo(STypes targetType)
     {
-        return (Diagnostics.Success, this);
+        if (Value is not string strValue)
+            return (Diagnostics.UnknowTypeException, null);
+
+        try
+        {
+            return targetType switch
+            {
+                STypes.Nil => strValue == "nil" ? (Diagnostics.Success, new NptNil()) : (Diagnostics.CannotConvertType, null),
+                STypes.Bool => bool.TryParse(strValue, out var boolVal) ? (Diagnostics.Success, new NptBool(boolVal)) : (Diagnostics.CannotConvertType, null),
+                STypes.Int => int.TryParse(strValue, out var intVal) ? (Diagnostics.Success, new NptInt(intVal)) : (Diagnostics.CannotConvertType, null),
+                STypes.Float => float.TryParse(strValue, out var floatVal) ? (Diagnostics.Success, new NptFloat(floatVal)) : (Diagnostics.CannotConvertType, null),
+                STypes.Char => strValue.Length == 1 ? (Diagnostics.Success, new NptChar(strValue[0])) : (Diagnostics.CannotConvertType, null),
+                STypes.Str => (Diagnostics.Success, this),
+                _ => (Diagnostics.UnknowTypeException, null)
+            };
+        }
+        catch{
+            return (Diagnostics.UnknowException, null);
+        }
     }
 
     public static SType Create(STypes type, object value)

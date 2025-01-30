@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Suni.Suni.NptEnvironment.Data;
+using Suni.Suni.NptEnvironment.Data.Types;
 
 namespace Suni.Suni.NptEnvironment.Core;
 
@@ -25,57 +25,53 @@ public partial class Help
         return (letters, chars);
     }
 
-    //helper method for get the type of something
-    public static (Diagnostics, NptTypes.NptType) GetType(string value)
+    /// <summary>
+    /// helper method for get the type of something
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static (Diagnostics, SType) GetType(string value)
     {
-        value = value.Trim();
+        //value = value.Trim();
 
         //null (nil)
         if (value == "nil")
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Nil, null));
+            return (Diagnostics.Success, new NptNil());
 
         //bool
         if (value == "true" || value == "false")
-            return (Diagnostics.Success, new  NptTypes.NptType(NptTypes.Types.Bool, value));
+            return bool.TryParse(value, out bool boolVal)
+            ? (Diagnostics.Success, new NptBool(boolVal))
+            : (Diagnostics.CannotConvertType, null);
 
         //int
-        if (int.TryParse(value, out int intValue))
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Int, intValue));
+        if (int.TryParse(value, out int intVal))
+            return (Diagnostics.Success, new NptInt(intVal));
 
         //double/float
-        if (float.TryParse(value, out float floatValue))
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Float, floatValue));
+        if (float.TryParse(value, out float floatVal))
+            return (Diagnostics.Success, new NptFloat(floatVal));
 
         //char
         if (value.StartsWith("c'") && value.EndsWith("'"))
         {
             if (value.Length != 4)
-                return (Diagnostics.OutOfRangeException, new NptTypes.NptType(NptTypes.Types.Nil, null));
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Char, value[2]));
+                return (Diagnostics.OutOfRangeException, null);
+            return (Diagnostics.Success, new NptChar(value[2]));
         }
 
         //string
         if (value.StartsWith("s'") && value.EndsWith("'"))
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Str, value.Substring(2, value.Length - 3)));
+            return (Diagnostics.Success, new NptStr(value[2..^1]));
 
-        //tuple (simple)
-        if (value.StartsWith("(") && value.EndsWith(")"))
+        /*//list (simple)
+        if (value.StartsWith('{') && value.EndsWith('}'))
         {
-            var items = value.Substring(1, value.Length - 2)
+            var items = value[1..^1]
                             .Split(',')
                             .Select(item => GetType(item.Trim(' ', '\'')).Item2.Value)
                             .ToList();
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Tuple, items));
-        }
-
-        //list (simple)
-        if (value.StartsWith("[") && value.EndsWith("]"))
-        {
-            var items = value.Substring(1, value.Length - 2)
-                            .Split(',')
-                            .Select(item => GetType(item.Trim(' ', '\'')).Item2.Value)
-                            .ToList();
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.List, items));
+            return (Diagnostics.Success, new NptList(items));
         }
 
         //dict (simple)
@@ -94,7 +90,7 @@ public partial class Help
                             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
             return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Dict, pairs));
-        }
+        }*/
 
         //function (e.g., [name<params>] "code")
         var fnMatch = Regex.Match(value, @"^\[(\w+)<([^>]*)>\]\s*""(.*)""$");
@@ -106,12 +102,10 @@ public partial class Help
                 .Select(param => param.Trim())
                 .ToList();
             string fnBody = fnMatch.Groups[3].Value;
-
-            var function = new NptFunction(fnName, parameters, fnBody);
-            return (Diagnostics.Success, new NptTypes.NptType(NptTypes.Types.Fn, function));
+            return (Diagnostics.Success, new NptFunction(fnName, parameters, fnBody));
         }
 
         //convert a possible evaluated literal to a string (idk if it should be treated differently as this)
-        return (Diagnostics.Anomaly, new NptTypes.NptType(NptTypes.Types.Str, value));
+        return (Diagnostics.Anomaly, new NptStr(value));
     }
 }

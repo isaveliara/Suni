@@ -1,4 +1,4 @@
-namespace Suni.Suni.NptEnvironment.Data;
+/*namespace Suni.Suni.NptEnvironment.Data;
 
 public partial class NptTypes
 {
@@ -10,3 +10,4 @@ public partial class NptTypes
         List, Dict,
     }
 }
+*/

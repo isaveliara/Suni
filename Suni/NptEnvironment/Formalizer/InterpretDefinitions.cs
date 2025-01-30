@@ -4,20 +4,21 @@ using System.Text.RegularExpressions;
 using Suni.Suni.NptEnvironment.Data;
 using System.Reflection;
 using Suni.Suni.NptEnvironment.Core;
+using Suni.Suni.NptEnvironment.Data.Types;
 
 namespace Suni.Suni.NptEnvironment.Formalizer;
 
 public partial class FormalizingScript
 {
-    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, NptTypes.NptType>> variables, Diagnostics) InterpretDefinitionsBlock(List<string> lines)
+    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables, Diagnostics diagnostic) InterpretDefinitionsBlock(List<string> lines)
     {
         //(default)
         var includes = new Dictionary<string, List<string>>{
             { "std", NptSystem.MainControlerLibMethods }
         };
-        var variables = new List<Dictionary<string, NptTypes.NptType>>{
-            new Dictionary<string, NptTypes.NptType> { { "__version__", new NptTypes.NptType(NptTypes.Types.Str, SunClassBot.SuniV) } },
-            new Dictionary<string, NptTypes.NptType> { { "__time__", new NptTypes.NptType(NptTypes.Types.Str, DateTime.Now.ToString()) } }
+        var variables = new List<Dictionary<string, SType>>{
+            new Dictionary<string, SType> { { "__version__", new NptStr(SunClassBot.SuniV) } },
+            new Dictionary<string, SType> { { "__time__", new NptStr(DateTime.Now.ToString()) } }
         };
 
         for (int i = 0; i < lines.Count; i++)
@@ -81,9 +82,9 @@ public partial class FormalizingScript
                         Console.WriteLine($"Function body: {code}");
 
                         var function = new NptFunction(fnName, parameters, code);
-                        variables.Add(new Dictionary<string, NptTypes.NptType>
+                        variables.Add(new Dictionary<string, SType>
                         {
-                            { fnName, new NptTypes.NptType(NptTypes.Types.Fn, function) }
+                            { fnName, new NptFunction(fnName, parameters, code) }
                         });
 
                         Console.WriteLine($"Function '{fnName}' registered successfully.");
@@ -104,7 +105,7 @@ public partial class FormalizingScript
                             return (null, null, result);
                         }
 
-                        variables.Add(new Dictionary<string, NptTypes.NptType> { { variableName, typedValue } });
+                        variables.Add(new Dictionary<string, SType> { { variableName, typedValue } });
                         Console.WriteLine($"Variable '{variableName}' registered with value: {typedValue}");
                     }
                 }

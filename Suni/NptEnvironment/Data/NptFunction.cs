@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 
 namespace Suni.Suni.NptEnvironment.Data;
 
@@ -18,3 +18,4 @@ public class NptFunction
     public override string ToString()
         => $"[func {Name}<{string.Join(", ", Parameters)}>] has \"{Code}\"";
 }
+*/
