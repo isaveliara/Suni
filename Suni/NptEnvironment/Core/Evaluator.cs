@@ -197,25 +197,32 @@ partial class NptSystem
     
     private static SType AccessProperty(SType target, string property)
     {
-        switch (target.Type){
-            case STypes.Str:
-                var strVal = (NptStr)target;
-                return property switch{
-                    "len" => new NptInt(strVal.ToString().Length),
-                    "upper" => strVal.ToUpper(),
-                    "lower" => strVal.ToLower(),
-                    _ => new NptError(Diagnostics.UnlistedProperty, $"Property '{property}' not found for type 'Str'.")
-                };
-            case STypes.Int:
-                var intVal = (NptInt)target;
-                return property switch{
-                    "len" => new NptInt(intVal.ToString().Length),
-                    _ => new NptError(Diagnostics.UnlistedProperty, $"Property '{property}' not found for type 'Int'."),
-                };
-            
-            default:
-                return new NptError(Diagnostics.UnlistedProperty, $"Property access not supported for type '{target.Type}'.");
+        var type = target.GetType();
+        //searches for methods marked with the 'ExposedProperty' attribute.
+        var methods = type.GetMethods()
+            .Where(m => m.GetCustomAttributes(typeof(ExposedPropertyAttribute), false)
+                        .OfType<ExposedPropertyAttribute>()
+                        .Any(attr => attr.Name == property))
+            .ToList();
+
+        if (methods.Count > 0){
+            var method = methods[0];
+            return (SType)method.Invoke(target, null);
         }
+
+        //searches for properties marked with the 'ExposedProperty' attribute.
+        var properties = type.GetProperties()
+            .Where(p => p.GetCustomAttributes(typeof(ExposedPropertyAttribute), false)
+                        .OfType<ExposedPropertyAttribute>()
+                        .Any(attr => attr.Name == property))
+            .ToList();
+
+        if (properties.Count > 0){
+            var propertyInfo = properties[0];
+            return (SType)propertyInfo.GetValue(target);
+        }
+
+        return new NptError(Diagnostics.UnlistedProperty, $"Property '{property}' not found for type '{target.Type}'.");
     }
     private static SType GetVariableValue(string variableName, EnvironmentDataContext context){
         foreach (var scope in context.Variables)

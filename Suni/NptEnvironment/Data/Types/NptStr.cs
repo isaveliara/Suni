@@ -11,6 +11,10 @@ public class NptStr : SType
     public override object Value => _value;
     public NptStr Add(NptStr other) => new NptStr(_value + other._value);
     public bool Contains(NptStr other) => _value.Contains(other._value);
+
+
+    [ExposedProperty("upper")]
     public NptStr ToUpper() => new NptStr(_value.ToUpper());
+    [ExposedProperty("lower")]
     public NptStr ToLower() => new NptStr(_value.ToLower());
 }

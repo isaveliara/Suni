@@ -68,4 +68,11 @@ public abstract class SType
             _ => throw new ArgumentException($"Unsupported type: {type}"),
         };
     }
+    
+    
+    [ExposedProperty("len")]
+    public NptInt Lenght() => new NptInt(Value?.ToString().Length ?? -1);
+
+    [ExposedProperty("toStr")]
+    public NptStr ToStr() => new NptStr(Value?.ToString() ?? "nil");
 }

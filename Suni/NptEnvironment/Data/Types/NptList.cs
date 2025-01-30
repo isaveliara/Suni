@@ -18,5 +18,8 @@ public class NptList : SType
         return (Diagnostics.Success, _value[index]);
     }
     public void Add(SType item) => _value.Add(item);
+
+
+    [ExposedProperty("count")]
     public NptInt Count() => new NptInt(_value.Count);
 }
