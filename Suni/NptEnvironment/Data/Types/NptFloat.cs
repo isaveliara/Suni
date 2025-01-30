@@ -13,7 +13,7 @@ public class NptFloat : SType
     public NptFloat Add(NptFloat other) => new NptFloat(_value + other._value);
     public NptFloat Subtract(NptFloat other) => new NptFloat(_value - other._value);
     public NptFloat Multiply(NptFloat other) => new NptFloat(_value * other._value);
-    public (Diagnostics, NptFloat) Divide(NptFloat other)
+    public (Diagnostics diagnostic, NptFloat resultVal) Divide(NptFloat other)
     {
         if (Math.Abs(other._value) < double.Epsilon)
             return (Diagnostics.DivisionByZeroException, null);

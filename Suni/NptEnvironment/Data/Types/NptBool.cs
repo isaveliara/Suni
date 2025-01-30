@@ -10,4 +10,7 @@ public class NptBool : SType
     public override STypes Type => STypes.Bool;
     public override object Value => _value;
     public override string ToString() => _value ? "true" : "false";
+
+    public NptBool CompareTo(NptBool other, bool And) => new NptBool(And ? (_value && other._value) : (_value || other._value));
+
 }

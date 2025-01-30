@@ -36,4 +36,5 @@ public enum Diagnostics
     Forgotten, //hide the output/debug result
     UnlistedProperty,
     Anomaly,
+    VariableNotFound,
 }

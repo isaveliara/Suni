@@ -13,7 +13,7 @@ public class NptInt : SType
     public NptInt Add(NptInt other) => new NptInt(_value + other._value);
     public NptInt Subtract(NptInt other) => new NptInt(_value - other._value);
     public NptInt Multiply(NptInt other) => new NptInt(_value * other._value);
-    public (Diagnostics, NptInt) Divide(NptInt other)
+    public (Diagnostics diagnostic, NptInt resultVal) Divide(NptInt other)
     {
         if (other._value == 0)
             return (Diagnostics.DivisionByZeroException, null);

@@ -7,7 +7,8 @@ namespace Suni.Suni.NptEnvironment.Data.Types;
 public enum STypes
 {
     Nil, Bool, Int, Float,
-    Str, Function, Char, List, Dict
+    Str, Function, Char, List, Dict,
+    Error,
 }
 
 /// <summary>
@@ -17,7 +18,14 @@ public abstract class SType
 {    
     public abstract STypes Type { get; }
     public abstract object Value { get; }
+
+    /// <summary>
+    /// Get a string using an SType.
+    /// </summary>
+    /// <returns></returns>
     public override string ToString() => Value?.ToString() ?? "nil";
+    public bool Contains(string value) => Value?.ToString().Contains(value) ?? false;
+
     /// <summary>
     /// Convert to the specified SType.
     /// </summary>
