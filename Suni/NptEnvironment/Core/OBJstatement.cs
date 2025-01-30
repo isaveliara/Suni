@@ -20,15 +20,15 @@ public partial class NptSystem
         //if class is not specified, look in _includes
         if (string.IsNullOrEmpty(className))
         {
-            className = Includes.FirstOrDefault(kv => kv.Value.Contains(methodName)).Key;
+            className = ContextData.Includes.FirstOrDefault(kv => kv.Value.Contains(methodName)).Key;
 
             if (className == null){
-                _outputs.Add($"Method '{methodName}' not associated with any class in includes.");
+                ContextData.Outputs.Add($"Method '{methodName}' not associated with any class in includes.");
                 return Diagnostics.IncludeNotFoundException;
             }
         }
 
-        _debugs.Add($"Executing {className}::{methodName} with args: {argumentsToSplit}, pointer: {pointer}");
+        ContextData.Debugs.Add($"Executing {className}::{methodName} with args: {argumentsToSplit}, pointer: {pointer}");
 
         //STD is a SPECIAL case
         if (className == "std")
@@ -41,7 +41,7 @@ public partial class NptSystem
         }
         catch (Exception ex)
         {
-            _outputs.Add($"CRIT: NPT Internal Script Error while executing '{methodName}': {ex.Message}");
+            ContextData.Outputs.Add($"CRIT: NPT Internal Script Error while executing '{methodName}': {ex.Message}");
             return Diagnostics.UnknowException;
         }
     }

@@ -1,4 +1,4 @@
-namespace Suni.Suni.NptEnvironment.Data;
+/*namespace Suni.Suni.NptEnvironment.Data;
 
 public enum BlockType
 {
@@ -6,3 +6,4 @@ public enum BlockType
     IfStatement,  //if block
     Anonymous     //unknown/generic block
 }
+*/

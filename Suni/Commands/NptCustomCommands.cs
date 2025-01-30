@@ -19,8 +19,8 @@ public class CustomNptCommands
         if (nptCommand is null || nptCommand.Value.listen != "custom_command")
             return;
             
-        NptSystem parser = new NptSystem();
-        var result = await parser.ParseScriptAsync(nptCommand.Value.nptCode, ctx);
+        NptSystem parser = new NptSystem(nptCommand.Value.nptCode, ctx);
+        var result = await parser.ParseScriptAsync();
 
         if (result.result != Diagnostics.Success)
             await ctx.RespondAsync($"An error occurred while executing the code:\n**{result.result}**\n[Finished] :x:");

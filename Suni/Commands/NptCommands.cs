@@ -34,8 +34,8 @@ public class NptCommands
 
         //building response
         string response = $"Result (Debugging) of SuniNPT code `{SunClassBot.SuniV}` is here:```\n";
-        NptSystem parser = new NptSystem();
-        var result = await parser.ParseScriptAsync(code, ctx);
+        NptSystem parser = new NptSystem(code, ctx);
+        var result = await parser.ParseScriptAsync();
         if (result.result == Diagnostics.Forgotten)
             return;
         //first output
@@ -77,8 +77,8 @@ public class NptCommands
 
         //building response
         string response = $"OUTPUT of SuniNPT code `{SunClassBot.SuniV}` is here:```\n";
-        NptSystem parser = new NptSystem();
-        var result = await parser.ParseScriptAsync(code, ctx);
+        NptSystem parser = new NptSystem(code, ctx);
+        var result = await parser.ParseScriptAsync();
         if (result.result == Diagnostics.Forgotten)
             return;
         //output
@@ -97,8 +97,8 @@ public class NptCommands
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
     public static async Task NptEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
     {
-        var (formalizedExp, d) = FormalizingScript.SetPlaceHolders(expression, ctx);
-        var (diagnostic, result) = NptSystem.EvaluateExpression(formalizedExp);
-        await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExp}`` :\n```{result}```\nWhith Result: {diagnostic}");
+        var (formalizedExp, diagnosticPlaceholders, msgPlaceholders) = FormalizingScript.SetPlaceHolders(expression, ctx);
+        var (result, diagnostic, msgEvaluation) = NptSystem.EvaluateExpression(formalizedExp);
+        await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExp}`` :\n```{result}```\nWhith Result: {diagnostic} " + msgEvaluation?? "");
     }
 }

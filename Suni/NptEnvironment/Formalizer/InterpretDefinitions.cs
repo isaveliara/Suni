@@ -10,7 +10,7 @@ namespace Suni.Suni.NptEnvironment.Formalizer;
 
 public partial class FormalizingScript
 {
-    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables, Diagnostics diagnostic) InterpretDefinitionsBlock(List<string> lines)
+    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables, Diagnostics diagnostic, string diagnosticMessage) InterpretDefinitionsBlock(List<string> lines)
     {
         //(default)
         var includes = new Dictionary<string, List<string>>{
@@ -54,7 +54,7 @@ public partial class FormalizingScript
                     }
                     else{
                         Console.WriteLine($"Error: Library '{includeName}' class '{classNameProper}' not found.");
-                        return (null, null, Diagnostics.IncludeNotFoundException);
+                        return (null, null, Diagnostics.IncludeNotFoundException, $"Error: Library '{includeName}' class '{classNameProper}' not found.");
                     }
                 }
             }
@@ -63,27 +63,23 @@ public partial class FormalizingScript
             if (currentLine.StartsWith("~set"))
             {
                 var parts = currentLine.Substring(4).Trim().Split(' ', 2);
-                if (parts.Length == 2)
-                {
+                if (parts.Length == 2){
                     string variableName = parts[0].Trim();
                     Console.WriteLine($"Detected ~set for variable or function: {variableName}");
 
                     var fnMatch = Regex.Match(variableName, @"\[(\w+)<([^>]*)>\]");
-                    if (fnMatch.Success)
-                    {
+                    if (fnMatch.Success){
                         string fnName = fnMatch.Groups[1].Value;
                         var parameters = fnMatch.Groups[2].Value
                             .Split(',', StringSplitOptions.RemoveEmptyEntries)
                             .Select(param => param.Trim())
                             .ToList();
                         string code = parts[1].Trim().Trim('"');
-
                         Console.WriteLine($"Registering function: {fnName}\nParameters: {string.Join(", ", parameters)}");
                         Console.WriteLine($"Function body: {code}");
 
                         var function = new NptFunction(fnName, parameters, code);
-                        variables.Add(new Dictionary<string, SType>
-                        {
+                        variables.Add(new Dictionary<string, SType>{
                             { fnName, new NptFunction(fnName, parameters, code) }
                         });
 
@@ -92,17 +88,16 @@ public partial class FormalizingScript
                     else{
                         Console.WriteLine($"Processing as common variable: {variableName}");
                         //var (result, typedValue) = Help.GetType(parts[1]);
-                        var (resEvaluatedVar, evaluatedVar) = NptSystem.EvaluateExpression(parts[1]);
+                        var resEvaluatedExpression = NptSystem.EvaluateExpression(parts[1]);
 
-                        Console.WriteLine($"{evaluatedVar.ToString()}");
-                        if (resEvaluatedVar != Diagnostics.Success)
-                            return (null, null, resEvaluatedVar);
+                        if (resEvaluatedExpression.diagnostic != Diagnostics.Success)
+                            return (null, null, resEvaluatedExpression.diagnostic, resEvaluatedExpression.diagnosticMessage);
                             
-                        var (result, typedValue) = Help.GetType(evaluatedVar.ToString());
+                        var (result, typedValue) = Help.GetType(resEvaluatedExpression.resultValue.ToString());
                         if (result != Diagnostics.Success && result != Diagnostics.Anomaly)
                         {
                             Console.WriteLine($"Error interpreting variable '{variableName}': {result}");
-                            return (null, null, result);
+                            return (null, null, result, $"Error interpreting variable '{variableName}'."); ////////generic error
                         }
 
                         variables.Add(new Dictionary<string, SType> { { variableName, typedValue } });
@@ -111,7 +106,7 @@ public partial class FormalizingScript
                 }
                 else{
                     Console.WriteLine($"Sintax error in ~set: '{currentLine}'");
-                    return (null, null, Diagnostics.SyntaxException);
+                    return (null, null, Diagnostics.SyntaxException, $"Sintax error in ~set instruction: '{currentLine}'");
                 }
             }
         }
@@ -119,6 +114,6 @@ public partial class FormalizingScript
         Console.WriteLine($">> Includes: {string.Join(", ", includes.Keys)}");
         Console.WriteLine($">> Variables: {string.Join(", ", variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
 
-        return (includes, variables, Diagnostics.Success);
+        return (includes, variables, Diagnostics.Success, null);
     }
 }

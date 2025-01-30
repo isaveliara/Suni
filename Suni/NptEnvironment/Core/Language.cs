@@ -9,47 +9,39 @@ namespace Suni.Suni.NptEnvironment.Core;
 public partial class NptSystem
 {
     private Stack<CodeBlock> blockStack = new();
-
-    private readonly List<string> _debugs = [];
-    private List<string> _outputs = [];
-
-    public List<string> Lines { get; private set; }
-    public string ActualLine { get; private set; }
-    public Dictionary<string, List<string>> Includes { get; private set; }
-    public List<Dictionary<string, SType>> Variables { get; private set; }
-    public Dictionary<string, List<string>> NFuncs { get; private set; } = [];
-
-    public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync(
-    string script, CommandContext ctx)
+    public EnvironmentDataContext ContextData { get; set; }
+    public CommandContext DiscordCtx { get; set; }
+    public NptSystem(string script, CommandContext discordCtx)
     {
-        var (lines, includes, variables, resultFormalization) = new FormalizingScript().Formalize(script, ctx);
-        if (resultFormalization != Diagnostics.Success)
-            return (_debugs, _outputs, resultFormalization);
+        ContextData = new FormalizingScript().Formalize(script, discordCtx);
+        DiscordCtx = discordCtx;
+    }
 
-        Includes = includes;
-        Variables = variables;
-        Lines = lines;
-
+    public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync()
+    {
+        if (ContextData.ErrorMessages.Count > 0)
+            return (null, ContextData.ErrorMessages, Diagnostics.SyntaxException); 
+        
         blockStack.Push(new CodeBlock { IndentLevel = 0, CanExecute = true });
 
-        for (int i = 0; i < Lines.Count; i++)
+        for (int i = 0; i < ContextData.Lines.Count; i++)
         {
-            ActualLine = ReplaceVariables(Lines[i]);
-            if (string.IsNullOrWhiteSpace(ActualLine)) continue;
+            ContextData.ActualLine = ReplaceVariables(ContextData.Lines[i]);
+            if (string.IsNullOrWhiteSpace(ContextData.ActualLine)) continue;
 
-            if (ActualLine.StartsWith("&")){
-                var keyWordName = Help.keywordLookahead(ActualLine, 0);
-                _debugs.Add($"Identified keyword: >>{keyWordName.Chars}<<");
+            if (ContextData.ActualLine.StartsWith("&")){
+                var keyWordName = Help.keywordLookahead(ContextData.ActualLine, 0);
+                ContextData.Debugs.Add($"Identified keyword: >>{keyWordName.Chars}<<");
 
                 if (keyWordName.Letters == "if"){
-                    var ifMatch = Regex.Match(ActualLine.Substring(2), @"\(([^)]+)\)\s*&do{", RegexOptions.None);
+                    var ifMatch = Regex.Match(ContextData.ActualLine.Substring(2), @"\(([^)]+)\)\s*&do{", RegexOptions.None);
                     if (ifMatch.Success){
                         string condition = ifMatch.Groups[1].Value;
                         var (r, conditionResult) = NptSystem.IFStatement(condition);
                         if (r != Diagnostics.Success)
-                            return (_debugs, _outputs, r);
+                            return (ContextData.Debugs, ContextData.Outputs, r);
 
-                        _debugs.Add($"A condição '{condition}' é {conditionResult}");
+                        ContextData.Debugs.Add($"A condição '{condition}' é {conditionResult}");
                         //creating a new block based on the "if" condition
                         blockStack.Push(new CodeBlock
                         {
@@ -60,24 +52,24 @@ public partial class NptSystem
                         continue;
                     }
                     else
-                        return (_debugs, _outputs, Diagnostics.SyntaxException);
+                        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.SyntaxException);
                 }
                 
                 else if (keyWordName.Letters == "call"){
-                    var funcMatch = Regex.Match(ActualLine, @"call\s+(\w+)\(([^)]*)\)");
+                    var funcMatch = Regex.Match(ContextData.ActualLine, @"call\s+(\w+)\(([^)]*)\)");
                     if (funcMatch.Success){
                         string functionName = funcMatch.Groups[1].Value;
                         var args = funcMatch.Groups[2].Value.Split(',').Select(arg => arg.Trim()).ToList();
 
                         //localize the function
-                        var functionVar = Variables.FirstOrDefault(dict => dict.ContainsKey(functionName));
+                        var functionVar = ContextData.Variables.FirstOrDefault(dict => dict.ContainsKey(functionName));
                         if (functionVar != null && functionVar[functionName].Type == STypes.Function){
                             var fn = (NptFunction)functionVar[functionName].Value;
-                            _debugs.Add($"Chamando função '{fn.Name}' com argumentos: {string.Join(", ", args)}");
+                            ContextData.Debugs.Add($"Chamando função '{fn.Name}' com argumentos: {string.Join(", ", args)}");
 
                             //validates the number of arguments
                             if (args.Count != fn.Parameters.Count)
-                                return (_debugs, _outputs, Diagnostics.ArgumentMismatch);
+                                return (ContextData.Debugs, ContextData.Outputs, Diagnostics.ArgumentMismatch);
 
                             string functionCode = fn.Code;
                             for (int j = 0; j < args.Count; j++){
@@ -85,36 +77,36 @@ public partial class NptSystem
                                 functionCode = functionCode.Replace(placeholder, args[j]);
                             }
 
-                            var (debugs, outputs, result) = await ParseScriptAsync(functionCode, ctx);
-                            _debugs.AddRange(debugs);
-                            _outputs.AddRange(outputs);
+                            var (debugs, outputs, result) = await new NptSystem(ContextData.Code, DiscordCtx).ParseScriptAsync();
+                            ContextData.Debugs.AddRange(debugs);
+                            ContextData.Outputs.AddRange(outputs);
 
                             if (result != Diagnostics.Success)
-                                return (_debugs, _outputs, result);
+                                return (ContextData.Debugs, ContextData.Outputs, result);
 
                             continue;
                         }
                         else{
-                            _outputs.Add($"Função '{functionName}' não encontrada ou não é do tipo Fn.");
-                            return (_debugs, _outputs, Diagnostics.FunctionNotFound);
+                            ContextData.Outputs.Add($"Função '{functionName}' não encontrada ou não é do tipo Fn.");
+                            return (ContextData.Debugs, ContextData.Outputs, Diagnostics.FunctionNotFound);
                         }
                     }
                     else
-                        return (_debugs, _outputs, Diagnostics.SyntaxException);
+                        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.SyntaxException);
                 }
 
                 else if (keyWordName.Letters == "goto"){
                     if (int.TryParse(keyWordName.Chars.Substring(4), out int targetLineIndex)){
-                        if (targetLineIndex >= 1 && targetLineIndex - 1 < Lines.Count){
-                            Lines[i] = "";
+                        if (targetLineIndex >= 1 && targetLineIndex - 1 < ContextData.Lines.Count){
+                            ContextData.Lines[i] = "";
                             i = targetLineIndex - 2;
                             continue;
                         }
                         else
-                            return (_debugs, _outputs, Diagnostics.OutOfRangeException);
+                            return (ContextData.Debugs, ContextData.Outputs, Diagnostics.OutOfRangeException);
                     }
                     else
-                        return (_debugs, _outputs, Diagnostics.SyntaxException);
+                        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.SyntaxException);
                 }
 
                 if (keyWordName.Chars == "do{"){
@@ -127,51 +119,51 @@ public partial class NptSystem
 
                 else if (keyWordName.Chars == "}"){
                     if (blockStack.Count == 1)
-                        return (_debugs, _outputs, Diagnostics.OutOfRangeException);
+                        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.OutOfRangeException);
 
                     var closingBlock = blockStack.Pop();
-                    _debugs.Add($"Fechando bloco do tipo '{closingBlock.Type}' no nível de indentação {closingBlock.IndentLevel}");
+                    ContextData.Debugs.Add($"Fechando bloco no nível de indentação {closingBlock.IndentLevel}");
                     continue;
                 }
                 else if (keyWordName.Letters == "kit"){
-                    _debugs.Add("Script interrompido pela palavra-chave 'kit'.");
-                    return (_debugs, _outputs, Diagnostics.EarlyTermination);
+                    ContextData.Debugs.Add("Script interrompido pela palavra-chave 'kit'.");
+                    return (ContextData.Debugs, ContextData.Outputs, Diagnostics.EarlyTermination);
                 }
                 else if (keyWordName.Letters == "forget"){
                     return (null, null, Diagnostics.Forgotten);
                 }
 
                 else if (keyWordName.Letters == "raizeEx"){
-                    _debugs.Add("Exceção levantada pela palavra-chave 'raizeEx'.");
-                    return (_debugs, _outputs, Diagnostics.RaisedException);
+                    ContextData.Debugs.Add("Exceção levantada pela palavra-chave 'raizeEx'.");
+                    return (ContextData.Debugs, ContextData.Outputs, Diagnostics.RaisedException);
                 }
                 else
-        return (_debugs, _outputs, Diagnostics.InvalidKeywordException);
+        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.InvalidKeywordException);
             }
 
             if (!blockStack.Peek().CanExecute)
                 continue;
 
-            var executedLineResult = await ExecuteLineAsync(ctx);
+            var executedLineResult = await ExecuteLineAsync(DiscordCtx);
             if (executedLineResult != Diagnostics.Success)
-                return (_debugs, _outputs, executedLineResult);
+                return (ContextData.Debugs, ContextData.Outputs, executedLineResult);
         }
 
-        return (_debugs, _outputs, Diagnostics.Success);
+        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
     }
 
     private string ReplaceVariables(string line)
     {
         return Regex.Replace(line, @"\${(\w+)}", match => {
             string varName = match.Groups[1].Value;
-            if (Variables.Any(v => v.ContainsKey(varName))){
-                SType value = Variables.First(v => v.ContainsKey(varName))[varName];
+            if (ContextData.Variables.Any(v => v.ContainsKey(varName))){
+                SType value = ContextData.Variables.First(v => v.ContainsKey(varName))[varName];
                 if (value.Type == STypes.Function)
                     return value.ToString();
                 return value?.ToString() ?? "nil";
             }
             else{
-                _debugs.Add($"Warning: Variable '{varName}' not found. Returning nil.");
+                ContextData.Debugs.Add($"Warning: Variable '{varName}' not found. Returning nil.");
                 return "nil";
             }
         });
@@ -179,12 +171,12 @@ public partial class NptSystem
 
     private async Task<Diagnostics> ExecuteLineAsync(CommandContext ctx)
     {
-        var objMatch = Regex.Match(ActualLine, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(.+)");
+        var objMatch = Regex.Match(ContextData.ActualLine, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(.+)");
         if (objMatch.Success)
             return await ExecuteObjectStatementAsync(objMatch, ctx);
 
         //unrecognized line
-        _outputs.Add($"Error: unrecognized line: {ActualLine}");
+        ContextData.Outputs.Add($"Error: unrecognized line: {ContextData.ActualLine}");
         return Diagnostics.SyntaxException;
     }
 
@@ -201,48 +193,16 @@ public partial class NptSystem
                     return await task;
                 }
 
-                _debugs.Add($"Internal Error: Method 'Controler' not found in '{classNameProper}'.");
+                ContextData.Debugs.Add($"Internal Error: Method 'Controler' not found in '{classNameProper}'.");
                 return Diagnostics.IncludeNotFoundException;
             }
 
-            _debugs.Add($"Error: '{classNameProper}' not found.");
+            ContextData.Debugs.Add($"Error: '{classNameProper}' not found.");
             return Diagnostics.IncludeNotFoundException;
         }
         catch (Exception ex){
-            _outputs.Add($"Unknown Error while executing '{className}::{methodName}': {ex.Message}");
+            ContextData.Outputs.Add($"Unknown Error while executing '{className}::{methodName}': {ex.Message}");
             return Diagnostics.UnknowException;
         }
     }
-
-    private async Task<Diagnostics> InvokeFunction(string functionName, List<string> args, CommandContext ctx)
-    {
-        try{
-            if (NFuncs.TryGetValue(functionName, out var functionLines)){
-                _debugs.Add($"Starting execution of function '{functionName}'.");
-                foreach (var line in functionLines){
-                    ActualLine = ReplaceVariables(line);
-                    var executedLineResult = await ExecuteLineAsync(ctx);
-                    if (executedLineResult != Diagnostics.Success)
-                        return executedLineResult;
-                }
-
-                _debugs.Add($"Execution of '{functionName}' finished.");
-                return Diagnostics.Success;
-            }
-
-            _outputs.Add($"Error: Type Function '{functionName}' not defined.");
-            return Diagnostics.FunctionNotFound;
-        }
-        catch (Exception ex){
-            _outputs.Add($"Error while executing function '{functionName}': {ex.Message}");
-            return Diagnostics.UnknowException;
-        }
-    }
-}
-public class CodeBlock{
-    public int IndentLevel { get; set; }
-    public List<string> Lines { get; } = [];
-    public bool CanExecute { get; set; } = true;
-    public string Condition { get; set; } = null;
-    public BlockType Type { get; set; } = BlockType.Anonymous;
 }

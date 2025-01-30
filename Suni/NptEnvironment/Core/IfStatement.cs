@@ -5,7 +5,7 @@ public partial class NptSystem
 {
     public static (Diagnostics, bool) IFStatement(string condition)
     {
-        var (r, conditionResult) = NptSystem.EvaluateExpression(condition);
+        var (conditionResult, r, msg) = NptSystem.EvaluateExpression(condition);
         //verificar se o valor de conditionResulté bool
         if (conditionResult is not bool)
             return (Diagnostics.CannotConvertType, false);

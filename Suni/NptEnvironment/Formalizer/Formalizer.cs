@@ -7,24 +7,28 @@ namespace Suni.Suni.NptEnvironment.Formalizer
 {
     public partial class FormalizingScript
     {
-        public (List<string> codeFormalized, Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables, Diagnostics diagnostic) Formalize(string code, CommandContext ctx)
+        public EnvironmentDataContext Formalize(string code, CommandContext discordCtx)
         {
-            var (result, resultp) = SetPlaceHolders(code, ctx);
-            if (resultp != Diagnostics.Success)
-                return (null, null, null, resultp);
+            EnvironmentDataContext contextData = new EnvironmentDataContext(null, null, null);
+            var resultPlaceHolders = SetPlaceHolders(code, discordCtx);
+            contextData.LogDiagnostic(resultPlaceHolders.diagnostic, resultPlaceHolders.diagnosticMessage);
             
-            var (formalized, definitionsBlock, resultf) = Formalizer(result);
-            if (resultf != Diagnostics.Success)
-                return (null, null, null, resultf);
+            var resultFormalized = Formalizer(resultPlaceHolders.resultCode);
+            contextData.LogDiagnostic(resultFormalized.diagnostic, resultFormalized.diagnosticMessage);
             
-            var (libraries, variables, resultDefsInterp) = InterpretDefinitionsBlock(definitionsBlock);
-            if (resultDefsInterp != Diagnostics.Success)
-                return (null, null, null, resultDefsInterp);
+            var resultDefLinesInterpretd = InterpretDefinitionsBlock(resultFormalized.defLines);
+            contextData.LogDiagnostic(resultDefLinesInterpretd.diagnostic, resultDefLinesInterpretd.diagnosticMessage);
+            
+            //the three main values.
+            contextData.Lines = resultFormalized.lines; //update the script with the formalized code.
+            contextData.Includes = resultDefLinesInterpretd.includes;
+            contextData.Variables = resultDefLinesInterpretd.variables;
 
-            return (formalized, libraries, variables, Diagnostics.Success);
+            //return (formalized, libraries, variables, Diagnostics.Success);
+            return contextData;
         }
 
-        private (List<string>, List<string>, Diagnostics) Formalizer(string code)
+        private (List<string> lines, List<string> defLines, Diagnostics diagnostic, string diagnosticMessage) Formalizer(string code)
         {
             //split the lines of script into list
 
@@ -106,7 +110,7 @@ namespace Suni.Suni.NptEnvironment.Formalizer
             //if (!hasDefinitionsBlock)
             //    return (null, Diagnostics.NotFoundDefinitionsBlock);
             
-            return (lines, Deflines, Diagnostics.Success);
+            return (lines, Deflines, Diagnostics.Success, null);
         }
     }
 }

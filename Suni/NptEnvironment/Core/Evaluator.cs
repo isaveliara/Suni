@@ -19,9 +19,9 @@ partial class NptSystem
         return Diagnostics.BadToken;
     }
 
-    public static (Diagnostics, object) EvaluateExpression(string expression)
+    public static (object resultValue, Diagnostics diagnostic, string diagnosticMessage) EvaluateExpression(string expression)
     {
-        if (!ValidateExpression(expression)) return (Diagnostics.MalformedExpression, null);
+        if (!ValidateExpression(expression)) return (null, Diagnostics.MalformedExpression, $"[{expression}]");
 
         var stackValues = new Stack<object>();
         var stackOperators = new Stack<string>();
@@ -38,25 +38,25 @@ partial class NptSystem
                 {
                     var result = IsApplyOperatorOrFunction(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
-                        return (result, null);
+                        return (null, result, "invalid");
                 }
 
                 if (stackOperators.Count == 0 || stackOperators.Pop() != "[")
-                    return (Diagnostics.MalformedExpression, null);
+                    return (null, Diagnostics.MalformedExpression, "invalid expression.");
             }
             else if (IsFunction(token))
             {
                 if (i + 1 >= tokens.Length)
-                    return (Diagnostics.MalformedExpression, null);
+                    return (null, Diagnostics.MalformedExpression, "invalid expression");
 
                 string nextToken = tokens[++i];
                 var value = ConvertToken(nextToken);
                 if (value is Diagnostics diagnostic)
-                    return (diagnostic, null);
+                    return (null, diagnostic, "invalid expression");
 
                 var result = ApplyFunction(stackValues, value, token);
                 if (result != Diagnostics.Success)
-                    return (result, null);
+                    return (null, result, "invalid expression");
             }
             else if (IsOperator(token))
             {
@@ -64,7 +64,7 @@ partial class NptSystem
                 {
                     var result = ApplyOperator(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
-                        return (result, null);
+                        return (null, result, "invalid expression");
                 }
                 stackOperators.Push(token);
             }
@@ -72,7 +72,7 @@ partial class NptSystem
             {
                 var converted = ConvertToken(token);
                 if (converted is Diagnostics diagnostic)
-                    return (diagnostic, null);
+                    return (null, diagnostic, "invalid expression");
                 stackValues.Push(converted);
             }
         }
@@ -81,12 +81,12 @@ partial class NptSystem
         {
             var result = ApplyOperator(stackValues, stackOperators.Pop());
             if (result != Diagnostics.Success)
-                return (result, null);
+                return (null, result, "invalid expression");
         }
 
         return stackValues.Count == 1
-            ? (Diagnostics.Success, stackValues.Pop())
-            : (Diagnostics.MalformedExpression, null);
+            ? (stackValues.Pop(), Diagnostics.Success, null)
+            : (null, Diagnostics.MalformedExpression, "invalid expression");
     }
 
     private static Diagnostics IsApplyOperatorOrFunction(Stack<object> stackValues, string token)

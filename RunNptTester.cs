@@ -47,8 +47,8 @@ public class Tests
 
             if (isEval)
             {
-                var (formalizedExp, d) = FormalizingScript.SetPlaceHolders(code, ctx);
-                var (diagnostic, resultEval) = NptSystem.EvaluateExpression(formalizedExp);
+                var (formalizedExp, d, m) = FormalizingScript.SetPlaceHolders(code, ctx);
+                var (resultEval, diagnostic, resultMessage) = NptSystem.EvaluateExpression(formalizedExp);
                 Console.WriteLine($"Result of Evaluation for '{formalizedExp}' :");
 
                 if (diagnostic != Diagnostics.Success)
@@ -56,15 +56,15 @@ public class Tests
                 else
                     Console.ForegroundColor = ConsoleColor.Yellow;
                 
-                Console.WriteLine($"{resultEval}\nWhith Result: {diagnostic}");
+                Console.WriteLine($"{resultEval}\nWhith Result: {diagnostic} " + resultMessage?? "");
                 continue;
             }
 
             //building response
             string response = $"Result (Debugging) of SuniNPT code '{SunClassBot.SuniV}' is here:\n----------------------------------------";
-            NptSystem parser = new NptSystem();
+            NptSystem parser = new NptSystem(code, ctx);
             Console.ForegroundColor = ConsoleColor.Gray; //changes the debug color
-            var result = await parser.ParseScriptAsync(code, ctx);
+            var result = await parser.ParseScriptAsync();
             //here the console color can be reseted.
 
             if (result.result == Diagnostics.Forgotten)

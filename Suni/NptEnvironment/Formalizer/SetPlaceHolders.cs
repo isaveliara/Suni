@@ -6,10 +6,10 @@ namespace Suni.Suni.NptEnvironment.Formalizer
 {
     public partial class FormalizingScript
     {
-        internal static (string, Diagnostics) SetPlaceHolders(string script, CommandContext ctx)
+        internal static (string resultCode, Diagnostics diagnostic, string diagnosticMessage) SetPlaceHolders(string script, CommandContext ctx)
         {
             if (ctx is null)
-                return (script, Diagnostics.Success);
+                return (script, Diagnostics.Anomaly, "Unable to identify placeholders.");
             //stringBuilder for building the script
             var sb = new StringBuilder(script);
 
@@ -52,7 +52,7 @@ namespace Suni.Suni.NptEnvironment.Formalizer
             foreach (var placeholder in placeholders)
                 sb.Replace(placeholder.Key, placeholder.Value);
 
-            return (sb.ToString(), Diagnostics.Success);
+            return (sb.ToString(), Diagnostics.Success, null);
         }
     }
 }

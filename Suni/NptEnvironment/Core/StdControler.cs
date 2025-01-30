@@ -31,19 +31,19 @@ namespace Suni.Suni.NptEnvironment.Core
             switch (method)
             {
                 case "nout": //std::nout() -> hello world
-                    _outputs.Add(pointer);
+                    ContextData.Outputs.Add(pointer);
                     break;
                 case "noutset": //std::noutset() -> hello world
-                    _outputs = new List<string>{pointer};
+                    ContextData.Outputs = new List<string>{pointer};
                     break;
                 case "ncls"://std::ncls() -> null
-                    _outputs = new List<string>();
+                    ContextData.Outputs = new List<string>();
                     break;
                 case "list_var"://std::list_var() -> nil
-                    _outputs.Add($">> Variables: {string.Join(", ", Variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
+                    ContextData.Outputs.Add($">> Variables: {string.Join(", ", ContextData.Variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
                     break;
                 case "list_libs"://std::list_libs() -> nil
-                    _outputs.Add($">> Includes: {string.Join("\n   ", Includes.Keys)}");
+                    ContextData.Outputs.Add($">> Includes: {string.Join("\n   ", ContextData.Includes.Keys)}");
                     break;
                 default:
                     return Diagnostics.NotFoundIncludedObjectException;
