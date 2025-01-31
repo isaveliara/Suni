@@ -14,35 +14,16 @@ partial class NptSystem
         if (token == "nil") return new NptNil();
         if (token.StartsWith("s'") && token.EndsWith('\'') && token.Length >= 3) return new NptStr(token[2..^1]);
         if (token.StartsWith("c'") && token.EndsWith('\'') && token.Length == 4) return new NptChar(token[2]);
-
-        if (token.Contains("::"))
-        {
-            var parts = token.Split("::");
-            if (parts.Length != 2)
-                return new NptError(Diagnostics.BadToken, $"Invalid property access: {token}");
-            var variable = parts[0];
-            var property = parts[1];
-            var variableValue = ConvertToken(variable, context);
-            if (variableValue is NptError){
-                if (context == null)
-                    return new NptError(Diagnostics.VariableNotFound, $"Variable '{variable}' not found and no context provided.");
-                variableValue = GetVariableValue(variable, context);
-                if (variableValue == null)
-                    return new NptError(Diagnostics.VariableNotFound, $"Variable '{variable}' not found.");
-            }
-            return AccessProperty(variableValue, property);
-        }
-        if (context != null){
-            var variableValue = GetVariableValue(token, context);
-            if (variableValue != null)
-                return variableValue;
-        }
-        return new NptError(Diagnostics.VariableNotFound, $"Token '{token}' is not a valid value or variable.");
+        
+        var identifierVal = new NptIdentifier(token);
+        return identifierVal.Value is not null
+            ? identifierVal
+            : new NptError(Diagnostics.BadToken, $"'{token}' is not a valid Token.");
     }
 
     public static (SType resultValue, Diagnostics diagnostic, string diagnosticMessage) EvaluateExpression(string expression, EnvironmentDataContext context = null)
     {
-        if (!ValidateExpression(expression)) return (null, Diagnostics.MalformedExpression, $"[{expression}]");
+        if (!ValidateExpression(expression)) return (null, Diagnostics.MalformedExpression, $"At [{expression}]");
         var stackValues = new Stack<SType>();
         var stackOperators = new Stack<string>();
         string[] tokens = Tokens.Tokenize(expression);
@@ -56,19 +37,19 @@ partial class NptSystem
             {
                 while (stackOperators.Count > 0 && stackOperators.Peek() != "[")
                 {
-                    var result = ApplyOperator(stackValues, stackOperators.Pop());
+                    var (result, resultMessage) = ApplyOperator(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
-                        return (null, result, "invalid");
+                        return (null, result, resultMessage);
                 }
 
                 if (stackOperators.Count == 0 || stackOperators.Pop() != "[")
-                    return (null, Diagnostics.MalformedExpression, "invalid expression.");
+                    return (null, Diagnostics.MalformedExpression, $"At [{expression}]");
             }
             else if (IsOperator(token)){
                 while (stackOperators.Count > 0 && Tokens.Precedence(stackOperators.Peek()) >= Tokens.Precedence(token)){
-                    var result = ApplyOperator(stackValues, stackOperators.Pop());
+                    var (result, resultMessage) = ApplyOperator(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
-                        return (null, result, "invalid expression");
+                        return (null, result, resultMessage);
                 }
                 stackOperators.Push(token);
             }
@@ -81,28 +62,30 @@ partial class NptSystem
         }
 
         while (stackOperators.Count > 0){
-            var result = ApplyOperator(stackValues, stackOperators.Pop());
+            var (result, resultMessage) = ApplyOperator(stackValues, stackOperators.Pop());
             if (result != Diagnostics.Success)
-                return (null, result, "invalid expression");
+                return (null, result, resultMessage);
         }
         return stackValues.Count == 1
             ? (stackValues.Pop(), Diagnostics.Success, null)
-            : (null, Diagnostics.MalformedExpression, "invalid expression");
+            : (null, Diagnostics.MalformedExpression, $"At [{expression}]");
     }
 
-    private static Diagnostics ApplyOperator(Stack<SType> stackValues, string Operator)
+    private static (Diagnostics result, string resultMessage) ApplyOperator(Stack<SType> stackValues, string Operator)
     {
-        if (stackValues.Count < 2) return Diagnostics.IncompleteBinaryIFOperation;
+        if (stackValues.Count < 2) return (Diagnostics.MissingOperands, "Unexpected end of expression.");
         var b = stackValues.Pop();
         var a = stackValues.Pop();
+        
         switch (Operator){
+
             //boolean operators
             case "&&":
             case "||":
                 if (a is NptBool boolA && b is NptBool boolB)
                     stackValues.Push(boolA.CompareTo(boolB, Operator == "&&"));
                 else
-                    return Diagnostics.TypeMismatchException;
+                    return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: Expected 'STypes.Bool', got 'STypes.{a.Type}'");
                                                                     break;
             case "==":
                 stackValues.Push(new NptBool(a.Equals(b)));
@@ -125,15 +108,24 @@ partial class NptSystem
                     }));
                 }
                 else
-                    return Diagnostics.TypeMismatchException;       break;
-            case "?":
+                    return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: 'STypes.{a.Type}' cannot be compared with 'STypes.{b.Type}'");
+                break;
+            case "?": //contains operator
                 stackValues.Push(new NptBool(a.ToString().Contains(b.ToString())));
-                                                                    break;
+                break;
 
             //other objects operators
-            case "#":
+            case "#": //random operator
                 stackValues.Push(_randomGenerator.Next(0, 2) == 0 ? a : b);
-                                                                    break;
+                break;
+            case "::": //property access operator
+                if (b is NptIdentifier property)
+                    stackValues.Push(AccessProperty(a, property.ToString()));
+                else
+                    return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: Expected <Identifier> Token, got '{b.Value}' value.");
+                break;
+            
+            //arithmetic operators
             case "+":
                 if (a is NptStr strAddA && b is NptStr strAddB)
                     stackValues.Push(strAddA.Add(strAddB));
@@ -142,19 +134,20 @@ partial class NptSystem
                 else if (a is NptFloat floatAddA && b is NptFloat floatAddB)
                     stackValues.Push(floatAddA.Add(floatAddB));
                 else
-                    return Diagnostics.TypeMismatchException;       break;
+                    return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: 'STypes.{a.Type}' cannot be added with 'STypes.{b.Type}'");
+                break;
             case "-":
             case "*":
             case "/":
                 return ApplyArithmeticOperator(stackValues, a, b, Operator);
 
             default:
-                return Diagnostics.InvalidOperator;
+                return (Diagnostics.InvalidOperator, $"At [{a.Value} {Operator} {b.Value}]: '{Operator}' isin't a valid Operator in SuniNpt.");
         }
-        return Diagnostics.Success;
+        return (Diagnostics.Success, null);
     }
 
-    private static Diagnostics ApplyArithmeticOperator(Stack<SType> stackValues, SType a, SType b, string op)
+    private static (Diagnostics result, string resultMessage) ApplyArithmeticOperator(Stack<SType> stackValues, SType a, SType b, string op)
     {
         if (a is NptInt intA && b is NptInt intB){
             switch (op){
@@ -167,7 +160,7 @@ partial class NptSystem
                 case "/":
                     var division = intA.Divide(intB);
                     if (division.diagnostic != Diagnostics.Success)
-                                                                    return division.diagnostic;
+                        return (division.diagnostic, $"At [{a.Value} {op} {b.Value}]: division by zero.");
                     
                     stackValues.Push(division.resultVal);           break;
             }
@@ -182,13 +175,13 @@ partial class NptSystem
                     stackValues.Push(floatA.Multiply(floatB));      break;
                 case "/":
                     var division = floatA.Divide(floatB);
-                    if (division.diagnostic != Diagnostics.Success) return division.diagnostic;
+                    if (division.diagnostic != Diagnostics.Success) return (division.diagnostic, $"At [{a.Value} {op} {b.Value}]: division by zero.");
                     stackValues.Push(division.resultVal);           break;
             }
         }
         else
-            return Diagnostics.TypeMismatchException;
-        return Diagnostics.Success;
+            return (Diagnostics.TypeMismatchException, $"At [{a.Value} {op} {b.Value}]: 'STypes.{a.Type}' cannot be calculated with 'STypes.{b.Type}'");
+        return (Diagnostics.Success, null);
     }
 
     internal static bool IsOperator(string token) =>
@@ -222,13 +215,7 @@ partial class NptSystem
             return (SType)propertyInfo.GetValue(target);
         }
 
-        return new NptError(Diagnostics.UnlistedProperty, $"Property '{property}' not found for type '{target.Type}'.");
-    }
-    private static SType GetVariableValue(string variableName, EnvironmentDataContext context){
-        foreach (var scope in context.Variables)
-            if (scope.ContainsKey(variableName))
-                return scope[variableName];
-        return null;
+        return new NptError(Diagnostics.UnlistedProperty, $"Property '{property}' not found for type '{target.Type}'");
     }
 }
 
