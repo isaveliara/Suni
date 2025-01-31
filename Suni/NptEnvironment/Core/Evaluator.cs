@@ -108,7 +108,7 @@ partial class NptSystem
                     }));
                 }
                 else
-                    return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: 'STypes.{a.Type}' cannot be compared with 'STypes.{b.Type}'");
+                    return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: 'STypes.{a.Type}' can't be compared with 'STypes.{b.Type}'");
                 break;
             case "?": //contains operator
                 stackValues.Push(new NptBool(a.ToString().Contains(b.ToString())));
@@ -180,7 +180,7 @@ partial class NptSystem
             }
         }
         else
-            return (Diagnostics.TypeMismatchException, $"At [{a.Value} {op} {b.Value}]: 'STypes.{a.Type}' cannot be calculated with 'STypes.{b.Type}'");
+            return (Diagnostics.TypeMismatchException, $"At [{a.Value} {op} {b.Value}]: 'STypes.{a.Type}' can't be calculated with 'STypes.{b.Type}'");
         return (Diagnostics.Success, null);
     }
 
@@ -215,7 +215,7 @@ partial class NptSystem
             return (SType)propertyInfo.GetValue(target);
         }
 
-        return new NptError(Diagnostics.UnlistedProperty, $"Property '{property}' not found for type '{target.Type}'");
+        return new NptError(Diagnostics.UnlistedProperty, $"type 'STypes.{target.Type}' doesn't have the property '{property}'");
     }
 }
 
