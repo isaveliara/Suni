@@ -56,7 +56,7 @@ public class Tests
                 else
                     Console.ForegroundColor = ConsoleColor.Yellow;
                 
-                Console.WriteLine($"{resultEval}\nWhith Result: {diagnostic} " + resultMessage?? "");
+                Console.WriteLine($"{resultEval}\nWhith Result: {diagnostic}:\n" + resultMessage?? "");
                 continue;
             }
 

@@ -9,6 +9,7 @@ public enum STypes
     Nil, Bool, Int, Float,
     Str, Function, Char, List, Dict,
     Error,
+    Identifier,
 }
 
 /// <summary>
@@ -74,5 +75,5 @@ public abstract class SType
     public NptInt Lenght() => new NptInt(Value?.ToString().Length ?? -1);
 
     [ExposedProperty("toStr")]
-    public NptStr ToStr() => new NptStr(Value?.ToString() ?? "nil");
+    public NptStr ToNptStr() => new NptStr(Value?.ToString() ?? "nil");
 }

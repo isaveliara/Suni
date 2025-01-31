@@ -1,7 +1,7 @@
 namespace Suni.Suni.NptEnvironment.Data.Types;
 
 /// <summary>
-/// Represents an error in the NPT environment.
+/// Represents an Error in the NPT environment.
 /// </summary>
 public class NptError : SType
 {

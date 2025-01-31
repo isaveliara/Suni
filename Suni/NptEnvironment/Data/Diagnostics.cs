@@ -17,7 +17,7 @@ public enum Diagnostics
     OutOfRangeException,
     
     //evaluate errors
-    MalformedExpression, MissingOperandsForIFOperator, IncompleteBinaryIFOperation, InvalidOperator,
+    MalformedExpression, IncompleteBinaryIFOperation, InvalidOperator,
 
     //language errors (errors because of me)
     UnknowException,
@@ -28,7 +28,6 @@ public enum Diagnostics
     UnknowTypeException,
     CannotConvertType,
     TypeMismatchException,
-    MissingOperandsForEvaluation,
     BadToken,
     SyntaxException,
     FunctionNotFound,
@@ -37,4 +36,5 @@ public enum Diagnostics
     UnlistedProperty,
     Anomaly,
     VariableNotFound,
+    MissingOperands,
 }
