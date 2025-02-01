@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using DSharpPlus.Commands.ArgumentModifiers;
 using Suni.Suni.NptEnvironment.Core;
+using Suni.Suni.NptEnvironment.Core.Evaluator;
 using Suni.Suni.NptEnvironment.Data;
 using Suni.Suni.NptEnvironment.Formalizer;
 
@@ -98,7 +99,7 @@ public class NptCommands
     public static async Task NptEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
     {
         var (formalizedExp, diagnosticPlaceholders, msgPlaceholders) = FormalizingScript.SetPlaceHolders(expression, ctx);
-        var (result, diagnostic, msgEvaluation) = NptSystem.EvaluateExpression(formalizedExp);
+        var (result, diagnostic, msgEvaluation) = NptEvaluator.EvaluateExpression(formalizedExp);
         await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExp}`` :\n```{result}```\nWhith Result: {diagnostic} " + msgEvaluation?? "");
     }
 }

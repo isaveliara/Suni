@@ -5,6 +5,7 @@ using Suni.Suni.NptEnvironment.Data;
 using System.Reflection;
 using Suni.Suni.NptEnvironment.Core;
 using Suni.Suni.NptEnvironment.Data.Types;
+using Suni.Suni.NptEnvironment.Core.Evaluator;
 
 namespace Suni.Suni.NptEnvironment.Formalizer;
 
@@ -88,7 +89,7 @@ public partial class FormalizingScript
                     else{
                         Console.WriteLine($"Processing as common variable: {variableName}");
                         //var (result, typedValue) = Help.GetType(parts[1]);
-                        var resEvaluatedExpression = NptSystem.EvaluateExpression(parts[1]);
+                        var resEvaluatedExpression = NptEvaluator.EvaluateExpression(parts[1]);
 
                         if (resEvaluatedExpression.diagnostic != Diagnostics.Success)
                             return (null, null, resEvaluatedExpression.diagnostic, resEvaluatedExpression.diagnosticMessage);

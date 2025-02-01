@@ -7,15 +7,18 @@ public class NptError : SType
 {
     public Diagnostics Diagnostic { get; }
     public string Message { get; }
+    public string ReferenceCode { get; }
 
-    public NptError(Diagnostics diagnostic, string message)
+    public NptError(Diagnostics diagnostic, string message, string referenceCode = null)
     {
         Diagnostic = diagnostic;
         Message = message;
+        ReferenceCode = referenceCode;
     }
 
     public override STypes Type => STypes.Error;
     public override object Value => null;
 
-    public override string ToString() => $"Error: {Diagnostic} - {Message}";
+    public override string ToString() => "Detected an Error:" + ReferenceCode is not null? $"At [{ReferenceCode}] " : " " + $"{Diagnostic} - {Message}";
+    public (Diagnostics, string) AsDIagnosticAndMessage() => (Diagnostic, Value.ToString());
 }

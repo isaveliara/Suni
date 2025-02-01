@@ -1,4 +1,5 @@
 using Suni.Suni.NptEnvironment.Core;
+using Suni.Suni.NptEnvironment.Core.Evaluator;
 using Suni.Suni.NptEnvironment.Data;
 using Suni.Suni.NptEnvironment.Formalizer;
 namespace Suni;
@@ -48,7 +49,7 @@ public class Tests
             if (isEval)
             {
                 var (formalizedExp, d, m) = FormalizingScript.SetPlaceHolders(code, ctx);
-                var (resultEval, diagnostic, resultMessage) = NptSystem.EvaluateExpression(formalizedExp);
+                var (resultEval, diagnostic, resultMessage) = NptEvaluator.EvaluateExpression(formalizedExp);
                 Console.WriteLine($"Result of Evaluation for '{formalizedExp}' :");
 
                 if (diagnostic != Diagnostics.Success)
