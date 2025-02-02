@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 namespace Suni.Suni.NptEnvironment.Data.Types;
 
 /// <summary>
@@ -13,4 +12,20 @@ public class NptDict : SType
     public SType GetValue(SType key) => _value.ContainsKey(key)
         ? _value[key]
         : new NptNil();
+    
+
+    [ExposedProperty("toStr")]
+    public override NptStr ToNptStr()
+    {
+        if (_value.Count == 0) return new NptStr("{}");
+        
+        var dictString = string.Join(", ", 
+            _value.Select(kvp => $"{kvp.Key.ToNptStr().Value}: {kvp.Value.ToNptStr().Value}")
+        );
+
+        return new NptStr($"{{{dictString}}}");
+    }
+
+    [ExposedProperty("count")]
+    public NptInt Count() => new NptInt(_value.Count);
 }

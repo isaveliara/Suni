@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 namespace Suni.Suni.NptEnvironment.Data.Types;
 
 /// <summary>
@@ -78,8 +77,8 @@ public abstract class SType
     
     
     [ExposedProperty("len")]
-    public NptInt Lenght() => new NptInt(Value?.ToString().Length ?? -1);
+    public virtual NptInt Lenght() => new NptInt(Value?.ToString().Length ?? -1);
 
     [ExposedProperty("toStr")]
-    public NptStr ToNptStr() => new NptStr(Value?.ToString() ?? "nil");
+    public virtual NptStr ToNptStr() => new NptStr(Value?.ToString() ?? "nil");
 }

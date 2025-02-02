@@ -5,7 +5,7 @@ partial class Tokens
         {
             return Operator switch
             {
-                "[" or "::" => 5,
+                "[" or "]" or "{" or "}" or "::" => 5,
                 "!" => 4,
                 "*" or "/" => 3,
                 "+" or "-" => 2,

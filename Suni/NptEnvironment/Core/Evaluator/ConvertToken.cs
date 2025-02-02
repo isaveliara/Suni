@@ -11,6 +11,37 @@ partial class NptEvaluator
         if (token == "nil") return new NptNil();
         if (token.StartsWith("s'") && token.EndsWith('\'') && token.Length >= 3) return new NptStr(token[2..^1]);
         if (token.StartsWith("c'") && token.EndsWith('\'') && token.Length == 4) return new NptChar(token[2]);
+        Console.WriteLine(token);
+        if (token.StartsWith('{') && token.EndsWith('}'))
+        {
+            string content = token[1..^1].Trim();
+
+            if (string.IsNullOrWhiteSpace(content))
+                return new NptList([]);
+
+            var elements = content.Split(',')
+                    .Select(t => t.Trim())
+                    .ToList();
+
+            if (elements.All(e => e.Contains(':'))){
+                var dict = new Dictionary<SType, SType>();
+                foreach (var pair in elements){
+                    var parts = pair.Split(':', 2).Select(p => p.Trim()).ToArray();
+                    if (parts.Length != 2) return new NptError(Diagnostics.BadToken, $"Invalid dictionary entry '{pair}'.");
+
+                    var key = ConvertToken(parts[0], context);
+                    var value = ConvertToken(parts[1], context);
+
+                    if (key is NptError || value is NptError)
+                        return new NptError(Diagnostics.BadToken, $"Invalid key or value in dictionary entry '{pair}'.");
+
+                    dict[key] = value;
+                }
+                return new NptDict(dict);
+            }
+            else
+                return new NptList([.. elements.Select(e => ConvertToken(e, context))]);
+        }
         
         var identifierVal = new NptIdentifier(token);
         return identifierVal.Value is not null
