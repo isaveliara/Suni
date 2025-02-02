@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Suni.Suni.NptEnvironment.Core;
 using Suni.Suni.NptEnvironment.Data.Types;
 
 namespace Suni.Suni.NptEnvironment.Data;
@@ -19,8 +20,13 @@ public class EnvironmentDataContext
     public EnvironmentDataContext(List<string> lines, Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables)
     {
         Lines = lines;
-        Includes = includes is not null? includes : [];
-        Variables = variables is not null? variables : [];
+        Includes = includes is not null? includes : new Dictionary<string, List<string>> {
+            { "std", NptSystem.MainControlerLibMethods }
+        };
+        Variables = variables is not null? variables : new List<Dictionary<string, SType>> {
+            new() { { "__version__", new NptStr(SunClassBot.SuniV) } },
+            new() { { "__time__", new NptStr(DateTime.Now.ToString()) } }
+        };
 
         Debugs = new List<string>();
         Outputs = new List<string>();
