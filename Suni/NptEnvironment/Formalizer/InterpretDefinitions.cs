@@ -46,7 +46,7 @@ public partial class FormalizingScript
             FormalizingDataContext.Includes.ContainsKey(includeName)) return;
 
         string classNameProper = $"{char.ToUpper(includeName[0])}{includeName[1..].ToLower()}Entitie";
-        Type type = Type.GetType($"Sun.NPT.ScriptInterpreter.{classNameProper}");
+        Type type = Type.GetType($"Suni.Suni.NptEnvironment.Data.Classes.{classNameProper}");
 
         if (type == null)
         {
