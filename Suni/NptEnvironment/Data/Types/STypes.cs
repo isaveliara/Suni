@@ -55,19 +55,25 @@ public abstract class SType
 
     public static SType Create(STypes type, object value)
     {
-        return type switch
+        try
         {
-            STypes.Nil => new NptNil(),
-            STypes.Bool => new NptBool((bool)value),
-            STypes.Int => new NptInt((int)value),
-            STypes.Float => new NptFloat((float)value),
-            STypes.Str => new NptStr((string)value),
-            STypes.Char => new NptChar((char)value),
-            STypes.Function => value is NptFunction fn ? fn : throw new ArgumentException("Invalid Function Value"),
-            STypes.List => new NptList(value as List<SType> ?? throw new ArgumentException("Invalid List Value")),
-            STypes.Dict => new NptDict(value as Dictionary<SType, SType> ?? throw new ArgumentException("Invalid Dictionary Value")),
-            _ => throw new ArgumentException($"Unsupported type: {type}"),
-        };
+            return type switch
+            {
+                STypes.Nil => new NptNil(),
+                STypes.Bool => new NptBool((bool)value),
+                STypes.Int => new NptInt((int)value),
+                STypes.Float => new NptFloat((double)value),
+                STypes.Str => new NptStr((string)value),
+                STypes.Char => new NptChar((char)value),
+                STypes.Function => value is NptFunction fn ? fn : throw new ArgumentException("Invalid Function Value"),
+                STypes.List => new NptList(value as List<SType> ?? throw new ArgumentException("Invalid List Value")),
+                STypes.Dict => new NptDict(value as Dictionary<SType, SType> ?? throw new ArgumentException("Invalid Dictionary Value")),
+                _ => new NptError(Diagnostics.UnknowTypeException, null),
+            };
+        }
+        catch (Exception){
+            return new NptError(Diagnostics.CannotConvertType, $"Cannot implicitly convert '{value}' to '{type}'. An explicit conversion exists.");
+        }
     }
     
     

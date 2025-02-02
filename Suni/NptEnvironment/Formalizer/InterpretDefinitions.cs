@@ -1,20 +1,18 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Suni.Suni.NptEnvironment.Data;
 using System.Reflection;
 using Suni.Suni.NptEnvironment.Core;
 using Suni.Suni.NptEnvironment.Data.Types;
+using Suni.Suni.NptEnvironment.Syntax;
 using Suni.Suni.NptEnvironment.Core.Evaluator;
-
 namespace Suni.Suni.NptEnvironment.Formalizer;
 
 public partial class FormalizingScript
 {
-    internal static (Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables, Diagnostics diagnostic, string diagnosticMessage) InterpretDefinitionsBlock(List<string> lines)
+    internal void InterpretDefinitionsBlock()
     {
         //(default)
-        var includes = new Dictionary<string, List<string>>{
+        FormalizingDataContext.Includes = new Dictionary<string, List<string>>{
             { "std", NptSystem.MainControlerLibMethods }
         };
         var variables = new List<Dictionary<string, SType>>{
@@ -22,99 +20,85 @@ public partial class FormalizingScript
             new Dictionary<string, SType> { { "__time__", new NptStr(DateTime.Now.ToString()) } }
         };
 
-        for (int i = 0; i < lines.Count; i++)
+        for (int i = 0; i < DefLines.Count; i++)
         {
-            string currentLine = lines[i].Trim();
+            string currentLine = DefLines[i].Trim();
+            if (currentLine.StartsWith('~'))
+            {
+                var keyWord = Help.keywordLookahead(currentLine).Letters;
+                Console.WriteLine($"Identified DefLine keyword: >>{keyWord}<<");
+                
+                switch (keyWord)
+                {
+                    case "include":
+                        var includeName = currentLine.Substring(9).Trim();
+                        Console.WriteLine($"{includeName} included by line: {currentLine}");
 
-            //process "include" statements
-            if (currentLine.StartsWith("~include")){
-                var includeName = currentLine.Substring(9).Trim();
-                Console.WriteLine($"{includeName} included by line: {currentLine}");
+                        if (!string.IsNullOrWhiteSpace(includeName) && !FormalizingDataContext.Includes.ContainsKey(includeName)){
+                            string classNameProper = char.ToUpper(includeName[0]) + includeName.Substring(1).ToLower() + "Entitie";
+                            Type type = Type.GetType($"Sun.NPT.ScriptInterpreter.{classNameProper}");
 
-                if (!string.IsNullOrWhiteSpace(includeName) && !includes.ContainsKey(includeName)){
-                    string classNameProper = char.ToUpper(includeName[0]) + includeName.Substring(1).ToLower() + "Entitie";
-                    Type type = Type.GetType($"Sun.NPT.ScriptInterpreter.{classNameProper}");
-
-                    if (type != null){
-                        var libMethodsProperty = type.GetProperty("LibMethods", BindingFlags.Static | BindingFlags.Public);
-                        if (libMethodsProperty != null){
-                            var methods = libMethodsProperty.GetValue(null) as List<string>;
-                            if (methods != null && methods.Any()){
-                                includes[includeName] = methods;
-                                Console.WriteLine($"Library '{includeName}' registered with methods: {string.Join(", ", methods)}");
+                            if (type != null){
+                                var libMethodsProperty = type.GetProperty("LibMethods", BindingFlags.Static | BindingFlags.Public);
+                                if (libMethodsProperty != null){
+                                    if (libMethodsProperty.GetValue(null) is List<string> methods && methods.Any())
+                                    {
+                                        FormalizingDataContext.Includes[includeName] = methods;
+                                        Console.WriteLine($"Library '{includeName}' registered with methods: {string.Join(", ", methods)}");
+                                    }
+                                    else
+                                    {
+                                        FormalizingDataContext.Includes[includeName] = new List<string>();
+                                        Console.WriteLine($"Library '{includeName}' registered but no methods found.");
+                                    }
+                                }
+                                else{
+                                    FormalizingDataContext.Includes[includeName] = new List<string>();
+                                    Console.WriteLine($"Library '{includeName}' found, but 'LibMethods' property is missing.");
+                                }
                             }
                             else{
-                                includes[includeName] = new List<string>();
-                                Console.WriteLine($"Library '{includeName}' registered but no methods found.");
+                                Console.WriteLine($"Error: Library '{includeName}' class '{classNameProper}' not found.");
+                                FormalizingDataContext.LogDiagnostic(Diagnostics.IncludeNotFoundException, $"Library '{includeName}' class '{classNameProper}' not found.");
+                                return;
                             }
                         }
-                        else{
-                            includes[includeName] = new List<string>();
-                            Console.WriteLine($"Library '{includeName}' found, but 'LibMethods' property is missing.");
-                        }
-                    }
-                    else{
-                        Console.WriteLine($"Error: Library '{includeName}' class '{classNameProper}' not found.");
-                        return (null, null, Diagnostics.IncludeNotFoundException, $"Error: Library '{includeName}' class '{classNameProper}' not found.");
-                    }
-                }
-            }
-
-            //process "set" statements for variables
-            if (currentLine.StartsWith("~set"))
-            {
-                var parts = currentLine.Substring(4).Trim().Split(' ', 2);
-                if (parts.Length == 2){
-                    string variableName = parts[0].Trim();
-                    Console.WriteLine($"Detected ~set for variable or function: {variableName}");
-
-                    var fnMatch = Regex.Match(variableName, @"\[(\w+)<([^>]*)>\]");
-                    if (fnMatch.Success){
-                        string fnName = fnMatch.Groups[1].Value;
-                        var parameters = fnMatch.Groups[2].Value
-                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(param => param.Trim())
-                            .ToList();
-                        string code = parts[1].Trim().Trim('"');
-                        Console.WriteLine($"Registering function: {fnName}\nParameters: {string.Join(", ", parameters)}");
-                        Console.WriteLine($"Function body: {code}");
-
-                        var function = new NptFunction(fnName, parameters, code);
-                        variables.Add(new Dictionary<string, SType>{
-                            { fnName, new NptFunction(fnName, parameters, code) }
-                        });
-
-                        Console.WriteLine($"Function '{fnName}' registered successfully.");
-                    }
-                    else{
-                        Console.WriteLine($"Processing as common variable: {variableName}");
-                        //var (result, typedValue) = Help.GetType(parts[1]);
-                        var resEvaluatedExpression = NptEvaluator.EvaluateExpression(parts[1]);
-
-                        if (resEvaluatedExpression.diagnostic != Diagnostics.Success)
-                            return (null, null, resEvaluatedExpression.diagnostic, resEvaluatedExpression.diagnosticMessage);
-                            
-                        var (result, typedValue) = Help.GetType(resEvaluatedExpression.resultValue.ToString());
-                        if (result != Diagnostics.Success && result != Diagnostics.Anomaly)
+                        break;
+                    default:
+                    if (Enum.TryParse(keyWord, true, out STypes varType))
+                    {
+                        //Float set pi 3,14.
+                        //if a type is placed as 'instruction', it means it is a variable declaration
+                        string rest = currentLine.Substring(keyWord.Length + 1).Trim();
+                        if (rest.StartsWith("set"))
                         {
-                            Console.WriteLine($"Error interpreting variable '{variableName}': {result}");
-                            return (null, null, result, $"Error interpreting variable '{variableName}'."); ////////generic error
-                        }
+                            rest = rest[4..];
+                            var parts = rest.Split(' ');
+                            if (parts.Length < 2)
+                                FormalizingDataContext.LogDiagnostic(Diagnostics.SyntaxException, $"Missing value for variable '{rest}'");
 
-                        variables.Add(new Dictionary<string, SType> { { variableName, typedValue } });
-                        Console.WriteLine($"Variable '{variableName}' registered with value: {typedValue}");
+                            string varName = parts[0];
+                            string stringVarValue = parts[1];
+                            var evaluationResults = NptEvaluator.EvaluateExpression(stringVarValue, FormalizingDataContext);
+                            if (evaluationResults.diagnostic != Diagnostics.Success)
+                                FormalizingDataContext.LogDiagnostic(evaluationResults.diagnostic, evaluationResults.diagnosticMessage);
+
+                            //setting
+                            VariableDeclarationSyntax.TryParse(varName, varType, evaluationResults.resultValue, FormalizingDataContext);
+                        }
+                        else
+                        FormalizingDataContext.LogDiagnostic(Diagnostics.SyntaxException, $"After a '{varType}' statement, is expected a 'set' expression.");
                     }
-                }
-                else{
-                    Console.WriteLine($"Sintax error in ~set: '{currentLine}'");
-                    return (null, null, Diagnostics.SyntaxException, $"Sintax error in ~set instruction: '{currentLine}'");
+                    else
+                        FormalizingDataContext.LogDiagnostic(Diagnostics.SyntaxException, $"'{keyWord}' isn't a valid instruction to DefinitionsLines.");
+                    break;
                 }
             }
         }
 
-        Console.WriteLine($">> Includes: {string.Join(", ", includes.Keys)}");
-        Console.WriteLine($">> Variables: {string.Join(", ", variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
-
-        return (includes, variables, Diagnostics.Success, null);
+        Console.WriteLine($">> Includes: {string.Join(", ", FormalizingDataContext.Includes.Keys)}");
+        Console.WriteLine($">> Variables: {string.Join(", ", FormalizingDataContext.Variables.Select(v => $"{v.Keys.First()}: {v.Values.First()}"))}");
+        
+        return;//return (includes, variables, Diagnostics.Success, null);
     }
 }

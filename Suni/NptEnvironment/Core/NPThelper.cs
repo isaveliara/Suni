@@ -7,7 +7,7 @@ namespace Suni.Suni.NptEnvironment.Core;
 public partial class Help
 {
     //helper method for keywords lookahead
-    public static (string Letters, string Chars) keywordLookahead(string code, int startIndex)
+    public static (string Letters, string Chars) keywordLookahead(string code, int startIndex = 0)
     {
         int currentIndex = startIndex + 1;
         int firstNonLetterIndex = currentIndex;

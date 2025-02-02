@@ -19,8 +19,8 @@ public class EnvironmentDataContext
     public EnvironmentDataContext(List<string> lines, Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables)
     {
         Lines = lines;
-        Includes = includes;
-        Variables = variables;
+        Includes = includes is not null? includes : [];
+        Variables = variables is not null? variables : [];
 
         Debugs = new List<string>();
         Outputs = new List<string>();

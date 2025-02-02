@@ -1,58 +1,56 @@
-using System.Collections.Generic;
-using System.Text;
 using Suni.Suni.NptEnvironment.Data;
-
-namespace Suni.Suni.NptEnvironment.Formalizer
+namespace Suni.Suni.NptEnvironment.Formalizer;
+public partial class FormalizingScript
 {
-    public partial class FormalizingScript
+    /// <summary>
+    /// Sets the placeholders on the lines. If no placeholder is identified, it just returns the value without any changes.
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <param name="DiscordCtx"></param>
+    /// <returns></returns>
+    internal (Diagnostics diagnostic, string diagnosticMessage) SetPlaceHolders()
     {
-        internal static (string resultCode, Diagnostics diagnostic, string diagnosticMessage) SetPlaceHolders(string script, CommandContext ctx)
+        if (DiscordCtx is null)
+            return (Diagnostics.Anomaly, "Unable to identify placeholders.");
+
+        //nullable values
+        var userNick = DiscordCtx.Member?.Nickname ?? "nil";
+        var channelParent = DiscordCtx.Channel.Parent?.Name ?? "nil";
+        var channelParentId = DiscordCtx.Channel.Parent?.Id.ToString() ?? "nil";
+        var channelParentName = DiscordCtx.Channel.Parent?.Name ?? "nil";
+        var guildName = DiscordCtx.Guild?.Name ?? "Direct Messages";
+        var guildId = DiscordCtx.Guild?.Id.ToString() ?? "nil";
+        var guildMemberCount = DiscordCtx.Guild?.MemberCount.ToString() ?? "0";
+
+        //dictionary of placeholders
+        var placeholders = new Dictionary<string, string>
         {
-            if (ctx is null)
-                return (script, Diagnostics.Anomaly, "Unable to identify placeholders.");
-            //stringBuilder for building the script
-            var sb = new StringBuilder(script);
+            // user
+            { "&{userId}", DiscordCtx.User.Id.ToString() },
+            { "&{userMention}", DiscordCtx.User.Mention },
+            { "&{userName}", DiscordCtx.User.Username },
+            { "&{userNick}", userNick },
 
-            //nullable values
-            var userNick = ctx.Member?.Nickname ?? "nil";
-            var channelParent = ctx.Channel.Parent?.Name ?? "nil";
-            var channelParentId = ctx.Channel.Parent?.Id.ToString() ?? "nil";
-            var channelParentName = ctx.Channel.Parent?.Name ?? "nil";
+            //channel items
+            { "&{channel}", DiscordCtx.Channel.Name },
+            { "&{channelName}", DiscordCtx.Channel.Name },
+            { "&{channelId}", DiscordCtx.Channel.Id.ToString() },
+            { "&{channelParent}", channelParent },
+            { "&{channelParentId}", channelParentId },
+            { "&{channelParentName}", channelParentName },
 
-            //nullable guild values
-            var guildName = ctx.Guild?.Name ?? "Direct Messages";
-            var guildId = ctx.Guild?.Id.ToString() ?? "nil";
-            var guildMemberCount = ctx.Guild?.MemberCount.ToString() ?? "0";
+            //guild
+            { "&{guild}", guildName },
+            { "&{guildId}", guildId },
+            { "&{guildName}", guildName },
+            { "&{guildMembers}", guildMemberCount }
+        };
 
-            //dict of placeholders
-            var placeholders = new Dictionary<string, string>
-            {
-                //user
-                { "&{userId}", ctx.User.Id.ToString() },
-                { "&{userMention}", ctx.User.Mention },
-                { "&{userName}", ctx.User.Username },
-                { "&{userNick}", userNick },
-
-                //channel items
-                { "&{channel}", ctx.Channel.Name },
-                { "&{channelName}", ctx.Channel.Name },
-                { "&{channelId}", ctx.Channel.Id.ToString() },
-                { "&{channelParent}", channelParent },
-                { "&{channelParentId}", channelParentId },
-                { "&{channelParentName}", channelParentName },
-
-                //guild
-                { "&{guild}", guildName },
-                { "&{guildId}", guildId },
-                { "&{guildName}", guildName },
-                { "&{guildMembers}", guildMemberCount }
-            };
-
-            //replacing values
+        //replacing values in each line
+        for (int i = 0; i < FormalizingDataContext.Lines.Count; i++)
             foreach (var placeholder in placeholders)
-                sb.Replace(placeholder.Key, placeholder.Value);
+                FormalizingDataContext.Lines[i] = FormalizingDataContext.Lines[i].Replace(placeholder.Key, placeholder.Value);
 
-            return (sb.ToString(), Diagnostics.Success, null);
-        }
+        return (Diagnostics.Success, null);
     }
 }

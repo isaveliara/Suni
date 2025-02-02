@@ -98,8 +98,11 @@ public class NptCommands
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
     public static async Task NptEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
     {
-        var (formalizedExp, diagnosticPlaceholders, msgPlaceholders) = FormalizingScript.SetPlaceHolders(expression, ctx);
-        var (result, diagnostic, msgEvaluation) = NptEvaluator.EvaluateExpression(formalizedExp);
-        await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExp}`` :\n```{result}```\nWhith Result: {diagnostic} " + msgEvaluation?? "");
+        FormalizingScript formalizingScript = new FormalizingScript(expression, ctx);
+        EnvironmentDataContext data = formalizingScript.GetFormalized;
+        string formalizedExpression = data.Lines[0];
+
+        var (result, diagnostic, msgEvaluation) = NptEvaluator.EvaluateExpression(formalizedExpression, data);
+        await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExpression}`` :\n```{result}```\nWhith Result: {diagnostic} " + msgEvaluation?? "");
     }
 }

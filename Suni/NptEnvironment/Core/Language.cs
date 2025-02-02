@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Suni.Suni.NptEnvironment.Data;
@@ -13,14 +12,14 @@ public partial class NptSystem
     public CommandContext DiscordCtx { get; set; }
     public NptSystem(string script, CommandContext discordCtx)
     {
-        ContextData = new FormalizingScript().Formalize(script, discordCtx);
+        ContextData = new FormalizingScript(script, discordCtx).GetFormalized;
         DiscordCtx = discordCtx;
     }
 
     public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync()
     {
         if (ContextData.ErrorMessages.Count > 0)
-            return (null, ContextData.ErrorMessages, Diagnostics.SyntaxException); 
+            return (ContextData.ErrorMessages, ContextData.ErrorMessages, Diagnostics.SyntaxException);
         
         blockStack.Push(new CodeBlock { IndentLevel = 0, CanExecute = true });
 
@@ -150,23 +149,6 @@ public partial class NptSystem
         }
 
         return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
-    }
-
-    private string ReplaceVariables(string line)
-    {
-        return Regex.Replace(line, @"\${(\w+)}", match => {
-            string varName = match.Groups[1].Value;
-            if (ContextData.Variables.Any(v => v.ContainsKey(varName))){
-                SType value = ContextData.Variables.First(v => v.ContainsKey(varName))[varName];
-                if (value.Type == STypes.Function)
-                    return value.ToString();
-                return value?.ToString() ?? "nil";
-            }
-            else{
-                ContextData.Debugs.Add($"Warning: Variable '{varName}' not found. Returning nil.");
-                return "nil";
-            }
-        });
     }
 
     private async Task<Diagnostics> ExecuteLineAsync(CommandContext ctx)

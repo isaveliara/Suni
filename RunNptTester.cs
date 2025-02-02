@@ -48,9 +48,12 @@ public class Tests
 
             if (isEval)
             {
-                var (formalizedExp, d, m) = FormalizingScript.SetPlaceHolders(code, ctx);
-                var (resultEval, diagnostic, resultMessage) = NptEvaluator.EvaluateExpression(formalizedExp);
-                Console.WriteLine($"Result of Evaluation for '{formalizedExp}' :");
+                FormalizingScript formalizingScript = new FormalizingScript(code, ctx);
+                EnvironmentDataContext data = formalizingScript.GetFormalized;
+                string formalizedExpression = data.Lines[0];
+
+                var (resultEval, diagnostic, resultMessage) = NptEvaluator.EvaluateExpression(formalizedExpression, data);
+                Console.WriteLine($"Result of Evaluation for '{formalizedExpression}' :");
 
                 if (diagnostic != Diagnostics.Success)
                     Console.ForegroundColor = ConsoleColor.Red;

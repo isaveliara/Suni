@@ -14,7 +14,7 @@
 // s'a' + s'b' ? s'oiba'       | False
 // s'a' + s'b' ? s'oiab'       | True
 // 900 # s'hi'                 | Aleatory choices '900' or 'hi'
-´´´
+```
 
 # Precedence of Tokens:
 ```cs

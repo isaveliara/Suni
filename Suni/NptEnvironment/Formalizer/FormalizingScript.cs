@@ -1,0 +1,24 @@
+using Suni.Suni.NptEnvironment.Data;
+namespace Suni.Suni.NptEnvironment.Formalizer;
+
+public partial class FormalizingScript
+{
+    public EnvironmentDataContext FormalizingDataContext { get; }
+    internal CommandContext DiscordCtx { get; }
+    public List<string> DefLines { get; }
+    public EnvironmentDataContext GetFormalized => FormalizingDataContext;
+
+    public FormalizingScript(string code, CommandContext discordCtx)
+    {
+        var codeLines = SplitCode(code);
+        DefLines = codeLines.defLines;
+        DiscordCtx = discordCtx;
+        FormalizingDataContext = new EnvironmentDataContext(codeLines.lines, null, null);
+
+        //uses the FormalizingDataContext
+        InterpretDefinitionsBlock();
+        
+        var resultPlaceHolders = SetPlaceHolders();
+        FormalizingDataContext.LogDiagnostic(resultPlaceHolders.diagnostic, resultPlaceHolders.diagnosticMessage);
+    }
+}
