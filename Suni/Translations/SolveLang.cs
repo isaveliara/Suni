@@ -25,6 +25,9 @@ public partial class SolveLang
         SuniSupportedLanguages resolvedLang;
 
         if (ctx != null){
+            if (ctx.Guild is not null)
+                await dbMethods.InsertServerAsync(ctx.Guild.Id, ctx.Guild.Name, ctx.Guild.IconUrl, ServerStatusTypes.client, "", "");
+
             //get language from database
             var dbLang = await dbMethods.GetUserPrimaryLangAsync(ctx.User.Id);
 

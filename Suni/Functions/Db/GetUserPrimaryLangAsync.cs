@@ -16,7 +16,7 @@ public partial class DBMethods
                     ? GlobalizationMethods.ParseToLanguageSupported(result.ToString())
                     : SuniSupportedLanguages.FROM_CLIENT;
                 
-                Console.WriteLine($"(maybe error?) Got {l} as user language (for {userId}) - tryFoundUserLangAndSet.cs");
+                Console.WriteLine($"Got {l} as user language (for {userId}) - tryFoundUserLangAndSet.cs");
                 return l;
             }
         }

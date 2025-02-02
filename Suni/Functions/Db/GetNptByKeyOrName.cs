@@ -7,10 +7,13 @@ public partial class DBMethods
     /// <summary>
     /// Get an Npt by PrimaryKey or Name
     /// </summary>
-    public (int? primaryKey, ulong ownerId, string nptName, string nptCode, string listen)? GetNptByKeyOrName(int? primaryKey = null, string nptName = null, ulong? serverId = null)
+    public (int? primaryKey, ulong ownerId, string nptName, string nptCode, string listen)? GetNptByKeyOrName(ulong serverId, int? primaryKey = null, string nptName = null)
     {
-        if (primaryKey == null && string.IsNullOrEmpty(nptName) && serverId == null)
+        if (primaryKey == null && string.IsNullOrEmpty(nptName))
+        {
+            Console.WriteLine("Error: primaryKey or nptName must be provided.");
             return null;
+        }
 
         using (var connection = new SQLiteConnection($"Data Source={this.dbFilePath};Version=3;"))
         {
@@ -29,8 +32,8 @@ public partial class DBMethods
                 conditions.Add("npts.primary_key = @primaryKey");
             if (!string.IsNullOrEmpty(nptName))
                 conditions.Add("npts.npt_name = @nptName");
-            if (serverId.HasValue)
-                conditions.Add("servers.server_id = @serverId");
+            
+            conditions.Add("servers.server_id = @serverId");
 
             query += string.Join(" AND ", conditions) + " LIMIT 1;";
 
@@ -40,8 +43,8 @@ public partial class DBMethods
                     command.Parameters.AddWithValue("@primaryKey", primaryKey.Value);
                 if (!string.IsNullOrEmpty(nptName))
                     command.Parameters.AddWithValue("@nptName", nptName);
-                if (serverId.HasValue)
-                    command.Parameters.AddWithValue("@serverId", (long)serverId.Value);
+                
+                command.Parameters.AddWithValue("@serverId", (long)serverId);
 
                 //execute and read values to return them
                 using (var reader = command.ExecuteReader())

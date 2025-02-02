@@ -21,7 +21,7 @@ public partial class DBMethods
                 command.Parameters.AddWithValue("@serverId", (long)serverId);
                 command.Parameters.AddWithValue("@serverName", serverName);
                 command.Parameters.AddWithValue("@urlIcon", urlIcon);
-                command.Parameters.AddWithValue("@relation", relation);
+                command.Parameters.AddWithValue("@relation", relation.ToString());
                 command.Parameters.AddWithValue("@flags", flags);
                 command.Parameters.AddWithValue("@eventData", eventData);
 
