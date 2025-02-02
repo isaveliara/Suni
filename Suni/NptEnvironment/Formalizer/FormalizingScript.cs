@@ -16,9 +16,7 @@ public partial class FormalizingScript
         FormalizingDataContext = new EnvironmentDataContext(codeLines.lines, null, null);
 
         //uses the FormalizingDataContext
-        InterpretDefinitionsBlock();
-        
-        var resultPlaceHolders = SetPlaceHolders();
-        FormalizingDataContext.LogDiagnostic(resultPlaceHolders.diagnostic, resultPlaceHolders.diagnosticMessage);
+        SetPlaceHolders(); //for lines
+        InterpretDefinitionsBlock(); //for values
     }
 }

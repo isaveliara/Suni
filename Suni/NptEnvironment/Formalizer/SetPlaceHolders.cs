@@ -3,15 +3,17 @@ namespace Suni.Suni.NptEnvironment.Formalizer;
 public partial class FormalizingScript
 {
     /// <summary>
-    /// Sets the placeholders on the lines. If no placeholder is identified, it just returns the value without any changes.
+    /// Sets the placeholders on the lines of FormalizingDataContext. If no placeholder is identified, it just returns the value without any changes.
     /// </summary>
     /// <param name="lines"></param>
     /// <param name="DiscordCtx"></param>
     /// <returns></returns>
-    internal (Diagnostics diagnostic, string diagnosticMessage) SetPlaceHolders()
+    internal void SetPlaceHolders()
     {
-        if (DiscordCtx is null)
-            return (Diagnostics.Anomaly, "Unable to identify placeholders.");
+        if (DiscordCtx is null){
+            FormalizingDataContext.LogDiagnostic(Diagnostics.Anomaly, "Unable to identify placeholders.");
+            return;
+        }
 
         //nullable values
         var userNick = DiscordCtx.Member?.Nickname ?? "nil";
@@ -50,7 +52,5 @@ public partial class FormalizingScript
         for (int i = 0; i < FormalizingDataContext.Lines.Count; i++)
             foreach (var placeholder in placeholders)
                 FormalizingDataContext.Lines[i] = FormalizingDataContext.Lines[i].Replace(placeholder.Key, placeholder.Value);
-
-        return (Diagnostics.Success, null);
     }
 }
