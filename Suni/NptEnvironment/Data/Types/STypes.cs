@@ -24,7 +24,7 @@ public abstract class SType
     /// </summary>
     /// <returns></returns>
     public override string ToString() => Value?.ToString() ?? "nil";
-    public bool Contains(string value) => Value?.ToString().Contains(value) ?? false;
+    public virtual bool Contains(string value) => Value?.ToString().Contains(value) ?? false;
 
     /// <summary>
     /// Convert to the specified SType.

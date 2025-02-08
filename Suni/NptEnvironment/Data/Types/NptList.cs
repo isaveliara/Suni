@@ -10,6 +10,7 @@ public class NptList : SType
     public override STypes Type => STypes.List;
     public override object Value => _value;
     public override string ToString() => string.Join(", ", Value);
+    public override bool Contains(string value) => _value.Any(x => x.ToString() == value);
     
     public (Diagnostics, SType) GetAt(int index)
     {

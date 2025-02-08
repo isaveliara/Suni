@@ -1,10 +1,5 @@
-using System;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Suni.Suni.NptEnvironment.Data;
-using DSharpPlus.Commands;
-
 namespace Suni.Suni.NptEnvironment.Core;
 
 public partial class NptSystem

@@ -12,7 +12,7 @@ public partial class DBMethods
         {
             await connection.OpenAsync();
             string insertServerQuery = @"
-                INSERT INTO servers (server_id, server_name, url_icon, relation, flags, event_data)
+                INSERT OR IGNORE INTO servers (server_id, server_name, url_icon, relation, flags, event_data)
                 VALUES (@serverId, @serverName, @urlIcon, @relation, @flags, @eventData);
             ";
 

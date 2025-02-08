@@ -61,7 +61,8 @@ public partial class RegexCommandsGroup
             var embed = new DiscordEmbedBuilder()
                 .WithTitle(expression)
                 .WithColor(DiscordColor.IndianRed)
-                .WithDescription($"String: `{test}`\n\\* The first 10 results will be taken.");
+                .WithFooter("\\* The first 10 results will be taken.")
+                .WithDescription($"String: `{test}`");
             
             
             if (matches.Count > 0){
