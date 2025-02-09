@@ -28,10 +28,12 @@ partial class NptEvaluator
                 }
 
                 if (stackOperators.Count == 0 || stackOperators.Pop() != "[")
-                    return (null, Diagnostics.MalformedExpression, $"At [{expression}]");
+                    return (null, Diagnostics.MalformedExpression, $"At [{expression}]: Mismatched brackets.");
             }
             else if (IsOperator(token)){
-                while (stackOperators.Count > 0 && Tokens.Precedence(stackOperators.Peek()) >= Tokens.Precedence(token)){
+                while (stackOperators.Count > 0 && stackOperators.Peek() != "[" && 
+                    Tokens.Precedence(stackOperators.Peek()) >= Tokens.Precedence(token))
+                {
                     var (result, resultMessage) = ApplyOperator(stackValues, stackOperators.Pop());
                     if (result != Diagnostics.Success)
                         return (null, result, resultMessage);
@@ -47,13 +49,17 @@ partial class NptEvaluator
         }
 
         while (stackOperators.Count > 0){
-            var (result, resultMessage) = ApplyOperator(stackValues, stackOperators.Pop());
+            var op = stackOperators.Pop();
+            if (op == "[" || op == "]")
+                return (null, Diagnostics.MalformedExpression, $"At [{expression}]: Unbalanced brackets.");
+
+            var (result, resultMessage) = ApplyOperator(stackValues, op);
             if (result != Diagnostics.Success)
                 return (null, result, resultMessage);
         }
         return stackValues.Count == 1
             ? (stackValues.Pop(), Diagnostics.Success, null)
-            : (null, Diagnostics.MalformedExpression, $"At [{expression}]");
+            : (null, Diagnostics.MalformedExpression, $"At [{expression}]: Expression could not be fully evaluated.");
     }
 }
 
