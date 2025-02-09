@@ -32,7 +32,7 @@ partial class NptEvaluator
                     return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: Expected 'STypes.Bool', got 'STypes.{a.Type}'");
                                                                     break;
             case "==":
-                stackValues.Push(new NptBool(a.Equals(b)));
+                stackValues.Push(new NptBool(a.Value.Equals(b.Value)));
                                                                     break;
             case "~=":
                 stackValues.Push(new NptBool(!a.Equals(b)));        break;
@@ -40,7 +40,7 @@ partial class NptEvaluator
             case "<":
             case ">=":
             case "<=":
-                if (a is IComparable comparableA && b is IComparable comparableB && a.GetType() == b.GetType()){
+                if (a.Value is IComparable comparableA && b.Value is IComparable comparableB && a.Value.GetType() == b.Value.GetType()){
                     int comparison = comparableA.CompareTo(comparableB);
                     stackValues.Push(new NptBool(Operator switch
                     {
