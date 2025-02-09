@@ -7,6 +7,7 @@ public enum STypes
 {
     Nil, Bool, Int, Float,
     Str, Function, Char, List, Dict,
+    User,
     Error,
     Identifier,
 }
@@ -44,6 +45,7 @@ public abstract class SType
                 STypes.Float => float.TryParse(strValue, out var floatVal) ? (Diagnostics.Success, new NptFloat(floatVal)) : (Diagnostics.CannotConvertType, null),
                 STypes.Char => strValue.Length == 1 ? (Diagnostics.Success, new NptChar(strValue[0])) : (Diagnostics.CannotConvertType, null),
                 STypes.Str => (Diagnostics.Success, this),
+                STypes.User => (Diagnostics.CannotConvertType, null),
                 _ => (Diagnostics.UnknowTypeException, null)
             };
         }
@@ -67,6 +69,7 @@ public abstract class SType
                 STypes.Function => value is NptFunction fn ? fn : throw new ArgumentException("Invalid Function Value"),
                 STypes.List => new NptList(value as List<SType> ?? throw new ArgumentException("Invalid List Value")),
                 STypes.Dict => new NptDict(value as Dictionary<SType, SType> ?? throw new ArgumentException("Invalid Dictionary Value")),
+                STypes.User => new NptUser(value as DiscordUser ?? throw new ArgumentException("Invalid User Value")),
                 _ => new NptError(Diagnostics.UnknowTypeException, null),
             };
         }
@@ -81,4 +84,7 @@ public abstract class SType
 
     [ExposedProperty("toStr")]
     public virtual NptStr ToNptStr() => new NptStr(Value?.ToString() ?? "nil");
+
+    [ExposedProperty("typeof")]
+    public NptStr TypeOf() => new NptStr(Type.ToString());
 }
