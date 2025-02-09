@@ -8,6 +8,19 @@ partial class NptEvaluator
         if (stackValues.Count < 2) return (Diagnostics.MissingOperands, "Unexpected end of expression.");
         var b = stackValues.Pop();
         var a = stackValues.Pop();
+
+        if (a is NptIdentifier) return (Diagnostics.BadToken, $"At [{a.Value} {Operator} {b.Value}]: Syntax Error: left operand can't be an 'STypes.Indentifier'");
+        if (b is NptIdentifier identifier)
+        {
+            if (Operator == "::") //access property of
+            {
+                stackValues.Push(AccessProperty(a, identifier.ToString()));
+                return (Diagnostics.Success, null);
+            }
+            else
+                return (Diagnostics.SyntaxException, $"At [{a.Value} {Operator} {b.Value}]");
+        }
+            
         switch (Operator){
 
             //boolean operators
@@ -49,13 +62,7 @@ partial class NptEvaluator
             case "#": //random operator
                 stackValues.Push(_randomGenerator.Next(0, 2) == 0 ? a : b);
                 break;
-            case "::": //property access operator
-                if (b is NptIdentifier property)
-                    stackValues.Push(AccessProperty(a, property.ToString()));
-                else
-                    return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: Expected <Identifier> Token, got '{b.Value}' value.");
-                break;
-            
+
             //arithmetic operators
             case "+":
                 if (a is NptStr strAddA && b is NptStr strAddB)

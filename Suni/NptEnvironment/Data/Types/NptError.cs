@@ -19,6 +19,6 @@ public class NptError : SType
     public override STypes Type => STypes.Error;
     public override object Value => null;
 
-    public override string ToString() => "Detected an Error:" + ReferenceCode is not null? $"At [{ReferenceCode}] " : " " + $"{Diagnostic} - {Message}";
-    public (Diagnostics, string) AsDIagnosticAndMessage() => (Diagnostic, Value.ToString());
+    public override string ToString() => $"Detected an Error type '{Diagnostic}'" + (ReferenceCode is not null ? $" - At [{ReferenceCode}]: " : ": ") + $"{Message}";
+    public (Diagnostics, string) AsDiagnosticAndMessage() => (Diagnostic, Value.ToString());
 }
