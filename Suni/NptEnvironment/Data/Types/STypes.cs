@@ -6,10 +6,9 @@ namespace Suni.Suni.NptEnvironment.Data.Types;
 public enum STypes
 {
     Nil, Bool, Int, Float,
-    Str, Function, Char, List, Dict,
+    Str, Function, Char, List, Dict, Group,
     User,
-    Error,
-    Identifier,
+    Error, Identifier,
 }
 
 /// <summary>
@@ -45,8 +44,7 @@ public abstract class SType
                 STypes.Float => float.TryParse(strValue, out var floatVal) ? (Diagnostics.Success, new NptFloat(floatVal)) : (Diagnostics.CannotConvertType, null),
                 STypes.Char => strValue.Length == 1 ? (Diagnostics.Success, new NptChar(strValue[0])) : (Diagnostics.CannotConvertType, null),
                 STypes.Str => (Diagnostics.Success, this),
-                STypes.User => (Diagnostics.CannotConvertType, null),
-                _ => (Diagnostics.UnknowTypeException, null)
+                _ => (Diagnostics.CannotConvertType, null)
             };
         }
         catch{
@@ -68,6 +66,7 @@ public abstract class SType
                 STypes.Char => new NptChar((char)value),
                 STypes.Function => value is NptFunction fn ? fn : throw new ArgumentException("Invalid Function Value"),
                 STypes.List => new NptList(value as List<SType> ?? throw new ArgumentException("Invalid List Value")),
+                STypes.Group => new NptGroup(value as List<SType> ?? throw new ArgumentException("Invalid Group Value")),
                 STypes.Dict => new NptDict(value as Dictionary<SType, SType> ?? throw new ArgumentException("Invalid Dictionary Value")),
                 STypes.User => new NptUser(value as DiscordUser ?? throw new ArgumentException("Invalid User Value")),
                 _ => new NptError(Diagnostics.UnknowTypeException, null),

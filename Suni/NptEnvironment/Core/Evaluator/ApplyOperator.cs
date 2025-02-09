@@ -63,6 +63,24 @@ partial class NptEvaluator
                 stackValues.Push(_randomGenerator.Next(0, 2) == 0 ? a : b);
                 break;
 
+            case ",": //group creator/adder
+                if (a is NptGroup groupA){
+                    if (b is NptGroup groupB){
+                        groupA.AddRange(groupB);
+                        stackValues.Push(groupA);
+                    }
+                    else{
+                        groupA.Add(b);
+                        stackValues.Push(groupA);
+                    }
+                }
+                else{
+                    var newGroup = new NptGroup([a, b]);
+                    stackValues.Push(newGroup);
+                    //return (Diagnostics.SyntaxException, $"At [{a.Value} {Operator} {b.Value}]: with ',' as Operator, left operand need to be 'STypes.Group' to add the left operand!");
+                }
+                break;
+
             //arithmetic operators
             case "+":
                 if (a is NptStr strAddA && b is NptStr strAddB)

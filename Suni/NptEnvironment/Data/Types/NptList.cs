@@ -9,7 +9,7 @@ public class NptList : SType
     public NptList(List<SType> value) => _value = value;
     public override STypes Type => STypes.List;
     public override object Value => _value;
-    public override string ToString() => string.Join(", ", Value);
+    public override string ToString() => "{"+string.Join(", ", _value+"}");
     public override bool Contains(string value) => _value.Any(x => x.ToString() == value);
     
     public (Diagnostics, SType) GetAt(int index)
@@ -22,7 +22,7 @@ public class NptList : SType
 
 
     [ExposedProperty("toStr")]
-    public override NptStr ToNptStr() => new NptStr(string.Join(", ", _value));
+    public override NptStr ToNptStr() => new("{"+string.Join(", ", _value+"}"));
 
     [ExposedProperty("count")]
     public NptInt Count() => new NptInt(_value.Count);
