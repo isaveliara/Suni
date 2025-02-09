@@ -4,15 +4,18 @@ partial class NptEvaluator
 {
     internal static bool ValidateExpression(string expression)
     {
-        int balancingBrackets = 0;
+        int bc = 0;
+        int bk = 0;
 
         foreach (char c in expression){
-            if (c == '[') balancingBrackets++;
-            if (c == ']') balancingBrackets--;
+            if (c == '[') bc++;
+            else if (c == ']') bc--;
+            else if (c == '{') bk++;
+            else if (c == '}') bk--;
 
-            if (balancingBrackets < 0)
+            if (bc < 0 || bk < 0)
                 return false;
         }
-        return balancingBrackets == 0;
+        return bc == 0 && bk ==0;
     }
 }
