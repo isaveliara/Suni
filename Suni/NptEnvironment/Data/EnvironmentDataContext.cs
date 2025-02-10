@@ -25,7 +25,8 @@ public class EnvironmentDataContext
         };
         Variables = variables is not null? variables : new List<Dictionary<string, SType>> {
             new() { { "__version__", new NptStr(SunClassBot.SuniV) } },
-            new() { { "__time__", new NptStr(DateTime.Now.ToString()) } }
+            new() { { "__time__", new NptStr(DateTime.Now.ToString()) } },
+            new() { { "__out__", new NptFunction(new NptGroup(new()), "__out__", new NptGroup(new()), new NptNil(), "std::nout() -> s'hello there!'")} }
         };
 
         Debugs = new List<string>();

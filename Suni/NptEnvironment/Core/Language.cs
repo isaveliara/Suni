@@ -10,9 +10,15 @@ public partial class NptSystem
     private Stack<CodeBlock> blockStack = new();
     public EnvironmentDataContext ContextData { get; set; }
     public CommandContext DiscordCtx { get; set; }
-    public NptSystem(string script, CommandContext discordCtx)
+    public NptSystem(string script, CommandContext discordCtx, EnvironmentDataContext contextData = null)
     {
-        ContextData = new FormalizingScript(script, discordCtx).GetFormalized;
+        if (contextData is not null){
+            ContextData = contextData;
+            ContextData.Lines = FormalizingScript.SplitCode(script).lines;
+        }
+        else
+            ContextData = new FormalizingScript(script, discordCtx).GetFormalized;
+        
         DiscordCtx = discordCtx;
     }
 
@@ -59,36 +65,49 @@ public partial class NptSystem
                     if (funcMatch.Success){
                         string functionName = funcMatch.Groups[1].Value;
                         var args = funcMatch.Groups[2].Value.Split(',').Select(arg => arg.Trim()).ToList();
+                        var evaluatedArgs = new NptGroup(new(){new NptNil()}); //TODO
 
                         //localize the function
                         var functionVar = ContextData.Variables.FirstOrDefault(dict => dict.ContainsKey(functionName));
-                        if (functionVar != null && functionVar[functionName].Type == STypes.Function){
-                            var fn = (NptFunction)functionVar[functionName].Value;
-                            ContextData.Debugs.Add($"Chamando função '{fn.Name}' com argumentos: {string.Join(", ", args)}");
-
-                            //validates the number of arguments
-                            if (args.Count != fn.Parameters.Count)
-                                return (ContextData.Debugs, ContextData.Outputs, Diagnostics.ArgumentMismatch);
-
-                            string functionCode = fn.Code;
-                            for (int j = 0; j < args.Count; j++){
-                                string placeholder = $"${{{fn.Parameters[j]}}}";
-                                functionCode = functionCode.Replace(placeholder, args[j]);
-                            }
-
-                            var (debugs, outputs, result) = await new NptSystem(ContextData.Code, DiscordCtx).ParseScriptAsync();
-                            ContextData.Debugs.AddRange(debugs);
-                            ContextData.Outputs.AddRange(outputs);
-
-                            if (result != Diagnostics.Success)
-                                return (ContextData.Debugs, ContextData.Outputs, result);
-
-                            continue;
-                        }
-                        else{
+                        if (functionVar == null || functionVar[functionName].Type != STypes.Function)
+                        {
                             ContextData.Outputs.Add($"Função '{functionName}' não encontrada ou não é do tipo Fn.");
                             return (ContextData.Debugs, ContextData.Outputs, Diagnostics.FunctionNotFound);
                         }
+                        
+                        var fnVal = (NptFunction)functionVar[functionName];
+                        var fn = (Function)fnVal.Value;
+
+                        ContextData.Debugs.Add($"Chamando função '{fn.Name}' com argumentos: {fn.Parameters.ToString}");
+
+                        //validates the number/type of arguments
+                        //FIX THIS
+                        if ((int)fn.Parameters.Count().Value != 0 && !evaluatedArgs.ValidateTypes(fn.ParametersTypes))
+                        {
+                            Console.WriteLine("largura "+(int)fn.Parameters.Count().Value);
+                            Console.WriteLine("comaracao "+evaluatedArgs.ValidateTypes(fn.ParametersTypes));
+                            Console.WriteLine("tipos "+fn.Parameters);
+                            return (ContextData.Debugs, ContextData.Outputs, Diagnostics.ArgumentMismatch);
+                        }
+
+                        string functionCode = fn.Code;
+                        for (int j = 0; j < args.Count; j++){
+                            string placeholder = $"${{{fn.Parameters.Value.ToString()[j]}}}";
+                            functionCode = functionCode.Replace(placeholder, args[j]);
+                        }
+
+                        //this is a bad idea.
+                        List<string> originalLines = ContextData.Lines;
+                        var (debugs, outputs, result) = await new NptSystem(functionCode, DiscordCtx, contextData: ContextData).ParseScriptAsync();
+                        ContextData.Lines = originalLines;
+                        
+                        ContextData.Debugs.AddRange(debugs);
+                        ContextData.Outputs.AddRange(outputs);
+
+                        if (result != Diagnostics.Success)
+                            return (ContextData.Debugs, ContextData.Outputs, result);
+
+                        continue;
                     }
                     else
                         return (ContextData.Debugs, ContextData.Outputs, Diagnostics.SyntaxException);
@@ -137,29 +156,22 @@ public partial class NptSystem
                     return (ContextData.Debugs, ContextData.Outputs, Diagnostics.RaisedException);
                 }
                 else
-        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.InvalidKeywordException);
+                    return (ContextData.Debugs, ContextData.Outputs, Diagnostics.InvalidKeywordException);
             }
+            if (!blockStack.Peek().CanExecute) continue;
 
-            if (!blockStack.Peek().CanExecute)
-                continue;
-
-            var executedLineResult = await ExecuteLineAsync(DiscordCtx);
-            if (executedLineResult != Diagnostics.Success)
-                return (ContextData.Debugs, ContextData.Outputs, executedLineResult);
+            //so, the only remaining action is to call a function:
+            var objMatch = Regex.Match(ContextData.ActualLine, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(.+)");
+            if (objMatch.Success)
+                await ExecuteObjectStatementAsync(objMatch, DiscordCtx);
+            
+            else{ 
+                ContextData.Outputs.Add($"Error: unrecognized line: {ContextData.ActualLine}");
+                return (ContextData.Debugs, ContextData.Outputs, Diagnostics.SyntaxException);
+            }
         }
 
         return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
-    }
-
-    private async Task<Diagnostics> ExecuteLineAsync(CommandContext ctx)
-    {
-        var objMatch = Regex.Match(ContextData.ActualLine, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(.+)");
-        if (objMatch.Success)
-            return await ExecuteObjectStatementAsync(objMatch, ctx);
-
-        //unrecognized line
-        ContextData.Outputs.Add($"Error: unrecognized line: {ContextData.ActualLine}");
-        return Diagnostics.SyntaxException;
     }
 
     private async Task<Diagnostics> InvokeClassControler(string className, string methodName, List<string> args, string pointer, CommandContext ctx)
@@ -171,7 +183,7 @@ public partial class NptSystem
             if (type != null){
                 var controlerMethod = type.GetMethod("Controler", BindingFlags.Static | BindingFlags.Public);
                 if (controlerMethod != null){
-                    var task = (Task<Diagnostics>)controlerMethod.Invoke(null, new object[] { methodName, args, pointer, ctx });
+                    var task = (Task<Diagnostics>)controlerMethod.Invoke(null, [methodName, args, pointer, ctx]);
                     return await task;
                 }
 

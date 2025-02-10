@@ -6,18 +6,32 @@ namespace Suni.Suni.NptEnvironment.Data.Types;
 /// </summary>
 public class NptFunction : SType
 {
-    public override STypes Type => STypes.Function;
-    public override object Value => this;
-    public string Name { get; }
-    public List<string> Parameters { get; }
-    public string Code { get; }
+    private readonly Function _value;
 
-    public NptFunction(string name, List<string> parameters, string code)
+    public NptFunction(NptGroup parametersTypes, string name, NptGroup parameters, SType pointer, string code)
     {
-        Name = name;
-        Parameters = parameters;
-        Code = code;
+        _value = new Function(parametersTypes, name, parameters, pointer, code);
     }
 
-    public override string ToString() => $"[func {Name}<{string.Join(", ", Parameters)}>] has \"{Code}\"";
+    public override STypes Type => STypes.Function;
+    public override object Value => _value;
+    
+    public override string ToString() => $"[func {_value.Name} -> {_value.Pointer.ToString} <{_value.ParametersTypes.ToString}>] has \"{_value.Code}\"";
+}
+
+public struct Function
+{
+    public Function(NptGroup parametersTypes, string name, NptGroup parameters, SType pointer, string code)
+    {
+        ParametersTypes = parametersTypes;
+        Name = name;
+        Parameters = parameters;
+        Pointer = pointer;
+        Code = code;
+    }
+    public NptGroup ParametersTypes;
+    public string Name;
+    public NptGroup Parameters;
+    public SType Pointer;
+    public string Code;
 }
