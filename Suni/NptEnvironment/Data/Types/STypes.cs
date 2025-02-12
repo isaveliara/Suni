@@ -39,6 +39,7 @@ public abstract class SType
             return targetType switch
             {
                 STypes.Nil => strValue == "nil" ? (Diagnostics.Success, new NptNil()) : (Diagnostics.CannotConvertType, null),
+                STypes.Void => strValue == "void" ? (Diagnostics.Success, new NptVoid()) : (Diagnostics.CannotConvertType, null),
                 STypes.Bool => bool.TryParse(strValue, out var boolVal) ? (Diagnostics.Success, new NptBool(boolVal)) : (Diagnostics.CannotConvertType, null),
                 STypes.Int => int.TryParse(strValue, out var intVal) ? (Diagnostics.Success, new NptInt(intVal)) : (Diagnostics.CannotConvertType, null),
                 STypes.Float => float.TryParse(strValue, out var floatVal) ? (Diagnostics.Success, new NptFloat(floatVal)) : (Diagnostics.CannotConvertType, null),
@@ -59,6 +60,7 @@ public abstract class SType
             return type switch
             {
                 STypes.Nil => new NptNil(),
+                STypes.Void => new NptVoid(),
                 STypes.Bool => new NptBool((bool)value),
                 STypes.Int => new NptInt((int)value),
                 STypes.Float => new NptFloat((double)value),
@@ -85,5 +87,5 @@ public abstract class SType
     public virtual NptStr ToNptStr() => new NptStr(Value?.ToString() ?? "nil");
 
     [ExposedProperty("typeof")]
-    public NptStr TypeOf() => new NptStr(Type.ToString());
+    public NptStr TypeOf() => new NptStr($"STypes.{Type.ToString()}");
 }

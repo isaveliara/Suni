@@ -26,6 +26,6 @@ public class NptDict : SType
         return new NptStr($"{{{dictString}}}");
     }
 
-    [ExposedProperty("count")]
-    public NptInt Count() => new NptInt(_value.Count);
+    [ExposedProperty("len")]
+    public override NptInt Lenght() => new NptInt(_value.Count);
 }
