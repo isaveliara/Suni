@@ -1,27 +1,12 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Suni.Suni.NptEnvironment.Core.Evaluator;
 using Suni.Suni.NptEnvironment.Data;
 using Suni.Suni.NptEnvironment.Data.Types;
-using Suni.Suni.NptEnvironment.Formalizer;
 namespace Suni.Suni.NptEnvironment.Core;
 
 public partial class NptSystem
 {
-    private Stack<CodeBlock> blockStack = new();
-    public EnvironmentDataContext ContextData { get; set; }
-    public CommandContext DiscordCtx { get; set; }
-    public NptSystem(string script, CommandContext discordCtx, EnvironmentDataContext contextData = null)
-    {
-        if (contextData is not null){
-            ContextData = contextData;
-            ContextData.Lines = FormalizingScript.SplitCode(script).lines;
-        }
-        else
-            ContextData = new FormalizingScript(script, discordCtx).GetFormalized;
-        
-        DiscordCtx = discordCtx;
-    }
-
     public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync()
     {
         if (ContextData.ErrorMessages.Count > 0)
@@ -53,59 +38,6 @@ public partial class NptSystem
                             IndentLevel = blockStack.Peek().IndentLevel + 1,
                             CanExecute = conditionResult //control whether the block can be executed based on the result of the condition
                         });
-
-                        continue;
-                    }
-                    else
-                        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.SyntaxException);
-                }
-                
-                else if (keyWordName.Letters == "call"){
-                    var funcMatch = Regex.Match(ContextData.ActualLine, @"call\s+(\w+)\(([^)]*)\)");
-                    if (funcMatch.Success){
-                        string functionName = funcMatch.Groups[1].Value;
-                        var args = funcMatch.Groups[2].Value.Split(',').Select(arg => arg.Trim()).ToList();
-                        var evaluatedArgs = new NptGroup(new(){new NptNil()}); //TODO
-
-                        //localize the function
-                        var functionVar = ContextData.Variables.FirstOrDefault(dict => dict.ContainsKey(functionName));
-                        if (functionVar == null || functionVar[functionName].Type != STypes.Function)
-                        {
-                            ContextData.Outputs.Add($"Função '{functionName}' não encontrada ou não é do tipo Fn.");
-                            return (ContextData.Debugs, ContextData.Outputs, Diagnostics.FunctionNotFound);
-                        }
-                        
-                        var fnVal = (NptFunction)functionVar[functionName];
-                        var fn = (Function)fnVal.Value;
-
-                        ContextData.Debugs.Add($"Chamando função '{fn.Name}' com argumentos: {fn.Parameters.ToString}");
-
-                        //validates the number/type of arguments
-                        //FIX THIS
-                        if ((int)fn.Parameters.Count().Value != 0 && !evaluatedArgs.ValidateTypes(fn.ParametersTypes))
-                        {
-                            Console.WriteLine("largura "+(int)fn.Parameters.Count().Value);
-                            Console.WriteLine("comaracao "+evaluatedArgs.ValidateTypes(fn.ParametersTypes));
-                            Console.WriteLine("tipos "+fn.Parameters);
-                            return (ContextData.Debugs, ContextData.Outputs, Diagnostics.ArgumentMismatch);
-                        }
-
-                        string functionCode = fn.Code;
-                        for (int j = 0; j < args.Count; j++){
-                            string placeholder = $"${{{fn.Parameters.Value.ToString()[j]}}}";
-                            functionCode = functionCode.Replace(placeholder, args[j]);
-                        }
-
-                        //this is a bad idea.
-                        List<string> originalLines = ContextData.Lines;
-                        var (debugs, outputs, result) = await new NptSystem(functionCode, DiscordCtx, contextData: ContextData).ParseScriptAsync();
-                        ContextData.Lines = originalLines;
-                        
-                        ContextData.Debugs.AddRange(debugs);
-                        ContextData.Outputs.AddRange(outputs);
-
-                        if (result != Diagnostics.Success)
-                            return (ContextData.Debugs, ContextData.Outputs, result);
 
                         continue;
                     }
@@ -163,7 +95,13 @@ public partial class NptSystem
             //so, the only remaining action is to call a function:
             var objMatch = Regex.Match(ContextData.ActualLine, @"(?:(\w+)::)?(\w+)\(([^)]*)\)\s*->\s*(.+)");
             if (objMatch.Success)
-                await ExecuteObjectStatementAsync(objMatch, DiscordCtx);
+            {
+                var resultObj = await ExecuteObjectStatementAsync(objMatch, DiscordCtx);
+                if (resultObj != Diagnostics.Success)
+                {
+                    return (ContextData.Debugs, ContextData.Outputs, resultObj);
+                }
+            }
             
             else{ 
                 ContextData.Outputs.Add($"Error: unrecognized line: {ContextData.ActualLine}");
@@ -174,16 +112,17 @@ public partial class NptSystem
         return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
     }
 
-    private async Task<Diagnostics> InvokeClassControler(string className, string methodName, List<string> args, string pointer, CommandContext ctx)
+    private async Task<Diagnostics> InvokeClassController(string className, string methodName, NptGroup args, CommandContext ctx)
     {
-        try{
+        try
+        {
             string classNameProper = char.ToUpper(className[0]) + className.Substring(1).ToLower() + "Entitie";
             Type type = Type.GetType($"Suni.Suni.NptEnvironment.Data.Classes.{classNameProper}");
 
             if (type != null){
                 var controlerMethod = type.GetMethod("Controler", BindingFlags.Static | BindingFlags.Public);
                 if (controlerMethod != null){
-                    var task = (Task<Diagnostics>)controlerMethod.Invoke(null, [methodName, args, pointer, ctx]);
+                    var task = (Task<Diagnostics>)controlerMethod.Invoke(null, [methodName, args, ctx]);
                     return await task;
                 }
 

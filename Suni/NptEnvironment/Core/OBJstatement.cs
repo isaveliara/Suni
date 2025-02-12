@@ -1,5 +1,7 @@
 using System.Text.RegularExpressions;
+using Suni.Suni.NptEnvironment.Core.Evaluator;
 using Suni.Suni.NptEnvironment.Data;
+using Suni.Suni.NptEnvironment.Data.Types;
 namespace Suni.Suni.NptEnvironment.Core;
 
 public partial class NptSystem
@@ -8,9 +10,23 @@ public partial class NptSystem
     {
         string className = objMatch.Groups[1].Success ? objMatch.Groups[1].Value : null;
         string methodName = objMatch.Groups[2].Value;
-        string argumentsToSplit = objMatch.Groups[3].Value;
+        string args = objMatch.Groups[3].Value;
+        if (string.IsNullOrWhiteSpace(args)) args = "void";
         string pointer = objMatch.Groups[4].Value;
-        var args = argumentsToSplit.Split(',');
+
+        var (evaluatedArgs, result, resultM) = NptEvaluator.EvaluateExpression($"[{args}], {pointer}", ContextData); //evals the expression
+        
+        NptGroup evaluatedArgsGroup = null;
+        if (evaluatedArgs is not NptGroup)
+            return Diagnostics.CannotConvertType;
+        
+        evaluatedArgsGroup = (NptGroup)evaluatedArgs;
+        
+        //check
+        if (result != Diagnostics.Success){
+            ContextData.LogDiagnostic(result, resultM);
+            return result;
+        }
 
         //if class is not specified, look in _includes
         if (string.IsNullOrEmpty(className))
@@ -23,16 +39,18 @@ public partial class NptSystem
             }
         }
 
-        ContextData.Debugs.Add($"Executing {className}::{methodName} with args: {argumentsToSplit}, pointer: {pointer}");
+        ContextData.Debugs.Add($"Executing {className}::{methodName} with args: {args}, pointer: {pointer}");
 
         //STD is a SPECIAL case
         if (className == "std")
-            return STDControler(methodName, args.ToList(), pointer);
+            return STDController(methodName, evaluatedArgsGroup);
+        if (className == "wp")
+            return await WorkspaceFunctionsController(methodName, evaluatedArgsGroup);
         
         //normal cases:
         try{
             //invoke the Controller of the appropriate class
-            return await InvokeClassControler(className, methodName, args.ToList(), pointer, ctx);
+            return await InvokeClassController(className, methodName, evaluatedArgsGroup, ctx);
         }
         catch (Exception ex)
         {

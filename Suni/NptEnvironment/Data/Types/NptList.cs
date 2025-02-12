@@ -11,7 +11,8 @@ public class NptList : SType
     public override object Value => _value;
     public override string ToString() => "{"+string.Join(", ", _value+"}");
     public override bool Contains(string value) => _value.Any(x => x.ToString() == value);
-    
+    public int Count() => _value.Count;
+
     public (Diagnostics, SType) GetAt(int index)
     {
         if (index < 0 || index >= _value.Count)
@@ -24,8 +25,8 @@ public class NptList : SType
     [ExposedProperty("toStr")]
     public override NptStr ToNptStr() => new("{"+string.Join(", ", _value+"}"));
 
-    [ExposedProperty("count")]
-    public NptInt Count() => new NptInt(_value.Count);
+    [ExposedProperty("len")]
+    public override NptInt Lenght() => new NptInt(_value.Count);
 
     [ExposedProperty("first")]
     public SType FirstValue() => _value.First();

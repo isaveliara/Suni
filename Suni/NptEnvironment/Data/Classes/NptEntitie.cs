@@ -1,83 +1,81 @@
-//controler of npt class
+//TODO: This class is practically broken since the NptInt type cannot support ulongs in csharp
 
-using System.Threading.Tasks;
-using DSharpPlus.Commands;
-using System;
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-using System.Reflection;
-
+using Suni.Suni.NptEnvironment.Data.Types;
 namespace Suni.Suni.NptEnvironment.Data.Classes;
 
 public static partial class NptEntitie
 {
     public static List<string> LibMethods { get; } = new List<string> { "log", "ban", "unban", "react", "respond" };
 
-    public static async Task<Diagnostics> Controler(string methodName, List<string> args, string pointer, CommandContext ctx)
+    /// <summary>
+    /// Controler of npt class.
+    /// </summary>
+    /// <param name="methodName"></param>
+    /// <param name="args"></param>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
+    public static async Task<Diagnostics> Controler(string methodName, NptGroup args, CommandContext ctx)
     {
         //set a try-catch here for controller of args
         Diagnostics result;
         try{
             switch (methodName)
             {
-                case "log": //npt::log(My Message) -> 1234567891011121314
-                    ulong argChannelId = ulong.Parse(pointer);
-                    string argContentMessage = string.Join('\0',args);//why?
+                case "log": //npt::log(s'My Message') -> 1234567891011121314
+                    ulong argChannelId = (ulong)args.Pointer().Value;
+                    string argContentMessage = string.Join('\0', args);
                     result = await NptEntitie.Log(ctx, argChannelId, argContentMessage);
                     break;
                 case "respond":
-                    result = await NptEntitie.Respond(ctx, args, pointer);
+                    result = await NptEntitie.Respond(ctx, args);
                     break;
-                case "react": //npt::react(:x:) -> <message id>
-                    ulong argMessageId = ulong.Parse(pointer);
-                    string argReactionId = args[0];
+                case "react": //npt::react(s':x:') -> <message id>
+                    ulong argMessageId = (ulong)args.Pointer().Value;
+                    string argReactionId = args.FirstValue().Value.ToString();
                     result = await NptEntitie.React(ctx, argMessageId, argReactionId);
                     break;
-                case "ban": //npt::ban(You broke a rule!) -> <user id>
-                    ulong userId = ulong.Parse(pointer);
-                    result = await NptEntitie.Ban(ctx, userId, string.Join('\0',args));//why
+                case "ban": //npt::ban(s'You broke a rule!') -> <user id>
+                    ulong userId = (ulong)args.Pointer().Value;
+                    result = await Ban(ctx, userId, args.FirstValue().Value.ToString());
                     break;
-                case "unban": //npt::unban(Sorry!) -> <user id>
-                    result = await NptEntitie.Ban(ctx, ulong.Parse(pointer), string.Join('\0',args));//why
+                case "unban": //npt::unban(s'Sorry!') -> <user id>
+                    result = await Unban(ctx, (ulong)args.Pointer().Value, args.FirstValue().Value.ToString());
                     break;
-                default: //npt::invalidmethod() -> null
+                default: //npt::invalidmethod() -> nil
                     result = Diagnostics.NotFoundIncludedObjectException;
                     break;
             }
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex){
             Console.WriteLine(ex);
             result = Diagnostics.UnknowException;
         }
         return result;
     }
 
-    private static async Task<Diagnostics> Respond(CommandContext ctx, List<string> args, string pointer)
+    private static async Task<Diagnostics> Respond(CommandContext ctx, NptGroup args)
     {
         try{
-            if (args[0] is null)
+            if (args.FirstValue().Value is null)
                 return Diagnostics.ArgumentMismatch;
             
             //pointer will be something like -> embed
             DiscordMessageBuilder message;
-            if (pointer == "embedded")
+            if (args.Pointer().Value.ToString() == "embedded")
             {
-                //variável de cor aleatória em DiscordColor
                 DiscordColor discordColor = new DiscordColor(new Random().Next(0, 16777215));
                 message = new DiscordMessageBuilder()
                     .AddEmbed(new DiscordEmbedBuilder()
-                        .WithDescription(args[0])
+                        .WithDescription(args.FirstValue().Value.ToString())
                         .WithColor(discordColor));
             }
             else{
-                message = new DiscordMessageBuilder().WithContent(args[0]);
+                message = new DiscordMessageBuilder().WithContent(args.FirstValue().Value.ToString());
             }
 
             if (string.IsNullOrEmpty(ctx.User.Locale)) //if this value is null, means that this is a application command, and just send as a normal log &{channelId}
-                await ctx.Channel.SendMessageAsync(message);
-            else
-                await ctx.RespondAsync(message);
+                 await ctx.Channel.SendMessageAsync(message);
+            else await ctx.RespondAsync(message);
 
             return Diagnostics.Success;
         }
@@ -86,11 +84,6 @@ public static partial class NptEntitie
         }
     }
 
-    //bans a member
-    //
-    //usage:
-    //
-    //npt::ban(You broke a rule!) -> <user id>
     private static async Task<Diagnostics> Ban(CommandContext ctx, ulong userId, string reason)
     {
         try{
@@ -108,11 +101,6 @@ public static partial class NptEntitie
         }
     }
 
-    //log in a channel
-    //
-    //usage:
-    //
-    //npt::log(My Message) -> 1234567891011121314
     private static async Task<Diagnostics> Log(CommandContext ctx, ulong channelId, string message){
         try{
             if (!ctx.Guild.Channels.ContainsKey(channelId))
@@ -127,12 +115,6 @@ public static partial class NptEntitie
         }
     }
 
-
-    //react on a message
-    //
-    //usage:
-    //
-    //npt::react(:x:) -> <message id>
     private static async Task<Diagnostics> React(CommandContext ctx, ulong argMessageId, string argReactionId)
     {
         try
@@ -163,11 +145,6 @@ public static partial class NptEntitie
         }
     }
 
-    //unban a member:
-    //
-    //usage:
-    //
-    //npt::unban(Sorry!) -> <user id>
     private static async Task<Diagnostics> Unban(CommandContext ctx, ulong userId, string reason)
     {
         try{
@@ -185,15 +162,3 @@ public static partial class NptEntitie
         }
     }
 }
-
-
-//test
-
-//string script = @"
-//    --definitions--
-//    @set<ban_duration, '27days'>
-//    --end--
-//
-//    npt::BanAsync(@get<ban_duration>, 'Fez alguma coisa') -> 12345678910
-//    sys::Object('arg1', 'arg2', 99) -> Pointer
-//    ";

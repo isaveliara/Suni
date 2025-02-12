@@ -5,7 +5,7 @@ namespace Suni.Suni.NptEnvironment.Data.Types;
 /// </summary>
 public enum STypes
 {
-    Nil, Bool, Int, Float,
+    Nil, Void, Bool, Int, Float,
     Str, Function, Char, List, Dict, Group,
     User,
     Error, Identifier,

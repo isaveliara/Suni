@@ -9,6 +9,7 @@ partial class NptEvaluator
         if (double.TryParse(token, out double doubleValue)) return new NptFloat(doubleValue);
         if (bool.TryParse(token, out bool boolValue)) return new NptBool(boolValue);
         if (token == "nil") return new NptNil();
+        if (token == "void") return new NptVoid();
         if (token.StartsWith("s'") && token.EndsWith('\'') && token.Length >= 3) return new NptStr(token[2..^1]);
         if (token.StartsWith("c'") && token.EndsWith('\'') && token.Length == 4) return new NptChar(token[2]);
         Console.WriteLine(token);
