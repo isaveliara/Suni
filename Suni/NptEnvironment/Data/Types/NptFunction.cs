@@ -16,7 +16,12 @@ public class NptFunction : SType
     public override STypes Type => STypes.Function;
     public override object Value => _value;
     
-    public override string ToString() => $"[func {_value.Name} -> {_value.Pointer.ToString} <{_value.ParametersTypes.ToString}>] has \"{_value.Code}\"";
+    public override string ToString()
+    {
+        var pointerStr = _value.Pointer?.ToString() ?? "nil";
+        var paramTypesStr = _value.ParametersTypes?.ToString() ?? "";
+        return $"[func \"{_value.Name}\"({paramTypesStr}) -> {pointerStr}]";
+    }
 }
 
 public struct Function

@@ -103,6 +103,8 @@ public class NptCommands
         string formalizedExpression = data.Lines[0];
 
         var (result, diagnostic, msgEvaluation) = NptEvaluator.EvaluateExpression(formalizedExpression, data);
-        await ctx.RespondAsync($"Result of Evaluation for ``{formalizedExpression}`` :\n```{result}```\nWhith Result: {diagnostic} " + msgEvaluation?? "");
+        string resultStr = result is not null? $"```{result}```" : "";
+
+        await ctx.RespondAsync(($"Result of Evaluation for ``{formalizedExpression}`` :\n{resultStr}\nWhith Result: ```{diagnostic} " + msgEvaluation?? "") + "```");
     }
 }

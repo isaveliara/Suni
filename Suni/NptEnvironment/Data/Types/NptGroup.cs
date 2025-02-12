@@ -24,16 +24,16 @@ public class NptGroup : SType
     internal void AddRange(NptGroup item) => _value.AddRange(item);
 
     /// <summary>
-    /// Compares whether an OptGroup has the same types as the current.
+    /// Compares whether an NptGroup has the same types as the current.
     /// </summary>
     /// <returns></returns>
     public bool ValidateTypes(NptGroup item)
     {
-        if (_value.Count != item._value.Count)
+        if (_value.Count > item._value.Count)
             return false;
 
         for (int i = 0; i < _value.Count; i++)
-            if (_value[i].TypeOf != item._value[i].TypeOf)
+            if (_value[i].TypeOf() != item._value[i].TypeOf())
                 return false;
         
         return true;
