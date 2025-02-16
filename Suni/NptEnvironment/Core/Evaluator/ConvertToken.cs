@@ -5,7 +5,7 @@ partial class NptEvaluator
 {
     internal static SType ConvertToken(string token, EnvironmentDataContext context = null)
     {
-        if (int.TryParse(token, out int intValue)) return new NptInt(intValue);
+        if (long.TryParse(token, out long intValue)) return new NptInt(intValue);
         if (double.TryParse(token, out double doubleValue)) return new NptFloat(doubleValue);
         if (bool.TryParse(token, out bool boolValue)) return new NptBool(boolValue);
         if (token == "nil") return new NptNil();
@@ -25,18 +25,23 @@ partial class NptEvaluator
                     .ToList();
 
             if (elements.All(e => e.Contains(':'))){
-                var dict = new Dictionary<SType, SType>();
+                var dict = new Dictionary<NptStr, SType>();
                 foreach (var pair in elements){
                     var parts = pair.Split(':', 2).Select(p => p.Trim()).ToArray();
                     if (parts.Length != 2) return new NptError(Diagnostics.BadToken, $"Invalid dictionary entry '{pair}'.");
 
                     var key = ConvertToken(parts[0], context);
-                    var value = ConvertToken(parts[1], context);
+                    if (key is NptStr keyStrVal)
+                    {
+                        var value = ConvertToken(parts[1], context);
 
-                    if (key is NptError || value is NptError)
-                        return new NptError(Diagnostics.BadToken, $"Invalid key or value in dictionary entry '{pair}'.");
+                        if (value is NptError)
+                            return new NptError(Diagnostics.BadToken, $"Invalid value in dictionary entry '{pair}'.");
 
-                    dict[key] = value;
+                        dict[keyStrVal] = value;
+                    }
+                    else
+                        return new NptError(Diagnostics.CannotConvertType, $"in dictionaries, the Key can only be 'STypes.Str', so not s'STypes.{key.Type}'");
                 }
                 return new NptDict(dict);
             }

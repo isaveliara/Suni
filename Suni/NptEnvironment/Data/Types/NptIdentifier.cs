@@ -11,7 +11,7 @@ public class NptIdentifier : SType
     /// Sets the '_value' field. Getting null, means that the value can't be set.
     /// </summary>
     /// <param name="value"></param>
-    public NptIdentifier(string value)
+    public NptIdentifier(string value = null)
     {
         if (string.IsNullOrEmpty(value))
             _value = null;//nomenclature error

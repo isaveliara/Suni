@@ -7,7 +7,7 @@ namespace Suni.Suni.NptEnvironment.Data.Types;
 public class NptGroup : SType
 {
     private readonly List<SType> _value;
-    public NptGroup(List<SType> value) => _value = value;
+    public NptGroup(List<SType> value = null) => _value = value;
     public override STypes Type => STypes.Group;
     public override object Value => _value;
     public override string ToString() => string.Join(", ", _value);
@@ -29,7 +29,7 @@ public class NptGroup : SType
     /// <returns></returns>
     public bool ValidateTypes(NptGroup item)
     {
-        if (_value.Count > item._value.Count)
+        if (_value.Count > item._value.Count) //allows extra args. Maybe remove this
             return false;
 
         for (int i = 0; i < _value.Count; i++)

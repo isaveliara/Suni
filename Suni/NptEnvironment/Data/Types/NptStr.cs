@@ -6,7 +6,7 @@ namespace Suni.Suni.NptEnvironment.Data.Types;
 public class NptStr : SType
 {
     private readonly string _value;
-    public NptStr(string value) => _value = value;
+    public NptStr(string value = null) => _value = value;
     public override STypes Type => STypes.Str;
     public override object Value => _value;
     public NptStr Add(NptStr other) => new NptStr(_value + other._value);

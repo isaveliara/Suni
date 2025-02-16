@@ -5,8 +5,8 @@ namespace Suni.Suni.NptEnvironment.Data.Types;
 /// </summary>
 public class NptInt : SType
 {
-    private readonly int _value;
-    public NptInt(int value) => _value = value;
+    private readonly long? _value;
+    public NptInt(long? value = null) => _value = value;
     public override STypes Type => STypes.Int;
     public override object Value => _value;
     public override string ToString() => _value.ToString();
