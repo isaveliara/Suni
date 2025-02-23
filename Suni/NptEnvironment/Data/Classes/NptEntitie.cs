@@ -1,5 +1,3 @@
-//TODO: This class is practically broken since the NptInt type cannot support ulongs in csharp
-
 using Suni.Suni.NptEnvironment.Data.Types;
 namespace Suni.Suni.NptEnvironment.Data.Classes;
 
@@ -80,7 +78,7 @@ public static partial class NptEntitie
             return Diagnostics.Success;
         }
         catch (Exception){
-            return Diagnostics.NPTDeniedException;
+            return Diagnostics.DeniedException;
         }
     }
 
@@ -141,7 +139,7 @@ public static partial class NptEntitie
         }
         catch (Exception)
         {
-            return Diagnostics.NPTDeniedException;
+            return Diagnostics.DeniedException;
         }
     }
 

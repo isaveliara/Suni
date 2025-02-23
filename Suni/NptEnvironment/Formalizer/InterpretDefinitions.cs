@@ -3,7 +3,6 @@ using Suni.Suni.NptEnvironment.Core;
 using Suni.Suni.NptEnvironment.Core.Evaluator;
 using Suni.Suni.NptEnvironment.Data;
 using Suni.Suni.NptEnvironment.Data.Types;
-using Suni.Suni.NptEnvironment.Processors;
 
 namespace Suni.Suni.NptEnvironment.Formalizer;
 

@@ -23,7 +23,7 @@ public enum Diagnostics
     UnknowException,
 
     //other/npt errors
-    NPTInvalidChannelException, NPTMissingPermissionsException, NPTDeniedException,
+    NPTInvalidChannelException, NPTMissingPermissionsException, DeniedException,
     NPTInvalidMessageException, NPTInvalidUserException,
     UnknowTypeException,
     CannotConvertType,
@@ -35,6 +35,5 @@ public enum Diagnostics
     Forgotten, //hide the output/debug result
     UnlistedProperty,
     Anomaly,
-    VariableNotFound,
     MissingOperands,
 }
