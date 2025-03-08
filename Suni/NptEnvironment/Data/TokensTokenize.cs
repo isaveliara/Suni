@@ -14,10 +14,21 @@ partial class Tokens
             int tokenLength = 0;
             string token = null;
 
-            //1. Check for { ... }. These tokens can be List or Dict.
+            //1. Check for { ... }. These tokens can be List or Dict or an expression.
             if (expression[pos] == '{'){
                 int end = pos + 1;
                 while (end < len && expression[end] != '}') end++;
+                if (end < len)
+                {
+                    tokenLength = end - pos + 1;
+                    token = expression.Substring(pos, tokenLength);
+                    tokenFound = true;
+                }
+            }
+            //1,5. Check for ( ... ). These tokens can be List or Dict or an expression.
+            if (expression[pos] == '('){
+                int end = pos + 1;
+                while (end < len && expression[end] != ')') end++;
                 if (end < len)
                 {
                     tokenLength = end - pos + 1;
@@ -153,6 +164,7 @@ partial class Tokens
             if (!string.IsNullOrWhiteSpace(nonToken))
                 tokens.Add(nonToken);
         }
+        tokens.Append("EOF");
         return [.. tokens];
     }
 

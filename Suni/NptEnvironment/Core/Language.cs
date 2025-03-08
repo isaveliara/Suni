@@ -1,4 +1,4 @@
-using System.Reflection;
+/*using System.Reflection;
 using System.Text.RegularExpressions;
 using Suni.Suni.NptEnvironment.Core.Evaluator;
 using Suni.Suni.NptEnvironment.Data;
@@ -139,3 +139,4 @@ public partial class NptSystem
         }
     }
 }
+*/

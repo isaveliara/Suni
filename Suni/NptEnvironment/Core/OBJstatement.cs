@@ -50,7 +50,7 @@ public partial class NptSystem
         //normal cases:
         try{
             //invoke the Controller of the appropriate class
-            return await InvokeClassController(className, methodName, evaluatedArgsGroup, ctx);
+            return Diagnostics.UnknowException;//////////////////////////////await InvokeClassController(className, methodName, evaluatedArgsGroup, ctx);
         }
         catch (Exception ex)
         {
