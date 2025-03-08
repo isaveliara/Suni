@@ -34,6 +34,7 @@ public enum Diagnostics
     ArgumentMismatch,
     Forgotten, //hide the output/debug result
     UnlistedProperty,
+    UnlistedVariable,
     Anomaly,
     MissingOperands,
 }

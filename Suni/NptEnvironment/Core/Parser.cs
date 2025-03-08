@@ -1,3 +1,4 @@
+using System.Text;
 using Suni.Suni.NptEnvironment.Core.Evaluator;
 using Suni.Suni.NptEnvironment.Data;
 using Suni.Suni.NptEnvironment.Data.Types;
@@ -17,9 +18,7 @@ namespace Suni.Suni.NptEnvironment.Core
 
                 var parseResult = await ParseLineAsync(ContextData.ActualLine);
                 if (parseResult != Diagnostics.Success)
-                {
                     return (ContextData.Debugs, ContextData.Outputs, parseResult);
-                }
             }
 
             return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
@@ -35,8 +34,7 @@ namespace Suni.Suni.NptEnvironment.Core
                 ContextData.Debugs.Add($"tokens da linha: {string.Join(" % ", tokens)}");//debugging///////
                 return await parser.ParseStatementAsync();
             }
-            catch (ParseException ex)
-            {
+            catch (ParseException ex){
                 ContextData.LogDiagnostic(ex.Diagnostic, ex.Message);
                 return ex.Diagnostic;
             }
@@ -48,6 +46,7 @@ namespace Suni.Suni.NptEnvironment.Core
         private readonly string[] _tokens;
         private int _position;
         private readonly EnvironmentDataContext _context;
+        private const int MaxIterations = 10; //limit iterations to avoid infinite loops
 
         public NptParser(string[] tokens, EnvironmentDataContext context)
         {
@@ -62,9 +61,7 @@ namespace Suni.Suni.NptEnvironment.Core
 
             var current = CurrentToken();
             if (IsType(current))
-            {
                 return await ParseVariableDeclarationAsync();
-            }
 
             return current switch
             {
@@ -86,7 +83,8 @@ namespace Suni.Suni.NptEnvironment.Core
             var resultEvaluation = NptEvaluator.EvaluateExpression(expression);
             if (resultEvaluation.diagnostic != Diagnostics.Success)
                 throw new ParseException(resultEvaluation.diagnostic, resultEvaluation.diagnosticMessage);
-            _context.Variables[0][identifier] = resultEvaluation.resultValue;
+            
+            _context.BlockStack.Peek().LocalVariables[identifier] = resultEvaluation.resultValue; //register in the scope//
             _context.Debugs.Add($"Variável declarada: {type} {identifier} = {expression}");
 
             await Task.CompletedTask;
@@ -216,7 +214,10 @@ namespace Suni.Suni.NptEnvironment.Core
             throw new ParseException(Diagnostics.FunctionNotFound, $"Método não encontrado: std::{method}");
         }
 
-        private string ParseExpression() => ConsumeToken().Trim('(', ')');
+        private string ParseExpression()
+        {
+            return ResolveVariables(ConsumeToken().Trim('(', ')'));
+        }
 
         private string ConsumeToken(string expected = null)
         {
@@ -229,6 +230,41 @@ namespace Suni.Suni.NptEnvironment.Core
         private string CurrentToken() => _tokens[_position];
         private string PeekToken() => _position < _tokens.Length - 1 ? _tokens[_position + 1] : null;
         private bool IsType(string token) => Enum.TryParse<STypes>(token, out _);
+    
+        private string ResolveVariables(string expression)
+        {
+            StringBuilder result = new StringBuilder(expression.Length);
+            int length = expression.Length;
+
+            for (int i = 0; i < length; i++)
+            {
+                if (i < length - 2 && expression[i] == '$' && expression[i + 1] == '{')
+                {
+                    int start = i + 2;
+                    int end = start;
+
+                    while (end < length && expression[end] != '}')
+                        end++;
+
+                    if (end < length)
+                    {
+                        string variableName = expression.Substring(start, end - start);
+                        i = end; // Avança até depois do '}'
+
+                        if (_context.TryGetVariableValue(variableName, out var value))
+                            result.Append(value);
+                        else
+                            throw new ParseException(Diagnostics.UnlistedVariable, $"Variável '{variableName}' não encontrada");
+                    }
+                    else
+                        result.Append("${");
+                }
+                else
+                    result.Append(expression[i]);
+            }
+
+            return result.ToString();
+        }
     }
 
     public class ParseException : Exception
@@ -238,11 +274,5 @@ namespace Suni.Suni.NptEnvironment.Core
         {
             Diagnostic = diagnostic;
         }
-    }
-
-    public class CodeBlock
-    {
-        public int IndentLevel { get; set; }
-        public bool CanExecute { get; set; }
     }
 }

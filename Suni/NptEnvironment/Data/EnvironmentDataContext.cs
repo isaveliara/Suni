@@ -6,7 +6,8 @@ namespace Suni.Suni.NptEnvironment.Data;
 
 public class EnvironmentDataContext
 {
-    public List<string> Lines { get; set; }    
+    public List<string> Lines { get; set; }
+    public Stack<CodeBlock> BlockStack { get; set; } = new();
     public Dictionary<string, List<string>> Includes { get; set; }
     public List<Dictionary<string, SType>> Variables { get; set; }
 
@@ -32,6 +33,8 @@ public class EnvironmentDataContext
         Debugs = new List<string>();
         Outputs = new List<string>();
         ErrorMessages = new List<string>();
+
+        BlockStack.Push(new CodeBlock { IndentLevel = 0, CanExecute = true });
     }
 
     /// <summary>
@@ -51,11 +54,32 @@ public class EnvironmentDataContext
         if (diagnosticType == Diagnostics.Anomaly)
             e = $"Warn: An Anomaly was found; {diagnosticMessage}";
         
-        else
-        {
+        else{
             e = $"Error: An error was found; '{diagnosticType}' : {diagnosticMessage}";
             ErrorMessages.Add(e);
         }
         Outputs.Add(e);
+    }
+
+
+    public void PushBlock(int indentLevel, bool canExecute)
+    {
+        BlockStack.Push(new CodeBlock { IndentLevel = indentLevel, CanExecute = canExecute });
+    }
+
+    public void PopBlock()
+    {
+        if (BlockStack.Count > 1)
+            BlockStack.Pop();
+    }
+
+    public bool TryGetVariableValue(string identifier, out SType value)
+    {
+        foreach (var block in BlockStack.Reverse())
+            if (block.LocalVariables.TryGetValue(identifier, out value))
+                return true;
+
+        value = null;
+        return false;
     }
 }
