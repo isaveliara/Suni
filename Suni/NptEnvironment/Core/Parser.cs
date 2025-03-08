@@ -183,7 +183,7 @@ namespace Suni.Suni.NptEnvironment.Core
                 }
             }
             else
-                throw new ParseException(Diagnostics.TypeMismatchException, "Contagem do poeng deve ser inteira");
+                throw new ParseException(Diagnostics.TypeMismatchException, "poeng requires an 'STypes.Int', less than 10.");
             
 
             ConsumeToken("end");
@@ -193,28 +193,28 @@ namespace Suni.Suni.NptEnvironment.Core
         private Diagnostics ParseExitStatement()
         {
             ConsumeToken("exit");
-            _context.Debugs.Add("Comando exit executado");
-            throw new ParseException(Diagnostics.EarlyTermination, "Exit solicitado");
+            _context.Debugs.Add("exit command executed!");
+            throw new ParseException(Diagnostics.EarlyTermination, "Exit requested.");
         }
 
         private async Task<Diagnostics> ParseMethodCallAsync()
         {
             await Task.CompletedTask;
-            ConsumeToken("std"); //ill keep this in this commit cuz im lazy now
+            string className = ConsumeToken("std"); //ill keep this in this commit cuz im lazy now
             ConsumeToken("::");
-            var method = ConsumeToken();
-            var arg = ParseExpression();
+            string method = ConsumeToken();
+            var args = ParseExpression();
+            var evaluatedArgs = NptEvaluator.EvaluateExpression(args);
+            if (evaluatedArgs.diagnostic != Diagnostics.Success)
+                throw new ParseException(evaluatedArgs.diagnostic, evaluatedArgs.diagnosticMessage);
 
-            if (method == "out")
-            {
-                var result = NptEvaluator.EvaluateExpression(arg);
-                if (result.diagnostic != Diagnostics.Success)
-                    throw new ParseException(result.diagnostic, result.diagnosticMessage);
-                _context.Outputs.Add(result.resultValue.ToString());
-                return Diagnostics.Success;
-            }
+            //if (evaluatedArgs.resultValue is not NptGroup)
+            ///    throw new ParseException(Diagnostics.CannotConvertType, "ajs ijajf jajfpaija sjasij please help mee");
+            //NptGroup argsGroup = (NptGroup)evaluatedArgs.resultValue;
+            
+            
 
-            throw new ParseException(Diagnostics.FunctionNotFound, $"Método não encontrado: std::{method}");
+            throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
         }
 
         private string ParseExpression()
