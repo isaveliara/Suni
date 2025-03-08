@@ -145,8 +145,15 @@ namespace Suni.Suni.NptEnvironment.Core
             var condition = ParseExpression();
             ConsumeToken("do");
 
-            while (true)
+            List<string> blockTokens = new List<string>();
+            while (_position < _tokens.Length && CurrentToken() != "end")
+                blockTokens.Add(_tokens[_position++]);
+            ConsumeToken("end");
+
+            int i = 0; //blocks infinite loops.
+            while (true && i < MaxIterations)
             {
+                i++;
                 var conditionResult = NptEvaluator.EvaluateExpression(condition);
                 if (conditionResult.diagnostic != Diagnostics.Success)
                     throw new ParseException(conditionResult.diagnostic, conditionResult.diagnosticMessage);
@@ -157,15 +164,19 @@ namespace Suni.Suni.NptEnvironment.Core
                         break;
 
                     _context.Debugs.Add("Executando bloco while");
-                    var result = await ExecuteBlockAsync();
-                    if (result != Diagnostics.Success) return result;
+
+                    var blockParser = new NptParser(blockTokens.ToArray(), _context);
+                    while (blockParser.CurrentToken() != "EOF")
+                    {
+                        var result = await blockParser.ParseStatementAsync();
+                        if (result != Diagnostics.Success)
+                            return result;
+                    }
                 }
                 else
-                    throw new ParseException(Diagnostics.CannotConvertType, "Esperava um STypes.Bool irmão");
-                
+                    throw new ParseException(Diagnostics.CannotConvertType, $"while expects 'STypes.Bool', not {conditionResult.resultValue}");
             }
 
-            ConsumeToken("end");
             return Diagnostics.Success;
         }
 
@@ -177,36 +188,40 @@ namespace Suni.Suni.NptEnvironment.Core
             var countResult = NptEvaluator.EvaluateExpression(countExpr);
             if (countResult.diagnostic != Diagnostics.Success)
                 throw new ParseException(countResult.diagnostic, countResult.diagnosticMessage);
-            
+
             string usedOutVar = null;
-            //you can set an local variable 
-            if (PeekToken() == "out")
+            if (PeekToken(0) == "out")
             {
                 ConsumeToken("out");
                 usedOutVar = ConsumeToken();
             }
-
             ConsumeToken("do");
+
+            List<string> blockTokens = new List<string>();
+            while (_position < _tokens.Length && CurrentToken() != "end")
+                blockTokens.Add(_tokens[_position++]);
+            ConsumeToken("end");
 
             if (countResult.resultValue is NptInt count)
             {
-                for (int i = 0; i < (long)count.Value; i++)
+                for (int i = 0; i < (long)count.Value && i <= MaxIterations; i++)
                 {
                     if (usedOutVar is not null)
                     {
-                        _context.BlockStack.Peek().LocalVariables[usedOutVar] = new NptInt(i + 1);; //register in the scope//
-                        _context.Debugs.Add($"Variável declarada: Int {usedOutVar} = {i+1}");
+                        _context.BlockStack.Peek().LocalVariables[usedOutVar] = new NptInt(i + 1);
+                        _context.Debugs.Add($"Variável declarada: Int {usedOutVar} = {i + 1}");
                     }
                     _context.Debugs.Add($"Executando iteração {i + 1} do poeng");
-                    var result = await ExecuteBlockAsync();
-                    if (result != Diagnostics.Success) return result;
+                    
+                    var blockParser = new NptParser(blockTokens.ToArray(), _context);
+                    var result = await blockParser.ParseStatementAsync();
+                    if (result != Diagnostics.Success)
+                        return result;
                 }
             }
             else
                 throw new ParseException(Diagnostics.TypeMismatchException, "poeng requires an 'STypes.Int', less than 10.");
-            
 
-            ConsumeToken("end");
             return Diagnostics.Success;
         }
 
@@ -241,10 +256,7 @@ namespace Suni.Suni.NptEnvironment.Core
             throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
         }
 
-        private string ParseExpression()
-        {
-            return ResolveVariables(ConsumeToken().Trim('(', ')'));
-        }
+        private string ParseExpression() => ResolveVariables(ConsumeToken().Trim('(', ')'));
 
         private string ConsumeToken(string expected = null)
         {
