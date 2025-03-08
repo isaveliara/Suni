@@ -192,7 +192,11 @@ namespace Suni.Suni.NptEnvironment.Core
             {
                 for (int i = 0; i < (long)count.Value; i++)
                 {
-                    if (usedOutVar is not null) _context.Variables[0][usedOutVar] = new NptInt(i + 1);
+                    if (usedOutVar is not null)
+                    {
+                        _context.BlockStack.Peek().LocalVariables[usedOutVar] = new NptInt(i + 1);; //register in the scope//
+                        _context.Debugs.Add($"Variável declarada: Int {usedOutVar} = {i+1}");
+                    }
                     _context.Debugs.Add($"Executando iteração {i + 1} do poeng");
                     var result = await ExecuteBlockAsync();
                     if (result != Diagnostics.Success) return result;
