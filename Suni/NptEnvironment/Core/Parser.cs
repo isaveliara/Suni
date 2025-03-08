@@ -9,35 +9,32 @@ namespace Suni.Suni.NptEnvironment.Core
     {
         public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync()
         {
-            blockStack.Push(new CodeBlock { IndentLevel = 0, CanExecute = true });
+            var allTokens = new List<string>();
 
-            for (int i = 0; i < ContextData.Lines.Count; i++)
+            foreach (var line in ContextData.Lines)
             {
-                ContextData.ActualLine = ContextData.Lines[i];
-                if (string.IsNullOrWhiteSpace(ContextData.ActualLine)) continue;
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    allTokens.AddRange(Tokens.Tokenize(line));
+                    allTokens.Add("EOL");
+                }
+            }
+            allTokens.Add("EOF");
+            var parser = new NptParser(allTokens.ToArray(), ContextData);
 
-                var parseResult = await ParseLineAsync(ContextData.ActualLine);
+            try{
+                var parseResult = await parser.ParseStatementAsync();
+
                 if (parseResult != Diagnostics.Success)
                     return (ContextData.Debugs, ContextData.Outputs, parseResult);
             }
-
-            return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
-        }
-
-        private async Task<Diagnostics> ParseLineAsync(string line)
-        {
-            try
+            catch (ParseException ex)
             {
-                var tokens = Tokens.Tokenize(line);
-                //tokens.Append("EOL");
-                var parser = new NptParser(tokens, ContextData);
-                ContextData.Debugs.Add($"tokens da linha: {string.Join(" % ", tokens)}");//debugging///////
-                return await parser.ParseStatementAsync();
-            }
-            catch (ParseException ex){
                 ContextData.LogDiagnostic(ex.Diagnostic, ex.Message);
-                return ex.Diagnostic;
+                return (ContextData.Debugs, ContextData.Outputs, ex.Diagnostic);
             }
+            
+            return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
         }
     }
 
@@ -53,6 +50,8 @@ namespace Suni.Suni.NptEnvironment.Core
             _tokens = tokens;
             _context = context;
             _position = 0;
+
+            _context.Debugs.Add($"todos os tokens: {string.Join(" % ", _tokens)}");//debugging///////////
         }
 
         public async Task<Diagnostics> ParseStatementAsync()
@@ -60,6 +59,13 @@ namespace Suni.Suni.NptEnvironment.Core
             if (_position >= _tokens.Length) return Diagnostics.Success;
 
             var current = CurrentToken();
+
+            if (current == "EOL")
+            {
+                _position++;
+                return await ParseStatementAsync();
+            }
+
             if (IsType(current))
                 return await ParseVariableDeclarationAsync();
 
@@ -71,7 +77,7 @@ namespace Suni.Suni.NptEnvironment.Core
                 case "exit": return ParseExitStatement();
             }
 
-            if (PeekToken() == "::")  
+            if (PeekToken() == "::")
                 return await ParseMethodCallAsync();
 
             throw new ParseException(Diagnostics.SyntaxException, $"Token inesperado: {current}");
@@ -222,8 +228,11 @@ namespace Suni.Suni.NptEnvironment.Core
             ///    throw new ParseException(Diagnostics.CannotConvertType, "ajs ijajf jajfpaija sjasij please help mee");
             //NptGroup argsGroup = (NptGroup)evaluatedArgs.resultValue;
             
-            _context.Outputs.Add(args.ToString());
-            return Diagnostics.Success;
+            if (method == "out")
+            {
+                _context.Outputs.Add(args.ToString());
+                return Diagnostics.Success;
+            }
 
             throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
         }
@@ -235,14 +244,33 @@ namespace Suni.Suni.NptEnvironment.Core
 
         private string ConsumeToken(string expected = null)
         {
+            while (_position < _tokens.Length && _tokens[_position] == "EOL")
+                _position++;
+            if (_position >= _tokens.Length || _tokens[_position] == "EOF")
+                throw new ParseException(Diagnostics.SyntaxException, "Fim do arquivo inesperado.");
+
             if (expected != null && CurrentToken() != expected)
                 throw new ParseException(Diagnostics.SyntaxException, $"Esperado: {expected}");
 
             return _tokens[_position++];
         }
 
-        private string CurrentToken() => _tokens[_position];
-        private string PeekToken() => _position < _tokens.Length - 1 ? _tokens[_position + 1] : null;
+        private string CurrentToken()
+        {
+            while (_position < _tokens.Length && _tokens[_position] == "EOL")
+                _position++;
+
+            return _position < _tokens.Length ? _tokens[_position] : "EOF";
+        }
+
+        private string PeekToken(int aditionalPos = 1)
+        {
+            int peekPos = _position + aditionalPos;
+            while (peekPos < _tokens.Length && _tokens[peekPos] == "EOL")
+                peekPos++;
+            return peekPos < _tokens.Length ? _tokens[peekPos] : "EOF";
+        }
+
         private bool IsType(string token) => Enum.TryParse<STypes>(token, out _);
     
         private string ResolveVariables(string expression)

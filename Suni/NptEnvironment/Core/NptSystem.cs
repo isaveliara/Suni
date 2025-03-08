@@ -7,7 +7,6 @@ namespace Suni.Suni.NptEnvironment.Core;
 /// </summary>
 public partial class NptSystem
 {
-    private Stack<CodeBlock> blockStack = new();
     public EnvironmentDataContext ContextData { get; set; }
     public CommandContext DiscordCtx { get; set; }
     public NptSystem(string script, CommandContext discordCtx, EnvironmentDataContext contextData = null)
