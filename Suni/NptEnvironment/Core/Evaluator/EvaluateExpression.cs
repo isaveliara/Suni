@@ -7,6 +7,9 @@ partial class NptEvaluator
 
     public static (SType resultValue, Diagnostics diagnostic, string diagnosticMessage) EvaluateExpression(string expression, EnvironmentDataContext context = null)
     {
+        if (string.IsNullOrWhiteSpace(expression))
+            return (new NptVoid(), Diagnostics.Success, null);
+        
         if (!ValidateExpression(expression)) return (null, Diagnostics.MalformedExpression, $"At [{expression}]: Brackets are not balanced; Did you forget to open/close them correctly?");
         
         var stackValues = new Stack<SType>();
