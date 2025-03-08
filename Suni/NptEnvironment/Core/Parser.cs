@@ -100,12 +100,14 @@ namespace Suni.Suni.NptEnvironment.Core
             var condition = NptEvaluator.EvaluateExpression(ParseExpression());
             ConsumeToken("do");
 
-            if (condition.resultValue is NptBool conditionResult)
+            if (condition.resultValue.Value is bool conditionResult)
             {
-                _context.Debugs.Add($"Executando bloco if: {conditionResult.Value}");
-
-                var result = await ExecuteBlockAsync();
-                if (result != Diagnostics.Success) return result;
+                _context.Debugs.Add($"Bloco if: {conditionResult}");
+                if (conditionResult)
+                {
+                    var result = await ExecuteBlockAsync();
+                    if (result != Diagnostics.Success) return result;
+                }
 
                 if (PeekToken() == "else")
                 {
@@ -170,13 +172,21 @@ namespace Suni.Suni.NptEnvironment.Core
             if (countResult.diagnostic != Diagnostics.Success)
                 throw new ParseException(countResult.diagnostic, countResult.diagnosticMessage);
             
+            string usedOutVar = null;
+            //you can set an local variable 
+            if (PeekToken() == "out")
+            {
+                ConsumeToken("out");
+                usedOutVar = ConsumeToken();
+            }
+
             ConsumeToken("do");
 
             if (countResult.resultValue is NptInt count)
             {
                 for (int i = 0; i < (long)count.Value; i++)
                 {
-                    _context.Variables[0]["iterador"] = new NptInt(i + 1);
+                    if (usedOutVar is not null) _context.Variables[0][usedOutVar] = new NptInt(i + 1);
                     _context.Debugs.Add($"Executando iteração {i + 1} do poeng");
                     var result = await ExecuteBlockAsync();
                     if (result != Diagnostics.Success) return result;
@@ -212,7 +222,8 @@ namespace Suni.Suni.NptEnvironment.Core
             ///    throw new ParseException(Diagnostics.CannotConvertType, "ajs ijajf jajfpaija sjasij please help mee");
             //NptGroup argsGroup = (NptGroup)evaluatedArgs.resultValue;
             
-            
+            _context.Outputs.Add(args.ToString());
+            return Diagnostics.Success;
 
             throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
         }
