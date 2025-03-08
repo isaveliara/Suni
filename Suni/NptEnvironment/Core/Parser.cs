@@ -63,15 +63,18 @@ namespace Suni.Suni.NptEnvironment.Core
             if (IsType(current))
                 return await ParseVariableDeclarationAsync();
 
-            return current switch
+            switch (current)
             {
-                "if"        => await ParseIfStatementAsync(),
-                "while"     => await ParseWhileStatementAsync(),
-                "poeng"     => await ParsePoengStatementAsync(),
-                "exit"      => ParseExitStatement(),
-                "std"       => await ParseMethodCallAsync(),
-                _           => throw new ParseException(Diagnostics.SyntaxException, $"Token inesperado: {current}")
-            };
+                case "if": return await ParseIfStatementAsync();
+                case "while": return await ParseWhileStatementAsync();
+                case "poeng": return await ParsePoengStatementAsync();
+                case "exit": return ParseExitStatement();
+            }
+
+            if (PeekToken() == "::")  
+                return await ParseMethodCallAsync();
+
+            throw new ParseException(Diagnostics.SyntaxException, $"Token inesperado: {current}");
         }
 
         private async Task<Diagnostics> ParseVariableDeclarationAsync()
@@ -197,7 +200,7 @@ namespace Suni.Suni.NptEnvironment.Core
         private async Task<Diagnostics> ParseMethodCallAsync()
         {
             await Task.CompletedTask;
-            ConsumeToken("std");
+            ConsumeToken("std"); //ill keep this in this commit cuz im lazy now
             ConsumeToken("::");
             var method = ConsumeToken();
             var arg = ParseExpression();
