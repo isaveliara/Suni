@@ -20,7 +20,7 @@ public partial class Romance
         var (message, coupleName) = solve.Commands.GetShipMessages(percent, user1.Username, user2.Username);
 
         //build
-        var resultImage = await CreateImage.BuildShip(user1.GetAvatarUrl(ImageFormat.Png, 256), user2.GetAvatarUrl(ImageFormat.Png, 256), (byte)percent);
+        var resultImage = await CreateImage.BuildShip(user1.GetAvatarUrl(MediaFormat.Png, 256), user2.GetAvatarUrl(MediaFormat.Png, 256), (byte)percent);
         using var streamImage = await Basics.ToStream(resultImage);
 
         var embed = new DiscordEmbedBuilder()
