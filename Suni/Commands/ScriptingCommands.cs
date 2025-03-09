@@ -1,10 +1,10 @@
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Trees.Metadata;
-using Suni.Suni.NptEnvironment.Core;
-using Suni.Suni.NptEnvironment.Core.Evaluator;
-using Suni.Suni.NptEnvironment.Data;
-using Suni.Suni.NptEnvironment.Formalizer;
+using Suni.Suni.NikoSharp.Core;
+using Suni.Suni.NikoSharp.Core.Evaluator;
+using Suni.Suni.NikoSharp.Data;
+using Suni.Suni.NikoSharp.Formalizer;
 
 namespace Suni.Suni.Commands;
 
@@ -14,7 +14,7 @@ namespace Suni.Suni.Commands;
 [AllowedProcessors(typeof(SlashCommandProcessor))]
 public class ScriptingCommands
 {
-    [Command("npt")]
+    [Command("nikosharp")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
     public class NptCommands
@@ -31,16 +31,16 @@ public class ScriptingCommands
             
             (List<string> debugs, List<string> outputs, Diagnostics result) result;
             if (code.Length > 800)
-                result = (["The code Length is to Hight!"], ["..."], Diagnostics.DeniedException);
+                result = (["The code Length is to Hight!"], ["..."], Diagnostics.RaisedException);
             else
-                result = await Scripting.Scripting.RequestCodeExecution(0, code, ctx, Scripting.Scripting.Languages.Npt);
+                result = await Scripting.Scripting.RequestCodeExecution(0, code, ctx, Scripting.Scripting.Languages.NikoSharp);
             
             if (result.result == Diagnostics.Forgotten){
                 await ctx.DeferResponseAsync();
                 return;
             }
             //building response
-            string response = $"Npt Code `{SunClassBot.SuniV}`:\n```{code}```" + $"\nOutput:```\n";
+            string response = $"NikoSharp `{SunClassBot.SuniV}`:\n```{code}```" + $"\nOutput:```\n";
 
             //output
             foreach (var output in result.outputs)
@@ -85,7 +85,7 @@ public class ScriptingCommands
         
         (List<string> debugs, List<string> outputs, Diagnostics result) result;
         if (code.Length > 800)
-            result = (["The code Length is to Hight!"], ["..."], Diagnostics.DeniedException);
+            result = (["The code Length is to Hight!"], ["..."], Diagnostics.RaisedException);
         else
             result = await Scripting.Scripting.RequestCodeExecution(0, code, ctx, Scripting.Scripting.Languages.Lua);
         

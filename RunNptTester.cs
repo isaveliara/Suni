@@ -1,7 +1,7 @@
-using Suni.Suni.NptEnvironment.Core;
-using Suni.Suni.NptEnvironment.Core.Evaluator;
-using Suni.Suni.NptEnvironment.Data;
-using Suni.Suni.NptEnvironment.Formalizer;
+using Suni.Suni.NikoSharp.Core;
+using Suni.Suni.NikoSharp.Core.Evaluator;
+using Suni.Suni.NikoSharp.Data;
+using Suni.Suni.NikoSharp.Formalizer;
 namespace Suni;
 
 public class Tests

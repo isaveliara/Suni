@@ -1,18 +1,18 @@
 using MoonSharp.Interpreter;
-using Suni.Suni.NptEnvironment.Data;
+using Suni.Suni.NikoSharp.Data;
 namespace Suni.Suni.Scripting.Lua;
 
 public sealed class LuaManager : IDisposable
 {
     private readonly Script _script;
+    private CommandContext _ctx;
     private readonly List<string> _outputs;
-    private readonly List<string> _debugs;
 
-    public LuaManager(List<string> outputs, List<string> debugs)
+    public LuaManager(List<string> outputs, CommandContext ctx)
     {
         _outputs = outputs ?? new List<string>();
-        _debugs = debugs ?? new List<string>();
         _script = new Script();
+        _ctx = ctx;
 
         ConfigureScript();
     }
@@ -24,12 +24,9 @@ public sealed class LuaManager : IDisposable
         foreach (string func in denyFuncs)
             _script.Globals[func] = null;
 
-        // Redireciona o print do Lua para a lista de outputs
         _script.Globals["print"] = (Action<string>)(msg => _outputs.Add(msg));
-
-        // Registra a API segura
-        UserData.RegisterType<LuaFunctions>();
-        _script.Globals["SuniApi"] = UserData.Create(new LuaFunctions());
+        
+        _script.Globals["SuniApi"] = UserData.Create(new SuniApi.SuniApi(_ctx));
     }
 
     public Diagnostics Execute(string luaCode, TimeSpan timeout)

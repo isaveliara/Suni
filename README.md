@@ -14,10 +14,9 @@ Originally developed in C# using DSharpPlus as a fun learning project (and to sa
 **He** comes packed with features, including customizable commands and useful tools that allow you to interact with your server in new ways.
 
 - the functions are summarized as:
-- **Moderation**: manage actions using scripts (NPT, in the future it will be possible to integrate them with events, commands, and timers)
+- **Moderation**: manage actions using scripts (you can use the SuniApi with NikoSharp and Lua langs, to automate things for example)
 - **Social**: u can mess ur friends, get married, or beg others for money (these things will probably have some nasty bugs lol)
-- **Help tools**: I have enough knowledge to understand ReGex, mathematical expressions, and other nerdy stuff like decrypting content in messages, which annoying members might send feeling smart, so let me share this with you ^-^
-You can run regex, calculate expressions, translate binary and morse codes, and more!
+- **Help tools**: You can run regex, calculate expressions, translate binary and morse codes, and more!
 
 ---
 ## Development Status

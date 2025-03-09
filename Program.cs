@@ -5,16 +5,14 @@ namespace Suni;
 public sealed class SunClassBot
 {
     public static DiscordClient SuniClient;
-    public const string SuniV = "build_3.4";
+    public const string SuniV = "build_4.0";
     private static readonly IAppConfig Config = AppConfig.NewAppConfig();
     public static int TimerRepeats { get; private set; } = 0;
 
     static async Task Main(string[] args)
     {
         if (args.Length > 0 && args[0].ToLower().Contains("test")) //runs the npt tester
-        {
             await Tests.RunNptTester();
-        }
 
         SuniClient = SuniBuilder.Configure(Config);
         DatabaseConfiguration.Configure();

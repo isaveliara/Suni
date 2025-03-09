@@ -1,19 +1,16 @@
-using MoonSharp.Interpreter;
-using Suni.Suni.NptEnvironment.Core;
-using Suni.Suni.NptEnvironment.Data;
+using Suni.Suni.NikoSharp.Core;
+using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.Scripting.Lua;
 namespace Suni.Suni.Scripting;
 
 public static class Scripting
 {
-    public enum Languages { Lua, Npt, }
+    public enum Languages { Lua, NikoSharp, }
 
     public static async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> RequestCodeExecution(ulong callerId, string code, CommandContext ctx, Languages language)
     {
-        //if (callerId != 12345678910)
-        //    return (null, null, Diagnostics.DeniedException);
         
-        if (language == Languages.Npt)
+        if (language == Languages.NikoSharp)
         {
             NptSystem parser = new NptSystem(code, ctx);
             var result = await parser.ParseScriptAsync();
@@ -24,7 +21,7 @@ public static class Scripting
             var outputs = new List<string>();
             var debugs = new List<string>();
 
-            using var luaManager = new LuaManager(outputs, debugs);
+            using var luaManager = new LuaManager(outputs, ctx);
             Diagnostics result = luaManager.Execute(code, TimeSpan.FromSeconds(5));
             
             if (result != Diagnostics.Success)
