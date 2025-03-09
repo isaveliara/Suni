@@ -8,7 +8,6 @@ namespace Suni.Suni.NikoSharp.Core;
 public partial class NikoSharpSystem
 {
     public EnvironmentDataContext ContextData { get; set; }
-    public CommandContext DiscordCtx { get; set; }
     public NikoSharpSystem(string script, CommandContext discordCtx, EnvironmentDataContext contextData = null)
     {
         if (contextData is not null){
@@ -17,7 +16,5 @@ public partial class NikoSharpSystem
         }
         else
             ContextData = new FormalizingScript(script, discordCtx).GetFormalized;
-        
-        DiscordCtx = discordCtx;
     }
 }

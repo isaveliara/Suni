@@ -72,6 +72,7 @@ public class NikoSharpParser
         {
             case "if": return await ParseIfStatementAsync();
             case "while": return await ParseWhileStatementAsync();
+            case "for": return await ParseForStatementAsync();
             case "poeng": return await ParsePoengStatementAsync();
             case "exit": return ParseExitStatement();
         }
@@ -222,6 +223,44 @@ public class NikoSharpParser
             throw new ParseException(Diagnostics.TypeMismatchException, "poeng requires an 'STypes.Int', less than 10.");
 
         return Diagnostics.Success;
+    }
+
+    private async Task<Diagnostics> ParseForStatementAsync()
+    {
+        ConsumeToken("for");
+
+        string listExpr = ParseExpression();
+        var listResult = NikoSharpEvaluator.EvaluateExpression(listExpr);
+        if (listResult.diagnostic != Diagnostics.Success)
+            throw new ParseException(listResult.diagnostic, listResult.diagnosticMessage);
+        
+        if (listResult.resultValue is NikosList nikosList)
+        {
+            ConsumeToken("out");
+            string iteratorName = ConsumeToken();
+            ConsumeToken("do");
+
+            List<string> blockTokens = new List<string>();
+            while (_position < _tokens.Length && CurrentToken() != "end")
+                blockTokens.Add(_tokens[_position++]);
+            ConsumeToken("end");
+
+            foreach (SType element in (List<SType>)nikosList.Value)
+            {
+                _context.BlockStack.Peek().LocalVariables[iteratorName] = element;
+                _context.Debugs.Add($"Executando iteração do for: {iteratorName} = {element.ToNikosStr().Value}");
+                
+                var blockParser = new NikoSharpParser(blockTokens.ToArray(), _context);
+                while (blockParser.CurrentToken() != "EOF"){
+                    var result = await blockParser.ParseStatementAsync();
+                    if (result != Diagnostics.Success)
+                        return result;
+                }
+            }
+            return Diagnostics.Success;
+        }
+        else
+            throw new ParseException(Diagnostics.TypeMismatchException, "for loop expects a List type.");
     }
 
     private Diagnostics ParseExitStatement()
