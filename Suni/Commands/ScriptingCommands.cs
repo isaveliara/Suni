@@ -1,7 +1,6 @@
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Trees.Metadata;
-using Suni.Suni.NikoSharp.Core;
 using Suni.Suni.NikoSharp.Core.Evaluator;
 using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.NikoSharp.Formalizer;
@@ -17,12 +16,12 @@ public class ScriptingCommands
     [Command("nikosharp")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-    public class NptCommands
+    public class NikoSharpCommands
     {
         [Command("run")]
         [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
         [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-        public static async Task NptRunCommand(CommandContext ctx, [RemainingText] string code)
+        public static async Task NikoSharpRunCommand(CommandContext ctx, [RemainingText] string code)
         {
             if (ctx.Guild != null && !(ctx.Member?.Permissions.HasPermission(DiscordPermission.Administrator) ?? false)){
                 await ctx.RespondAsync("Missing Permissions! :x:");
@@ -56,13 +55,13 @@ public class ScriptingCommands
         [Command("evaluate")]
         [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
         [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-        public static async Task NptEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
+        public static async Task NikoSharpEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
         {
             FormalizingScript formalizingScript = new FormalizingScript(expression, ctx);
             EnvironmentDataContext data = formalizingScript.GetFormalized;
             string formalizedExpression = data.Lines[0];
 
-            var (result, diagnostic, msgEvaluation) = NptEvaluator.EvaluateExpression(formalizedExpression, data);
+            var (result, diagnostic, msgEvaluation) = NikoSharpEvaluator.EvaluateExpression(formalizedExpression, data);
             string resultStr = result is not null? $"```{result}```" : "";
 
             await ctx.RespondAsync(($"Result of Evaluation for ``{formalizedExpression}`` :\n{resultStr}\nWhith Result: ```{diagnostic} " + msgEvaluation?? "") + "```");
@@ -73,7 +72,7 @@ public class ScriptingCommands
     [Command("lua")]
     [InteractionInstallType(DiscordApplicationIntegrationType.GuildInstall, DiscordApplicationIntegrationType.UserInstall)]
     [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
-    public static async Task NptRunCommand(CommandContext ctx, [RemainingText] string code)
+    public static async Task LuaRunCommand(CommandContext ctx, [RemainingText] string code)
     {
         if (ctx.Guild != null && !(ctx.Member?.Permissions.HasPermission(DiscordPermission.Administrator) ?? false)){
             await ctx.RespondAsync("Missing Permissions! :x:");

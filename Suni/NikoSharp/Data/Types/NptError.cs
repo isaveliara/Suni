@@ -1,15 +1,15 @@
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// Represents an Error in the NPT environment.
+/// Represents an Error in the NikoSharp environment.
 /// </summary>
-public class NptError : SType
+public class NikosError : SType
 {
     public Diagnostics Diagnostic { get; }
     public string Message { get; }
     public string ReferenceCode { get; }
 
-    public NptError(Diagnostics diagnostic, string message, string referenceCode = null)
+    public NikosError(Diagnostics diagnostic, string message, string referenceCode = null)
     {
         Diagnostic = diagnostic;
         Message = message;

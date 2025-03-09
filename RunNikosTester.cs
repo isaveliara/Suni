@@ -3,13 +3,12 @@ using Suni.Suni.NikoSharp.Core.Evaluator;
 using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.NikoSharp.Formalizer;
 namespace Suni;
-
 public class Tests
 {
-    internal static async Task RunNptTester()
+    internal static async Task RunNikosTester()
     {
         Console.Clear();
-        Console.WriteLine($"Running SuniNPT '{SunClassBot.SuniV}'.\nType '#help' for help.\n\n");
+        Console.WriteLine($"Running NikoSharp '{SunClassBot.SuniV}'.\nType '#help' for help.\n\n");
         bool isEval = false;
         CommandContext ctx = null;
         
@@ -52,7 +51,7 @@ public class Tests
                 EnvironmentDataContext data = formalizingScript.GetFormalized;
                 string formalizedExpression = data.Lines[0];
 
-                var (resultEval, diagnostic, resultMessage) = NptEvaluator.EvaluateExpression(formalizedExpression, data);
+                var (resultEval, diagnostic, resultMessage) = NikoSharpEvaluator.EvaluateExpression(formalizedExpression, data);
                 Console.WriteLine($"Result of Evaluation for '{formalizedExpression}' :");
 
                 if (diagnostic != Diagnostics.Success)
@@ -65,8 +64,8 @@ public class Tests
             }
 
             //building response
-            string response = $"Result (Debugging) of SuniNPT code '{SunClassBot.SuniV}' is here:\n----------------------------------------";
-            NptSystem parser = new NptSystem(code, ctx);
+            string response = $"Result (Debugging) of NikoSharp code '{SunClassBot.SuniV}' is here:\n----------------------------------------";
+            var parser = new NikoSharpSystem(code, ctx);
             Console.ForegroundColor = ConsoleColor.Gray; //changes the debug color
             var result = await parser.ParseScriptAsync();
             //here the console color can be reseted.

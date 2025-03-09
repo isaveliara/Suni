@@ -1,14 +1,14 @@
 using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.NikoSharp.Data.Types;
 namespace Suni.Suni.NikoSharp.Core.Evaluator;
-partial class NptEvaluator
+partial class NikoSharpEvaluator
 {
     private static readonly Random _randomGenerator = new();
 
     public static (SType resultValue, Diagnostics diagnostic, string diagnosticMessage) EvaluateExpression(string expression, EnvironmentDataContext context = null)
     {
         if (string.IsNullOrWhiteSpace(expression))
-            return (new NptVoid(), Diagnostics.Success, null);
+            return (new NikosVoid(), Diagnostics.Success, null);
         
         if (!ValidateExpression(expression)) return (null, Diagnostics.MalformedExpression, $"At [{expression}]: Brackets are not balanced; Did you forget to open/close them correctly?");
         
@@ -45,7 +45,7 @@ partial class NptEvaluator
             }
             else{
                 var converted = ConvertToken(token, context);
-                if (converted is NptError error)
+                if (converted is NikosError error)
                     return (null, error.Diagnostic, error.Message);
                 stackValues.Push(converted);
             }

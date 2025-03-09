@@ -8,26 +8,20 @@ public class EnvironmentDataContext
 {
     public List<string> Lines { get; set; }
     public Stack<CodeBlock> BlockStack { get; set; } = new();
-    public Dictionary<string, List<string>> Includes { get; set; }
     public List<Dictionary<string, SType>> Variables { get; set; }
 
     //auto-set
     public List<string> ErrorMessages { get; set; }
     public List<string> Debugs { get; set; }
     public List<string> Outputs { get; set; }
-    public string ActualLine { get; set; }
-    public string Code { get; internal set; }
 
-    public EnvironmentDataContext(List<string> lines, Dictionary<string, List<string>> includes, List<Dictionary<string, SType>> variables)
+    public EnvironmentDataContext(List<string> lines, List<Dictionary<string, SType>> variables)
     {
         Lines = lines;
-        Includes = includes is not null? includes : new Dictionary<string, List<string>> {
-            { "std", NptSystem.MainControlerLibMethods }
-        };
         Variables = variables is not null? variables : new List<Dictionary<string, SType>> {
-            new() { { "__version__", new NptStr(SunClassBot.SuniV) } },
-            new() { { "__time__", new NptStr(DateTime.Now.ToString()) } },
-            new() { { "__out__", new NptFunction(new NptGroup([new NptVoid()]), "__out__", new NptGroup([new NptVoid()]), new NptNil(), "std::out() -> s'hello there!'")} }
+            new() { { "__version__", new NikosStr(SunClassBot.SuniV) } },
+            new() { { "__time__", new NikosStr(DateTime.Now.ToString()) } },
+            new() { { "__out__", new NikosFunction(new NikosGroup([new NikosVoid()]), "__out__", new NikosGroup([new NikosVoid()]), new NikosNil(), "std::out() -> s'hello there!'")} }
         };
 
         Debugs = new List<string>();
@@ -59,18 +53,6 @@ public class EnvironmentDataContext
             ErrorMessages.Add(e);
         }
         Outputs.Add(e);
-    }
-
-
-    public void PushBlock(int indentLevel, bool canExecute)
-    {
-        BlockStack.Push(new CodeBlock { IndentLevel = indentLevel, CanExecute = canExecute });
-    }
-
-    public void PopBlock()
-    {
-        if (BlockStack.Count > 1)
-            BlockStack.Pop();
     }
 
     public bool TryGetVariableValue(string identifier, out SType value)

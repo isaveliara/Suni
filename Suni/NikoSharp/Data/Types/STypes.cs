@@ -1,12 +1,12 @@
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// All the Npt System Supported Types.
+/// All the NikoSharp System Supported Types.
 /// </summary>
 public enum STypes
 {
     Nil, Void, Bool, Int, Float,
-    Str, Function, Char, List, Dict, Group,
+    Str, Function, List, Group, Dict,
     User,
     Error, Identifier,
 }
@@ -30,7 +30,6 @@ public abstract class SType
     /// <param name="value"></param>
     /// <returns></returns>
     public virtual bool Contains(string other) => Value?.ToString().Contains(other) ?? false;
-
     /// <summary>
     /// Convert to the specified SType.
     /// </summary>
@@ -43,12 +42,11 @@ public abstract class SType
         {
             return targetType switch
             {
-                STypes.Nil => strValue == "nil" ? (Diagnostics.Success, new NptNil()) : (Diagnostics.CannotConvertType, null),
-                STypes.Void => strValue == "void" ? (Diagnostics.Success, new NptVoid()) : (Diagnostics.CannotConvertType, null),
-                STypes.Bool => bool.TryParse(strValue, out var boolVal) ? (Diagnostics.Success, new NptBool(boolVal)) : (Diagnostics.CannotConvertType, null),
-                STypes.Int => long.TryParse(strValue, out var intVal) ? (Diagnostics.Success, new NptInt(intVal)) : (Diagnostics.CannotConvertType, null),
-                STypes.Float => float.TryParse(strValue, out var floatVal) ? (Diagnostics.Success, new NptFloat(floatVal)) : (Diagnostics.CannotConvertType, null),
-                STypes.Char => strValue.Length == 1 ? (Diagnostics.Success, new NptChar(strValue[0])) : (Diagnostics.CannotConvertType, null),
+                STypes.Nil => strValue == "nil" ? (Diagnostics.Success, new NikosNil()) : (Diagnostics.CannotConvertType, null),
+                STypes.Void => strValue == "void" ? (Diagnostics.Success, new NikosVoid()) : (Diagnostics.CannotConvertType, null),
+                STypes.Bool => bool.TryParse(strValue, out var boolVal) ? (Diagnostics.Success, new NikosBool(boolVal)) : (Diagnostics.CannotConvertType, null),
+                STypes.Int => long.TryParse(strValue, out var intVal) ? (Diagnostics.Success, new NikosInt(intVal)) : (Diagnostics.CannotConvertType, null),
+                STypes.Float => float.TryParse(strValue, out var floatVal) ? (Diagnostics.Success, new NikosFloat(floatVal)) : (Diagnostics.CannotConvertType, null),
                 STypes.Str => (Diagnostics.Success, this),
                 _ => (Diagnostics.CannotConvertType, null)
             };
@@ -64,33 +62,32 @@ public abstract class SType
         {
             return type switch
             {
-                STypes.Nil => new NptNil(),
-                STypes.Void => new NptVoid(),
-                STypes.Bool => new NptBool((bool)value),
-                STypes.Int => new NptInt((long)value),
-                STypes.Float => new NptFloat((double)value),
-                STypes.Str => new NptStr((string)value),
-                STypes.Char => new NptChar((char)value),
-                STypes.Function => value is NptFunction fn ? fn : throw new ArgumentException("Invalid Function Value"),
-                STypes.List => new NptList(value as List<SType> ?? throw new ArgumentException("Invalid List Value")),
-                STypes.Group => new NptGroup(value as List<SType> ?? throw new ArgumentException("Invalid Group Value")),
-                STypes.Dict => new NptDict(value as Dictionary<NptStr, SType> ?? throw new ArgumentException("Invalid Dictionary Value")),
-                STypes.User => new NptUser(value as DiscordUser ?? throw new ArgumentException("Invalid User Value")),
-                _ => new NptError(Diagnostics.InvalidTypeException, null),
+                STypes.Nil => new NikosNil(),
+                STypes.Void => new NikosVoid(),
+                STypes.Bool => new NikosBool((bool)value),
+                STypes.Int => new NikosInt((long)value),
+                STypes.Float => new NikosFloat((double)value),
+                STypes.Str => new NikosStr((string)value),
+                STypes.Function => value is NikosFunction fn ? fn : throw new ArgumentException("Invalid Function Value"),
+                STypes.List => new NikosList(value as List<SType> ?? throw new ArgumentException("Invalid List Value")),
+                STypes.Group => new NikosGroup(value as List<SType> ?? throw new ArgumentException("Invalid Group Value")),
+                STypes.Dict => new NikosDict(value as Dictionary<NikosStr, SType> ?? throw new ArgumentException("Invalid Dictionary Value")),
+                STypes.User => new NikosUser(value as DiscordUser ?? throw new ArgumentException("Invalid User Value")),
+                _ => new NikosError(Diagnostics.InvalidTypeException, null),
             };
         }
         catch (Exception){
-            return new NptError(Diagnostics.CannotConvertType, $"Cannot implicitly convert '{value}' to '{type}'. An explicit conversion exists.");
+            return new NikosError(Diagnostics.CannotConvertType, $"Cannot implicitly convert '{value}' to '{type}'. An explicit conversion exists.");
         }
     }
     
     
     [ExposedProperty("len")]
-    public virtual NptInt Lenght() => new NptInt(Value?.ToString().Length ?? -1);
+    public virtual NikosInt Lenght() => new NikosInt(Value?.ToString().Length ?? -1);
 
     [ExposedProperty("toStr")]
-    public virtual NptStr ToNptStr() => new NptStr(Value?.ToString() ?? "nil");
+    public virtual NikosStr ToNikosStr() => new NikosStr(Value?.ToString() ?? "nil");
 
     [ExposedProperty("typeof")]
-    public virtual NptStr TypeOf() => new NptStr($"STypes.{Type.ToString()}");
+    public virtual NikosStr TypeOf() => new NikosStr($"STypes.{Type.ToString()}");
 }

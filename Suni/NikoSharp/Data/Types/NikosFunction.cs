@@ -2,13 +2,13 @@ using System.Collections.Generic;
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// Represents a Function in NPT environment.
+/// Represents a Function in NikoSharp environment.
 /// </summary>
-public class NptFunction : SType
+public class NikosFunction : SType
 {
     private readonly Function _value;
 
-    public NptFunction(NptGroup parametersTypes, string name, NptGroup parameters, SType pointer, string code)
+    public NikosFunction(NikosGroup parametersTypes, string name, NikosGroup parameters, SType pointer, string code)
     {
         _value = new Function(parametersTypes, name, parameters, pointer, code);
     }
@@ -26,7 +26,7 @@ public class NptFunction : SType
 
 public struct Function
 {
-    public Function(NptGroup parametersTypes, string name, NptGroup parameters, SType pointer, string code)
+    public Function(NikosGroup parametersTypes, string name, NikosGroup parameters, SType pointer, string code)
     {
         ParametersTypes = parametersTypes;
         Name = name;
@@ -34,9 +34,9 @@ public struct Function
         Pointer = pointer;
         Code = code;
     }
-    public NptGroup ParametersTypes;
+    public NikosGroup ParametersTypes;
     public string Name;
-    public NptGroup Parameters;
+    public NikosGroup Parameters;
     public SType Pointer;
     public string Code;
 }

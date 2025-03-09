@@ -1,18 +1,18 @@
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// Represents a List in NPT environment.
+/// Represents a List in NikoSharp environment.
 /// </summary>
-public class NptList : SType
+public class NikosList : SType
 {
     private readonly List<SType> _value;
-    public NptList(List<SType> value = null) => _value = value;
+    public NikosList(List<SType> value = null) => _value = value;
     public override STypes Type => STypes.List;
     public override object Value => _value;
     public override string ToString()
     {
         if (_value.Count == 0) return "List{}";
-        var listString = string.Join(", ",_value.Select(v => $"{v.ToNptStr().Value}"));
+        var listString = string.Join(", ",_value.Select(v => $"{v.ToNikosStr().Value}"));
 
         return $"{{{listString}}}";
     }
@@ -29,16 +29,16 @@ public class NptList : SType
 
 
     [ExposedProperty("toStr")]
-    public override NptStr ToNptStr()
+    public override NikosStr ToNikosStr()
     {
         if (_value.Count == 0) return new("{}");
-        var listString = string.Join(", ",_value.Select(v => $"{v.ToNptStr().Value}"));
+        var listString = string.Join(", ",_value.Select(v => $"{v.ToNikosStr().Value}"));
 
         return new($"{{{listString}}}");
     }
 
     [ExposedProperty("len")]
-    public override NptInt Lenght() => new NptInt(_value.Count);
+    public override NikosInt Lenght() => new NikosInt(_value.Count);
 
     [ExposedProperty("first")]
     public SType FirstValue() => _value.First();
@@ -49,11 +49,11 @@ public class NptList : SType
     [ExposedProperty("randomOf")]
     public SType RandomValueOf() => _value[Random.Shared.Next(_value.Count)];
     [ExposedProperty("typeof")]
-    public override NptStr TypeOf()
+    public override NikosStr TypeOf()
     {
         var elementTypes = _value.Select(v => v.Type.ToString());
         var typesString = string.Join(", ", elementTypes);
 
-        return new NptStr($"List<{typesString}>");
+        return new NikosStr($"List<{typesString}>");
     }
 }

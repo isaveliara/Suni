@@ -11,8 +11,8 @@ public sealed class SunClassBot
 
     static async Task Main(string[] args)
     {
-        if (args.Length > 0 && args[0].ToLower().Contains("test")) //runs the npt tester
-            await Tests.RunNptTester();
+        if (args.Length > 0 && args[0].ToLower().Contains("test")) //runs the Nikos tester
+            await Tests.RunNikosTester();
 
         SuniClient = SuniBuilder.Configure(Config);
         DatabaseConfiguration.Configure();

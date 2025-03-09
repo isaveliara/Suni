@@ -22,7 +22,7 @@ public enum Diagnostics
     //language errors (errors because of me)
     UnknowException,
 
-    //other/npt errors
+    //other
     InvalidTypeException,
     CannotConvertType,
     TypeMismatchException,

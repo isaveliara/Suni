@@ -3,7 +3,6 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees.Metadata;
-
 namespace Suni.Suni.Commands.UsesAutoComplete;
 
 [Command("andres")]

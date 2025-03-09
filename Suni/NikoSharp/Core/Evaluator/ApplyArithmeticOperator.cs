@@ -1,11 +1,11 @@
 using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.NikoSharp.Data.Types;
 namespace Suni.Suni.NikoSharp.Core.Evaluator;
-partial class NptEvaluator
+partial class NikoSharpEvaluator
 {
     private static (Diagnostics result, string resultMessage) ApplyArithmeticOperator(Stack<SType> stackValues, SType a, SType b, string op)
     {
-        if (a is NptInt intA && b is NptInt intB){
+        if (a is NikosInt intA && b is NikosInt intB){
             switch (op){
                 case "+":
                     stackValues.Push(intA.Add(intB));               break;
@@ -21,7 +21,7 @@ partial class NptEvaluator
                     stackValues.Push(division.resultVal);           break;
             }
         }
-        else if (a is NptFloat floatA && b is NptFloat floatB){
+        else if (a is NikosFloat floatA && b is NikosFloat floatB){
             switch (op){
                 case "+":
                     stackValues.Push(floatA.Add(floatB));           break;

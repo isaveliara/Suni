@@ -1,9 +1,9 @@
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// Represents a Nil Value in NPT environment.
+/// Represents a Nil Value in NikoSharp environment.
 /// </summary>
-public class NptNil : SType
+public class NikosNil : SType
 {
     public override STypes Type => STypes.Nil;
     public override object Value => null;
@@ -11,5 +11,5 @@ public class NptNil : SType
 
 
     [ExposedProperty("toStr")]
-    public override NptStr ToNptStr() => new("nil");
+    public override NikosStr ToNikosStr() => new("nil");
 }

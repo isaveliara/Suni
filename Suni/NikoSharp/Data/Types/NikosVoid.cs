@@ -1,9 +1,9 @@
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// Represents a Void type in NPT environment.
+/// Represents a Void type in NikoSharp environment.
 /// </summary>
-public class NptVoid : SType
+public class NikosVoid : SType
 {
     public override STypes Type => STypes.Void;
     public override object Value => null;
@@ -11,5 +11,5 @@ public class NptVoid : SType
     public override string ToString() => "void";
 
     [ExposedProperty("toStr")]
-    public override NptStr ToNptStr() => new("void");
+    public override NikosStr ToNikosStr() => new("void");
 }

@@ -1,6 +1,6 @@
 namespace Suni.Suni.NikoSharp.Core.Evaluator;
 
-partial class NptEvaluator
+partial class NikoSharpEvaluator
 {
     internal static bool ValidateExpression(string expression)
     {

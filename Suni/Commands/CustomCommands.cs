@@ -14,13 +14,13 @@ public class CustomCommands
         [Parameter("command")] string commandName)
     {
         var db = new DBMethods();
-        var nptCommand = db.GetNptByKeyOrName(nptName: commandName, serverId: ctx.Guild.Id);
-        if (nptCommand is null || nptCommand.Value.listen != "custom_command"){
+        var nikosharpCommand = db.GetScriptByKeyOrName(nikosharpName: commandName, serverId: ctx.Guild.Id);
+        if (nikosharpCommand is null || nikosharpCommand.Value.listen != "custom_command"){
             Console.WriteLine($"deu n");
             return;
         }
             
-        NptSystem parser = new NptSystem(nptCommand.Value.nptCode, ctx);
+        var parser = new NikoSharpSystem(nikosharpCommand.Value.nikosharpCode, ctx);
         var result = await parser.ParseScriptAsync();
 
         if (result.result != Diagnostics.Success)

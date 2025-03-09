@@ -1,7 +1,7 @@
 using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.NikoSharp.Data.Types;
 namespace Suni.Suni.NikoSharp.Core.Evaluator;
-partial class NptEvaluator
+partial class NikoSharpEvaluator
 {
     private static (Diagnostics result, string resultMessage) ApplyOperator(Stack<SType> stackValues, string Operator)
     {
@@ -9,8 +9,8 @@ partial class NptEvaluator
         var b = stackValues.Pop();
         var a = stackValues.Pop();
 
-        if (a is NptIdentifier) return (Diagnostics.BadToken, $"At [{a.Value} {Operator} {b.Value}]: Syntax Error: left operand can't be an 'STypes.Indentifier'");
-        if (b is NptIdentifier identifier)
+        if (a is NikosIdentifier) return (Diagnostics.BadToken, $"At [{a.Value} {Operator} {b.Value}]: Syntax Error: left operand can't be an 'STypes.Indentifier'");
+        if (b is NikosIdentifier identifier)
         {
             if (Operator == "::") //access property of
             {
@@ -26,23 +26,23 @@ partial class NptEvaluator
             //boolean operators
             case "&&":
             case "||":
-                if (a is NptBool boolA && b is NptBool boolB)
+                if (a is NikosBool boolA && b is NikosBool boolB)
                     stackValues.Push(boolA.CompareTo(boolB, Operator == "&&"));
                 else
                     return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: Expected 'STypes.Bool', got 'STypes.{a.Type}'");
                                                                     break;
             case "==":
-                stackValues.Push(new NptBool(a.Value.Equals(b.Value)));
+                stackValues.Push(new NikosBool(a.Value.Equals(b.Value)));
                                                                     break;
             case "~=":
-                stackValues.Push(new NptBool(!a.Equals(b)));        break;
+                stackValues.Push(new NikosBool(!a.Equals(b)));        break;
             case ">":
             case "<":
             case ">=":
             case "<=":
                 if (a.Value is IComparable comparableA && b.Value is IComparable comparableB && a.Value.GetType() == b.Value.GetType()){
                     int comparison = comparableA.CompareTo(comparableB);
-                    stackValues.Push(new NptBool(Operator switch
+                    stackValues.Push(new NikosBool(Operator switch
                     {
                         ">" => comparison > 0,
                         "<" => comparison < 0,
@@ -55,7 +55,7 @@ partial class NptEvaluator
                     return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: 'STypes.{a.Type}' can't be compared with 'STypes.{b.Type}'");
                 break;
             case "?": //contains operator
-                stackValues.Push(new NptBool(a.ToString().Contains(b.ToString())));
+                stackValues.Push(new NikosBool(a.ToString().Contains(b.ToString())));
                 break;
 
             //other objects operators
@@ -64,8 +64,8 @@ partial class NptEvaluator
                 break;
 
             case ",": //group creator/adder
-                if (a is NptGroup groupA){
-                    if (b is NptGroup groupB){
+                if (a is NikosGroup groupA){
+                    if (b is NikosGroup groupB){
                         groupA.AddRange(groupB);
                         stackValues.Push(groupA);
                     }
@@ -75,7 +75,7 @@ partial class NptEvaluator
                     }
                 }
                 else{
-                    var newGroup = new NptGroup([a, b]);
+                    var newGroup = new NikosGroup([a, b]);
                     stackValues.Push(newGroup);
                     //return (Diagnostics.SyntaxException, $"At [{a.Value} {Operator} {b.Value}]: with ',' as Operator, left operand need to be 'STypes.Group' to add the left operand!");
                 }
@@ -83,11 +83,11 @@ partial class NptEvaluator
 
             //arithmetic operators
             case "+":
-                if (a is NptStr strAddA && b is NptStr strAddB)
+                if (a is NikosStr strAddA && b is NikosStr strAddB)
                     stackValues.Push(strAddA.Add(strAddB));
-                else if (a is NptInt intAddA && b is NptInt intAddB)
+                else if (a is NikosInt intAddA && b is NikosInt intAddB)
                     stackValues.Push(intAddA.Add(intAddB));
-                else if (a is NptFloat floatAddA && b is NptFloat floatAddB)
+                else if (a is NikosFloat floatAddA && b is NikosFloat floatAddB)
                     stackValues.Push(floatAddA.Add(floatAddB));
                 else
                     return (Diagnostics.TypeMismatchException, $"At [{a.Value} {Operator} {b.Value}]: 'STypes.{a.Type}' cannot be added with 'STypes.{b.Type}'");
@@ -98,7 +98,7 @@ partial class NptEvaluator
                 return ApplyArithmeticOperator(stackValues, a, b, Operator);
 
             default:
-                return (Diagnostics.InvalidOperator, $"At [{a.Value} {Operator} {b.Value}]: '{Operator}' isin't a valid Operator in SuniNpt.");
+                return (Diagnostics.InvalidOperator, $"At [{a.Value} {Operator} {b.Value}]: '{Operator}' isin't a valid Operator in NikoSharp.");
         }
         return (Diagnostics.Success, null);
     }

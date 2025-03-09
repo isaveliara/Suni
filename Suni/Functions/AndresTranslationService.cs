@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
-
 namespace Suni.Suni.Functions;
 
 public class AndresTranslationService
@@ -66,10 +65,8 @@ public class AndresTranslationService
 
         var results = new List<string>();
         using (var reader = await command.ExecuteReaderAsync())
-        {
             while (await reader.ReadAsync())
                 results.Add(reader.GetString(0));
-        }
 
         return results;
     }

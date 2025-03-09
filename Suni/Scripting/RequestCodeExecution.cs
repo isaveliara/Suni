@@ -12,7 +12,7 @@ public static class Scripting
         
         if (language == Languages.NikoSharp)
         {
-            NptSystem parser = new NptSystem(code, ctx);
+            var parser = new NikoSharpSystem(code, ctx);
             var result = await parser.ParseScriptAsync();
             return result;
         }

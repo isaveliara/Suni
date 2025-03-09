@@ -1,17 +1,16 @@
-using System.Collections.Generic;
 using System.Data.SQLite;
 namespace Suni.Suni.Functions.DB;
 
 public partial class DBMethods
 {
     /// <summary>
-    /// Get an Npt by PrimaryKey or Name
+    /// Get an NikoSharp by PrimaryKey or Name
     /// </summary>
-    public (int? primaryKey, ulong ownerId, string nptName, string nptCode, string listen)? GetNptByKeyOrName(ulong serverId, int? primaryKey = null, string nptName = null)
+    public (int? primaryKey, ulong ownerId, string nikosharpName, string nikosharpCode, string listen)? GetScriptByKeyOrName(ulong serverId, int? primaryKey = null, string nikosharpName = null)
     {
-        if (primaryKey == null && string.IsNullOrEmpty(nptName))
+        if (primaryKey == null && string.IsNullOrEmpty(nikosharpName))
         {
-            Console.WriteLine("Error: primaryKey or nptName must be provided.");
+            Console.WriteLine("Error: primaryKey or nikosharpName must be provided.");
             return null;
         }
 
@@ -30,7 +29,7 @@ public partial class DBMethods
 
             if (primaryKey.HasValue)
                 conditions.Add("npts.primary_key = @primaryKey");
-            if (!string.IsNullOrEmpty(nptName))
+            if (!string.IsNullOrEmpty(nikosharpName))
                 conditions.Add("npts.npt_name = @nptName");
             
             conditions.Add("servers.server_id = @serverId");
@@ -41,8 +40,8 @@ public partial class DBMethods
             {
                 if (primaryKey.HasValue)
                     command.Parameters.AddWithValue("@primaryKey", primaryKey.Value);
-                if (!string.IsNullOrEmpty(nptName))
-                    command.Parameters.AddWithValue("@nptName", nptName);
+                if (!string.IsNullOrEmpty(nikosharpName))
+                    command.Parameters.AddWithValue("@nptName", nikosharpName);
                 
                 command.Parameters.AddWithValue("@serverId", (long)serverId);
 

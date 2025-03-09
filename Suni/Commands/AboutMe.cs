@@ -1,6 +1,4 @@
-using System.Text.RegularExpressions;
 using Suni.Suni.Configuration.Interfaces;
-
 namespace Suni.Suni.Commands;
 
 public class AboutMe(IAppConfig config)

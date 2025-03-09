@@ -2,12 +2,12 @@
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// Represents a Group of Values in NPT environment.
+/// Represents a Group of Values in NikoSharp environment.
 /// </summary>
-public class NptGroup : SType
+public class NikosGroup : SType
 {
     private readonly List<SType> _value;
-    public NptGroup(List<SType> value = null) => _value = value;
+    public NikosGroup(List<SType> value = null) => _value = value;
     public override STypes Type => STypes.Group;
     public override object Value => _value;
     public override string ToString() => string.Join(", ", _value);
@@ -21,13 +21,13 @@ public class NptGroup : SType
         return (Diagnostics.Success, _value[index]);
     }
 
-    internal void AddRange(NptGroup item) => _value.AddRange(item);
+    internal void AddRange(NikosGroup item) => _value.AddRange(item);
 
     /// <summary>
-    /// Compares whether an NptGroup has the same types as the current.
+    /// Compares whether an NikosGroup has the same types as the current.
     /// </summary>
     /// <returns></returns>
-    public bool ValidateTypes(NptGroup item)
+    public bool ValidateTypes(NikosGroup item)
     {
         if (_value.Count > item._value.Count) //allows extra args. Maybe remove this
             return false;
@@ -41,16 +41,12 @@ public class NptGroup : SType
 
 
     [ExposedProperty("toStr")]
-    public override NptStr ToNptStr() => new(string.Join(", ", _value));
+    public override NikosStr ToNikosStr() => new(string.Join(", ", _value));
     [ExposedProperty("len")]
-    public override NptInt Lenght() => new NptInt(_value.Count);
+    public override NikosInt Lenght() => new NikosInt(_value.Count);
 
     [ExposedProperty("first")]
     public SType FirstValue() => _value.First();
-    
-    //NOTE: LastValue is the penultimate value
     [ExposedProperty("last")]
-    public SType LastValue() => _value[this.Count() -2];
-    [ExposedProperty("pointer")]
-    public SType Pointer() => _value.Last();
+    public SType LastValue() => _value.Last();
 }

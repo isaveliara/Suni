@@ -1,8 +1,3 @@
-using System.Collections.Generic;
-using Suni.Suni.NikoSharp.Core;
-using Suni.Suni.NikoSharp.Data;
-using Suni.Suni.NikoSharp.Data.Types;
-
 namespace Suni.Suni.NikoSharp.Formalizer;
 
 public partial class FormalizingScript
@@ -13,17 +8,12 @@ public partial class FormalizingScript
     /// <param name="code"></param>
     /// <param name="separators"></param>
     /// <returns></returns>
-    internal static (List<string> lines, List<string> defLines) SplitCode(string code)
+    internal static List<string> SplitCode(string code)
     {
         //split the lines of script into list
-
         bool isString = false;
-        bool inDefinitionsBlock = false; 
-        //bool hasDefinitionsBlock = false;
 
         List<string> lines = new List<string>();
-        List<string> Deflines = new List<string>();
-
         string currentLine = "";
 
         for (int i = 0; i < code.Length; i++)
@@ -34,24 +24,6 @@ public partial class FormalizingScript
                 isString = !isString;//toggle
                 currentLine += currentChar;
                 continue;
-            }
-            if (!isString && currentChar == '#')
-            {
-                var keyword = Help.keywordLookahead(code, i);
-                if (keyword.Letters == "definitions")
-                {
-                    inDefinitionsBlock = true;
-                    i += keyword.Letters.Length;  //advance index
-                    currentLine = "";  //clean line
-                    continue;
-                }
-                else if (keyword.Letters == "ends")
-                {
-                    inDefinitionsBlock = false;
-                    i += keyword.Letters.Length;  //advance index
-                    currentLine = "";  //clean line
-                    continue;
-                }
             }
 
             //comments (--) outside of strings
@@ -67,10 +39,7 @@ public partial class FormalizingScript
             //split on newline "\n" or on '.' outside of strings
             if (!isString && (currentChar == '\n' || currentChar == '.')){
                 if (!string.IsNullOrWhiteSpace(currentLine)) //add line for definitions or normal code
-                    if (inDefinitionsBlock)
-                        Deflines.Add(currentLine);
-                    else
-                        lines.Add(currentLine.Trim());
+                    lines.Add(currentLine.Trim());
                 
                 currentLine = "";
                 continue;
@@ -82,15 +51,11 @@ public partial class FormalizingScript
 
         //add any remaining text as the last line
         if (!string.IsNullOrWhiteSpace(currentLine))
-            if (inDefinitionsBlock)
-                Deflines.Add(currentLine);
-            else
-                lines.Add(currentLine.Trim());
+            lines.Add(currentLine.Trim());
         
         //display (DEBUGGING)
-        Console.WriteLine($"suni instruction\n>\n    ]{string.Join("\n    ]", Deflines)}\n<");
         Console.WriteLine($"suni query\n>\n    ]{string.Join("\n    ]", lines)}\n<\n");
         
-        return (lines, Deflines);
+        return lines;
     }
 }

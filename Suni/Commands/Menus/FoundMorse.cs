@@ -2,7 +2,6 @@ using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees.Metadata;
-
 namespace Suni.Suni.Commands.Menus;
 
 public partial class FoundCommands

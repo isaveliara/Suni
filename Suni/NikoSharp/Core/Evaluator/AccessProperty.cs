@@ -1,7 +1,7 @@
 using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.NikoSharp.Data.Types;
 namespace Suni.Suni.NikoSharp.Core.Evaluator;
-partial class NptEvaluator
+partial class NikoSharpEvaluator
 {
     private static SType AccessProperty(SType target, string property)
     {
@@ -30,6 +30,6 @@ partial class NptEvaluator
             return (SType)propertyInfo.GetValue(target);
         }
 
-        return new NptError(Diagnostics.UnlistedProperty, $"type 'STypes.{target.Type}' doesn't have the property '{property}'");
+        return new NikosError(Diagnostics.UnlistedProperty, $"type 'STypes.{target.Type}' doesn't have the property '{property}'");
     }
 }

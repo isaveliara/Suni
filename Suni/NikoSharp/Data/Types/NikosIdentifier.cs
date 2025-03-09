@@ -1,17 +1,17 @@
 namespace Suni.Suni.NikoSharp.Data.Types;
 
 /// <summary>
-/// Represents a Identifier Value in NPT environment.
+/// Represents a Identifier Value in NikoSharp environment.
 /// </summary>
 ///
-public class NptIdentifier : SType
+public class NikosIdentifier : SType
 {
     private readonly string _value;
     /// <summary>
     /// Sets the '_value' field. Getting null, means that the value can't be set.
     /// </summary>
     /// <param name="value"></param>
-    public NptIdentifier(string value = null)
+    public NikosIdentifier(string value = null)
     {
         if (string.IsNullOrEmpty(value))
             _value = null;//nomenclature error
