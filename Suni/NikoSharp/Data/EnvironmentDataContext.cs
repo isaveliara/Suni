@@ -28,7 +28,7 @@ public class EnvironmentDataContext
         Outputs = new List<string>();
         ErrorMessages = new List<string>();
 
-        BlockStack.Push(new CodeBlock { IndentLevel = 0, CanExecute = true });
+        BlockStack.Push(new CodeBlock { CanExecute = true });
     }
 
     /// <summary>
