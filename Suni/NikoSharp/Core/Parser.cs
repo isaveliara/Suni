@@ -37,7 +37,7 @@ public partial class NikoSharpSystem
     }
 }
 
-public class NikoSharpParser
+public partial class NikoSharpParser
 {
     private readonly string[] _tokens;
     private int _position;
@@ -106,37 +106,22 @@ public class NikoSharpParser
         var condition = NikoSharpEvaluator.EvaluateExpression(ParseExpression());
         ConsumeToken("do");
 
+        Diagnostics result = Diagnostics.Success;
         if (condition.resultValue.Value is bool conditionResult)
         {
             _context.Debugs.Add($"Bloco if: {conditionResult}");
             if (conditionResult)
-            {
-                var result = await ExecuteBlockAsync();
-                if (result != Diagnostics.Success) return result;
-            }
-
-            if (PeekToken() == "else")
+                result = await ExecuteBlockAsync();
+            else if (PeekToken() == "else")
             {
                 ConsumeToken("else");
                 _context.Debugs.Add("Executando bloco else");
-                return await ExecuteBlockAsync();
+                result = await ExecuteBlockAsync();
             }
         }
         else
             throw new ParseException(Diagnostics.TypeMismatchException, "Condição do if deve ser booleana");
-
-        return Diagnostics.Success;
-    }
-
-    private async Task<Diagnostics> ExecuteBlockAsync()
-    {
-        while (_position < _tokens.Length && CurrentToken() != "end")
-        {
-            var result = await ParseStatementAsync();
-            if (result != Diagnostics.Success) return result;
-        }
-        ConsumeToken("end");
-        return Diagnostics.Success;
+        return result;
     }
 
     private async Task<Diagnostics> ParseWhileStatementAsync()
@@ -145,38 +130,33 @@ public class NikoSharpParser
         var condition = ParseExpression();
         ConsumeToken("do");
 
-        List<string> blockTokens = new List<string>();
-        while (_position < _tokens.Length && CurrentToken() != "end")
-            blockTokens.Add(_tokens[_position++]);
-        ConsumeToken("end");
+        List<string> blockTokens = CaptureBlockTokens();
 
-        int i = 0; //blocks infinite loops.
-        while (true && i < MaxIterations)
+        int iterationCount = 0;
+        while (true)
         {
-            i++;
             var conditionResult = NikoSharpEvaluator.EvaluateExpression(condition);
             if (conditionResult.diagnostic != Diagnostics.Success)
                 throw new ParseException(conditionResult.diagnostic, conditionResult.diagnosticMessage);
 
-            if (conditionResult.resultValue is NikosBool conditionResultBool)
+            if (!(conditionResult.resultValue is NikosBool conditionResultBool))
+                throw new ParseException(Diagnostics.CannotConvertType, "while expects STypes.Bool");
+
+            if (!(bool)conditionResultBool.Value)
+                break;
+
+            iterationCount++;
+            if (iterationCount > MaxIterations)
             {
-                if (!(bool)conditionResultBool.Value)
-                    break;
-
-                _context.Debugs.Add("Executando bloco while");
-
-                var blockParser = new NikoSharpParser(blockTokens.ToArray(), _context);
-                while (blockParser.CurrentToken() != "EOF")
-                {
-                    var result = await blockParser.ParseStatementAsync();
-                    if (result != Diagnostics.Success)
-                        return result;
-                }
+                _context.LogDiagnostic(Diagnostics.Anomaly, $"Número de iterações no 'while' limitado a {MaxIterations}.");
+                break;
             }
-            else
-                throw new ParseException(Diagnostics.CannotConvertType, $"while expects 'STypes.Bool', not {conditionResult.resultValue}");
-        }
 
+            _context.Debugs.Add("Executando bloco while");
+            var result = await ExecuteBlockAsync_Internal(blockTokens);
+            if (result != Diagnostics.Success)
+                return result;
+        }
         return Diagnostics.Success;
     }
 
@@ -197,31 +177,23 @@ public class NikoSharpParser
         }
         ConsumeToken("do");
 
-        List<string> blockTokens = new List<string>();
-        while (_position < _tokens.Length && CurrentToken() != "end")
-            blockTokens.Add(_tokens[_position++]);
-        ConsumeToken("end");
+        List<string> blockTokens = CaptureBlockTokens();
 
-        if (countResult.resultValue is NikosInt count)
-        {
-            for (int i = 0; i < (long)count.Value && i <= MaxIterations; i++)
-            {
-                if (usedOutVar is not null)
-                {
-                    _context.BlockStack.Peek().LocalVariables[usedOutVar] = new NikosInt(i + 1);
-                    _context.Debugs.Add($"Variável declarada: Int {usedOutVar} = {i + 1}");
-                }
-                _context.Debugs.Add($"Executando iteração {i + 1} do poeng");
-                
-                var blockParser = new NikoSharpParser(blockTokens.ToArray(), _context);
-                var result = await blockParser.ParseStatementAsync();
-                if (result != Diagnostics.Success)
-                    return result;
-            }
-        }
-        else
+        if (!(countResult.resultValue is NikosInt count))
             throw new ParseException(Diagnostics.TypeMismatchException, "poeng requires an 'STypes.Int', less than 10.");
 
+        for (int i = 0; i < (long)count.Value && i < MaxIterations; i++)
+        {
+            if (usedOutVar is not null)
+            {
+                _context.BlockStack.Peek().LocalVariables[usedOutVar] = new NikosInt(i + 1);
+                _context.Debugs.Add($"Variável declarada: Int {usedOutVar} = {i + 1}");
+            }
+            _context.Debugs.Add($"Executando iteração {i + 1} do poeng");
+            var result = await ExecuteBlockAsync_Internal(blockTokens);
+            if (result != Diagnostics.Success)
+                return result;
+        }
         return Diagnostics.Success;
     }
 
@@ -233,34 +205,25 @@ public class NikoSharpParser
         var listResult = NikoSharpEvaluator.EvaluateExpression(listExpr);
         if (listResult.diagnostic != Diagnostics.Success)
             throw new ParseException(listResult.diagnostic, listResult.diagnosticMessage);
-        
-        if (listResult.resultValue is NikosList nikosList)
-        {
-            ConsumeToken("out");
-            string iteratorName = ConsumeToken();
-            ConsumeToken("do");
 
-            List<string> blockTokens = new List<string>();
-            while (_position < _tokens.Length && CurrentToken() != "end")
-                blockTokens.Add(_tokens[_position++]);
-            ConsumeToken("end");
-
-            foreach (SType element in (List<SType>)nikosList.Value)
-            {
-                _context.BlockStack.Peek().LocalVariables[iteratorName] = element;
-                _context.Debugs.Add($"Executando iteração do for: {iteratorName} = {element.ToNikosStr().Value}");
-                
-                var blockParser = new NikoSharpParser(blockTokens.ToArray(), _context);
-                while (blockParser.CurrentToken() != "EOF"){
-                    var result = await blockParser.ParseStatementAsync();
-                    if (result != Diagnostics.Success)
-                        return result;
-                }
-            }
-            return Diagnostics.Success;
-        }
-        else
+        if (!(listResult.resultValue is NikosList nikosList))
             throw new ParseException(Diagnostics.TypeMismatchException, "for loop expects a List type.");
+
+        ConsumeToken("out");
+        string iteratorName = ConsumeToken();
+        ConsumeToken("do");
+
+        List<string> blockTokens = CaptureBlockTokens();
+
+        foreach (SType element in (List<SType>)nikosList.Value)
+        {
+            _context.BlockStack.Peek().LocalVariables[iteratorName] = element;
+            _context.Debugs.Add($"Executando iteração do for: {iteratorName} = {element.ToNikosStr().Value}");
+            var result = await ExecuteBlockAsync_Internal(blockTokens);
+            if (result != Diagnostics.Success)
+                return result;
+        }
+        return Diagnostics.Success;
     }
 
     private Diagnostics ParseExitStatement()
@@ -341,7 +304,7 @@ public class NikoSharpParser
                 if (end < length)
                 {
                     string variableName = expression.Substring(start, end - start);
-                    i = end; // Avança até depois do '}'
+                    i = end;
 
                     if (_context.TryGetVariableValue(variableName, out var value))
                         result.Append(value);
