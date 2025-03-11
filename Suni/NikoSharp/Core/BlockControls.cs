@@ -14,7 +14,7 @@ public partial class NikoSharpParser{
         
         while (_position < _tokens.Length)
         {
-            string token = _tokens[_position];
+            string token = CurrentToken();
             if (token == "do"){
                 depth++;
                 blockTokens.Add(ConsumeToken());

@@ -106,22 +106,32 @@ public partial class NikoSharpParser
         var condition = NikoSharpEvaluator.EvaluateExpression(ParseExpression());
         ConsumeToken("do");
 
-        Diagnostics result = Diagnostics.Success;
+        List<string> ifBlockTokens = CaptureBlockTokens();
+
+        List<string> elseBlockTokens = null;
+        if (PeekToken() == "else")
+        {
+            ConsumeToken("else");
+            ConsumeToken("do");
+            elseBlockTokens = CaptureBlockTokens();
+        }
+
         if (condition.resultValue.Value is bool conditionResult)
         {
             _context.Debugs.Add($"Bloco if: {conditionResult}");
             if (conditionResult)
-                result = await ExecuteBlockAsync();
-            else if (PeekToken() == "else")
             {
-                ConsumeToken("else");
+                return await ExecuteBlockAsync_Internal(ifBlockTokens);
+            }
+            else if (elseBlockTokens != null)
+            {
                 _context.Debugs.Add("Executando bloco else");
-                result = await ExecuteBlockAsync();
+                return await ExecuteBlockAsync_Internal(elseBlockTokens);
             }
         }
         else
             throw new ParseException(Diagnostics.TypeMismatchException, "Condição do if deve ser booleana");
-        return result;
+        return Diagnostics.Success;
     }
 
     private async Task<Diagnostics> ParseWhileStatementAsync()
