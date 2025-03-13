@@ -3,7 +3,6 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Trees.Metadata;
 using Suni.Suni.NikoSharp.Core.Evaluator;
 using Suni.Suni.NikoSharp.Data;
-using Suni.Suni.NikoSharp.Formalizer;
 
 namespace Suni.Suni.Commands;
 
@@ -57,14 +56,10 @@ public class ScriptingCommands
         [InteractionAllowedContexts(DiscordInteractionContextType.Guild, DiscordInteractionContextType.BotDM, DiscordInteractionContextType.PrivateChannel)]
         public static async Task NikoSharpEvaluateCommand(CommandContext ctx, [RemainingText] string expression)
         {
-            FormalizingScript formalizingScript = new FormalizingScript(expression, ctx);
-            EnvironmentDataContext data = formalizingScript.GetFormalized;
-            string formalizedExpression = data.Lines[0];
-
-            var (result, diagnostic, msgEvaluation) = NikoSharpEvaluator.EvaluateExpression(formalizedExpression, data);
+            var (result, diagnostic, msgEvaluation) = NikoSharpEvaluator.EvaluateExpression(expression);
             string resultStr = result is not null? $"```{result}```" : "";
 
-            await ctx.RespondAsync(($"Result of Evaluation for ``{formalizedExpression}`` :\n{resultStr}\nWhith Result: ```{diagnostic} " + msgEvaluation?? "") + "```");
+            await ctx.RespondAsync(($"Result of Evaluation for ``{expression}`` :\n{resultStr}\nWhith Result: ```{diagnostic} " + msgEvaluation?? "") + "```");
         }
     }
 

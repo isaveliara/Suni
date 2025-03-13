@@ -1,4 +1,4 @@
-using Suni.Suni.NikoSharp.Data;
+/*using Suni.Suni.NikoSharp.Data;
 namespace Suni.Suni.NikoSharp.Formalizer;
 public partial class FormalizingScript
 {
@@ -54,3 +54,4 @@ public partial class FormalizingScript
                 FormalizingDataContext.Lines[i] = FormalizingDataContext.Lines[i].Replace(placeholder.Key, placeholder.Value);
     }
 }
+*/

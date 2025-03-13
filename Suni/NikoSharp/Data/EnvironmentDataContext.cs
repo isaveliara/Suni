@@ -6,7 +6,7 @@ namespace Suni.Suni.NikoSharp.Data;
 
 public class EnvironmentDataContext
 {
-    public List<string> Lines { get; set; }
+    public string[] Tokens { get; set; }
     public Stack<CodeBlock> BlockStack { get; set; } = new();
     public List<Dictionary<string, SType>> Variables { get; set; }
 
@@ -15,9 +15,9 @@ public class EnvironmentDataContext
     public List<string> Debugs { get; set; }
     public List<string> Outputs { get; set; }
 
-    public EnvironmentDataContext(List<string> lines, List<Dictionary<string, SType>> variables)
+    public EnvironmentDataContext(string[] scriptTokens, List<Dictionary<string, SType>> variables)
     {
-        Lines = lines;
+        Tokens = scriptTokens;
         Variables = variables is not null? variables : new List<Dictionary<string, SType>> {
             new() { { "__version__", new NikosStr(SunClassBot.SuniV) } },
             new() { { "__time__", new NikosStr(DateTime.Now.ToString()) } },

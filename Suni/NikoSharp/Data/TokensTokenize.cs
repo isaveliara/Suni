@@ -14,7 +14,42 @@ partial class Tokens
             int tokenLength = 0;
             string token = null;
 
-            //1. Check for { ... }. These tokens can be List or Dict or an expression.
+            //1. Check for commentary
+            if (pos + 1 < len && expression[pos] == '-' && expression[pos + 1] == '-')
+            {
+                pos += 2;
+
+                if (pos + 1 < len && expression[pos] == '[' && expression[pos + 1] == '['){
+                    pos += 2;
+                    while (pos + 1 < len && !(expression[pos] == ']' && expression[pos + 1] == ']'))
+                        pos++;
+                    if (pos + 1 < len && expression[pos] == ']' && expression[pos + 1] == ']')
+                        pos += 2;
+                }
+                else
+                    while (pos < len && expression[pos] != '\n' && expression[pos] != '.')
+                        pos++;
+                
+                start = pos;
+                continue;
+            }
+
+            //2. Check for EOL tokens.
+            if (expression[pos] == '.' || expression[pos] == '\n')
+            {
+                if (pos > start)
+                {
+                    string nonToken = expression.Substring(start, pos - start);
+                    if (!string.IsNullOrWhiteSpace(nonToken))
+                        tokens.Add(nonToken);
+                }
+                tokens.Add("EOL");
+                pos++;
+                start = pos;
+                continue;
+            }
+
+            //3. Check for { ... }. These tokens can be List or Dict or an expression.
             if (expression[pos] == '{'){
                 int end = pos + 1;
                 while (end < len && expression[end] != '}') end++;
@@ -25,7 +60,7 @@ partial class Tokens
                     tokenFound = true;
                 }
             }
-            //1,5. Check for ( ... ). These tokens can be List or Dict or an expression.
+            //4. Check for ( ... ). These tokens can be List or Dict or an expression.
             if (expression[pos] == '('){
                 int end = pos + 1;
                 while (end < len && expression[end] != ')') end++;
@@ -38,7 +73,7 @@ partial class Tokens
             }
 
             if (!tokenFound)
-                //2. Check for s'...'. These tokens are Literals (string).
+                //5. Check for s'...'. These tokens are Literals (string).
                 if (pos + 1 < len && expression[pos] == 's' && expression[pos + 1] == '\'')
                 {
                     int end = pos + 2;
@@ -52,7 +87,7 @@ partial class Tokens
                 }
 
             if (!tokenFound)
-                //3. Check for c'...'. These tokens are Literals (char).
+                //6. Check for c'...'. These tokens are Literals (char).
                 if (pos + 3 < len &&
                     expression[pos] == 'c' &&
                     expression[pos + 1] == '\'' &&
@@ -64,7 +99,7 @@ partial class Tokens
                 }
 
             if (!tokenFound)
-                //4. Check for numbers. These tokens can be Int and Float.
+                //7. Check for numbers. These tokens can be Int and Float.
                 if (char.IsDigit(expression[pos])){
                     int end = pos;
                     while (end < len && char.IsDigit(expression[end])) end++;
@@ -82,7 +117,7 @@ partial class Tokens
                 }
 
             if (!tokenFound)
-                //5. Check multi-character operators.
+                //8. Check multi-character operators.
                 if (pos + 1 < len)
                 {
                     string twoChar = expression.Substring(pos, 2);
@@ -103,7 +138,7 @@ partial class Tokens
                 }
 
             if (!tokenFound)
-                //6. Check single-character operators/tokens.
+                //9. Check single-character operators/tokens.
                 if (pos < len){
                     char c = expression[pos];
                     switch (c)
@@ -128,7 +163,7 @@ partial class Tokens
                 }
 
             if (!tokenFound)
-                //7. Check whitespace token (discard).
+                //10. Check whitespace token (discard).
                 if (char.IsWhiteSpace(expression[pos])){
                     tokenLength = 1;
                     while (pos + tokenLength < len && 

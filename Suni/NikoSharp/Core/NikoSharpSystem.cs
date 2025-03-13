@@ -1,5 +1,4 @@
 using Suni.Suni.NikoSharp.Data;
-using Suni.Suni.NikoSharp.Formalizer;
 namespace Suni.Suni.NikoSharp.Core;
 
 /// <summary>
@@ -8,13 +7,16 @@ namespace Suni.Suni.NikoSharp.Core;
 public partial class NikoSharpSystem
 {
     public EnvironmentDataContext ContextData { get; set; }
-    public NikoSharpSystem(string script, CommandContext discordCtx, EnvironmentDataContext contextData = null)
+    public NikoSharpSystem(string script, EnvironmentDataContext contextData = null)
     {
+        var tokenizedScript = Tokens.Tokenize(script);
+        
+        Console.WriteLine($"code:\n    {string.Join("\n    ", tokenizedScript)}");
         if (contextData is not null){
             ContextData = contextData;
-            ContextData.Lines = FormalizingScript.SplitCode(script);
+            ContextData.Tokens = tokenizedScript;
         }
         else
-            ContextData = new FormalizingScript(script, discordCtx).GetFormalized;
+            ContextData = new EnvironmentDataContext(tokenizedScript, null);
     }
 }

@@ -1,7 +1,6 @@
 using Suni.Suni.NikoSharp.Core;
 using Suni.Suni.NikoSharp.Core.Evaluator;
 using Suni.Suni.NikoSharp.Data;
-using Suni.Suni.NikoSharp.Formalizer;
 namespace Suni;
 public class Tests
 {
@@ -10,7 +9,6 @@ public class Tests
         Console.Clear();
         Console.WriteLine($"Running NikoSharp '{SunClassBot.SuniV}'.\nType '#help' for help.\n\n");
         bool isEval = false;
-        CommandContext ctx = null;
         
         while (true)
         {
@@ -47,12 +45,8 @@ public class Tests
 
             if (isEval)
             {
-                FormalizingScript formalizingScript = new FormalizingScript(code, ctx);
-                EnvironmentDataContext data = formalizingScript.GetFormalized;
-                string formalizedExpression = data.Lines[0];
-
-                var (resultEval, diagnostic, resultMessage) = NikoSharpEvaluator.EvaluateExpression(formalizedExpression, data);
-                Console.WriteLine($"Result of Evaluation for '{formalizedExpression}' :");
+                var (resultEval, diagnostic, resultMessage) = NikoSharpEvaluator.EvaluateExpression(code, null);
+                Console.WriteLine($"Result of Evaluation for '{code}' :");
 
                 if (diagnostic != Diagnostics.Success)
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -65,7 +59,7 @@ public class Tests
 
             //building response
             string response = $"Result (Debugging) of NikoSharp code '{SunClassBot.SuniV}' is here:\n----------------------------------------";
-            var parser = new NikoSharpSystem(code, ctx);
+            var parser = new NikoSharpSystem(code);
             Console.ForegroundColor = ConsoleColor.Gray; //changes the debug color
             var result = await parser.ParseScriptAsync();
             //here the console color can be reseted.

@@ -20,7 +20,7 @@ public class CustomCommands
             return;
         }
             
-        var parser = new NikoSharpSystem(nikosharpCommand.Value.nikosharpCode, ctx);
+        var parser = new NikoSharpSystem(nikosharpCommand.Value.nikosharpCode);
         var result = await parser.ParseScriptAsync();
 
         if (result.result != Diagnostics.Success)

@@ -8,18 +8,7 @@ public partial class NikoSharpSystem
 {
     public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync()
     {
-        var allTokens = new List<string>();
-
-        foreach (var line in ContextData.Lines)
-        {
-            if (!string.IsNullOrWhiteSpace(line))
-            {
-                allTokens.AddRange(Tokens.Tokenize(line));
-                allTokens.Add("EOL");
-            }
-        }
-        allTokens.Add("EOF");
-        var parser = new NikoSharpParser(allTokens.ToArray(), ContextData);
+        var parser = new NikoSharpParser(ContextData.Tokens, ContextData);
 
         try{
             var parseResult = await parser.ParseStatementAsync();
@@ -109,7 +98,7 @@ public partial class NikoSharpParser
         List<string> ifBlockTokens = CaptureBlockTokens();
 
         List<string> elseBlockTokens = null;
-        if (PeekToken() == "else")
+        if (PeekToken(0) == "else")
         {
             ConsumeToken("else");
             ConsumeToken("do");
@@ -210,6 +199,7 @@ public partial class NikoSharpParser
     private async Task<Diagnostics> ParseForStatementAsync()
     {
         ConsumeToken("for");
+        ConsumeToken("each");
 
         string listExpr = ParseExpression();
         var listResult = NikoSharpEvaluator.EvaluateExpression(listExpr);
@@ -256,7 +246,7 @@ public partial class NikoSharpParser
 
         if (method == "out")
         {
-            _context.Outputs.Add(args.ToString());
+            _context.Outputs.Add(evaluatedArgs.resultValue.ToString());
             return Diagnostics.Success;
         }
 
