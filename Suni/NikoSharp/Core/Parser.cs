@@ -67,7 +67,11 @@ public partial class NikoSharpParser
         }
 
         if (PeekToken() == "::")
-            return await ParseMethodCallAsync();
+        {
+            var result = await ParseMethodCallAsync();
+            
+            return result.Diagnostic;
+        }
 
         throw new ParseException(Diagnostics.SyntaxException, $"Token inesperado: {current}");
     }
@@ -75,12 +79,20 @@ public partial class NikoSharpParser
     private async Task<Diagnostics> ParseVariableDeclarationAsync()
     {
         var type = ConsumeToken();
+        if (!Enum.TryParse(type, out STypes wantedType))
+            throw new ParseException(Diagnostics.InvalidTypeException, $"Type '{type}' is not a valid type.");
+        
         var identifier = ConsumeToken();
         ConsumeToken("=");
-        var expression = ParseExpression();
+        var expression = ParseEncapsulation('(', ')');
         var resultEvaluation = NikoSharpEvaluator.EvaluateExpression(expression);
+        
+        //checl diagnostic
         if (resultEvaluation.diagnostic != Diagnostics.Success)
             throw new ParseException(resultEvaluation.diagnostic, resultEvaluation.diagnosticMessage);
+        //check typed result
+        if (resultEvaluation.resultValue.Type != wantedType)
+            throw new ParseException(Diagnostics.CannotConvertType, $"'{resultEvaluation.resultValue.Type}' cannot be explicitly converted to '{wantedType}'");
         
         _context.BlockStack.Peek().LocalVariables[identifier] = resultEvaluation.resultValue; //register in the scope//
         _context.Debugs.Add($"Variável declarada: {type} {identifier} = {expression}");
@@ -92,7 +104,7 @@ public partial class NikoSharpParser
     private async Task<Diagnostics> ParseIfStatementAsync()
     {
         ConsumeToken("if");
-        var condition = NikoSharpEvaluator.EvaluateExpression(ParseExpression());
+        var condition = NikoSharpEvaluator.EvaluateExpression(ParseEncapsulation('(', ')'));
         ConsumeToken("do");
 
         List<string> ifBlockTokens = CaptureBlockTokens();
@@ -126,7 +138,7 @@ public partial class NikoSharpParser
     private async Task<Diagnostics> ParseWhileStatementAsync()
     {
         ConsumeToken("while");
-        var condition = ParseExpression();
+        var condition = ParseEncapsulation('(', ')');
         ConsumeToken("do");
 
         List<string> blockTokens = CaptureBlockTokens();
@@ -163,7 +175,7 @@ public partial class NikoSharpParser
     {
         ConsumeToken("poeng");
 
-        var countExpr = ParseExpression();
+        var countExpr = ParseEncapsulation('(', ')');
         var countResult = NikoSharpEvaluator.EvaluateExpression(countExpr);
         if (countResult.diagnostic != Diagnostics.Success)
             throw new ParseException(countResult.diagnostic, countResult.diagnosticMessage);
@@ -201,7 +213,7 @@ public partial class NikoSharpParser
         ConsumeToken("for");
         ConsumeToken("each");
 
-        string listExpr = ParseExpression();
+        string listExpr = ParseEncapsulation('(', ')');
         var listResult = NikoSharpEvaluator.EvaluateExpression(listExpr);
         if (listResult.diagnostic != Diagnostics.Success)
             throw new ParseException(listResult.diagnostic, listResult.diagnosticMessage);
@@ -233,13 +245,13 @@ public partial class NikoSharpParser
         throw new ParseException(Diagnostics.EarlyTermination, "Exit requested.");
     }
 
-    private async Task<Diagnostics> ParseMethodCallAsync()
+    private async Task<(SType ResultVal, Diagnostics Diagnostic)> ParseMethodCallAsync()
     {
         await Task.CompletedTask;
         string className = ConsumeToken("std"); //ill keep this in this commit cuz im lazy now
         ConsumeToken("::");
         string method = ConsumeToken();
-        var args = ParseExpression();
+        var args = ParseEncapsulation('(', ')');
         var evaluatedArgs = NikoSharpEvaluator.EvaluateExpression(args);
         if (evaluatedArgs.diagnostic != Diagnostics.Success)
             throw new ParseException(evaluatedArgs.diagnostic, evaluatedArgs.diagnosticMessage);
@@ -247,13 +259,16 @@ public partial class NikoSharpParser
         if (method == "out")
         {
             _context.Outputs.Add(evaluatedArgs.resultValue.ToString());
-            return Diagnostics.Success;
+            return (new NikosVoid(), Diagnostics.Success);
         }
 
         throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
     }
 
-    private string ParseExpression() => ResolveVariables(ConsumeToken().Trim('(', ')'));
+    private string ParseEncapsulation(char open, char close)
+    {
+        return ResolveVariables(ConsumeToken().Trim(open, close));
+    }
 
     private string ConsumeToken(string expected = null)
     {

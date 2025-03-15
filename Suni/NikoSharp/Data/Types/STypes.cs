@@ -6,9 +6,9 @@ namespace Suni.Suni.NikoSharp.Data.Types;
 public enum STypes
 {
     Nil, Void, Bool, Int, Float,
-    Str, Function, List, Group, Dict,
-    User,
+    Str, List, Group, Dict,
     Error, Identifier,
+    TypeClass,
 }
 
 /// <summary>
@@ -68,11 +68,9 @@ public abstract class SType
                 STypes.Int => new NikosInt((long)value),
                 STypes.Float => new NikosFloat((double)value),
                 STypes.Str => new NikosStr((string)value),
-                STypes.Function => value is NikosFunction fn ? fn : throw new ArgumentException("Invalid Function Value"),
                 STypes.List => new NikosList(value as List<SType> ?? throw new ArgumentException("Invalid List Value")),
                 STypes.Group => new NikosGroup(value as List<SType> ?? throw new ArgumentException("Invalid Group Value")),
                 STypes.Dict => new NikosDict(value as Dictionary<NikosStr, SType> ?? throw new ArgumentException("Invalid Dictionary Value")),
-                STypes.User => new NikosUser(value as DiscordUser ?? throw new ArgumentException("Invalid User Value")),
                 _ => new NikosError(Diagnostics.InvalidTypeException, null),
             };
         }
