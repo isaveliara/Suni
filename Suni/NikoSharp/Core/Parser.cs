@@ -20,7 +20,7 @@ public partial class NikoSharpSystem
             }
             catch (ParseException ex)
             {
-                ContextData.LogDiagnostic(ex.Diagnostic, ex.Message);
+                ContextData.Outputs.Add($"{ex.Diagnostic}: {ex.Message}");
                 return (ContextData.Debugs, ContextData.Outputs, ex.Diagnostic);
             }
         }
@@ -33,7 +33,6 @@ public partial class NikoSharpParser
     private readonly string[] _tokens;
     private int _position;
     private readonly EnvironmentDataContext _context;
-    private const int MaxIterations = 10; //limit iterations to avoid infinite loops
 
     public NikoSharpParser(string[] tokens, EnvironmentDataContext context)
     {
@@ -41,7 +40,7 @@ public partial class NikoSharpParser
         _context = context;
         _position = 0;
 
-        _context.Debugs.Add($"todos os tokens: {string.Join(" % ", _tokens)}");//debugging///////////
+        _context.Debugs.Add($"all tokens: {string.Join(" % ", _tokens)}");//debugging///////////
     }
 
     public async Task<Diagnostics> ParseStatementAsync()
@@ -78,7 +77,7 @@ public partial class NikoSharpParser
             case "exit": return ParseExitStatement();
         }
 
-        throw new ParseException(Diagnostics.SyntaxException, $"Token inesperado: {current}");
+        throw new ParseException(Diagnostics.SyntaxException, $"UnexpectedToken: {current}");
     }
 
     private async Task<Diagnostics> ParseVariableDeclarationAsync()
@@ -127,9 +126,9 @@ public partial class NikoSharpParser
         string className = ConsumeToken();
         
         if (!_context.BlockStack.Peek().LocalVariables.ContainsKey(className))
-            throw new ParseException(Diagnostics.UnlistedVariable, $"Class '{className}' não encontrada.");
+            throw new ParseException(Diagnostics.UnlistedVariable, $"Class '{className}' not found.");
         if (_context.BlockStack.Peek().LocalVariables[className] is not NikosTypeClass existingClass)
-            throw new ParseException(Diagnostics.InvalidTypeException, $"'{className}' não é uma TypeClass.");
+            throw new ParseException(Diagnostics.InvalidTypeException, $"'{className}' isnt a TypeClass.");
 
         string methodName = ConsumeToken();
         string args = ParseEncapsulation('<', '>');
@@ -206,9 +205,9 @@ public partial class NikoSharpParser
                 break;
 
             iterationCount++;
-            if (iterationCount > MaxIterations)
+            if (iterationCount > NikoSharpConfigs.Configurations.LanguageSettings.MaxIterations)
             {
-                _context.LogDiagnostic(Diagnostics.Anomaly, $"Número de iterações no 'while' limitado a {MaxIterations}.");
+                _context.Outputs.Add($"Warn: Number of iterations in 'while' limited to {NikoSharpConfigs.Configurations.LanguageSettings.MaxIterations}. Exiting the Loop");
                 break;
             }
 
@@ -240,16 +239,16 @@ public partial class NikoSharpParser
         List<string> blockTokens = CaptureBlockTokens();
 
         if (!(countResult.resultValue is NikosInt count))
-            throw new ParseException(Diagnostics.TypeMismatchException, "poeng requires an 'STypes.Int', less than 10.");
+            throw new ParseException(Diagnostics.TypeMismatchException, "poeng requires an 'STypes.Int'");
 
-        for (int i = 0; i < (long)count.Value && i < MaxIterations; i++)
+        for (int i = 0; i < (long)count.Value && i < NikoSharpConfigs.Configurations.LanguageSettings.MaxIterations; i++)
         {
             if (usedOutVar is not null)
             {
                 _context.BlockStack.Peek().LocalVariables[usedOutVar] = new NikosInt(i + 1);
-                _context.Debugs.Add($"Variável declarada: Int {usedOutVar} = {i + 1}");
+                _context.Debugs.Add($"Variable Added: Int {usedOutVar} = {i + 1}");
             }
-            _context.Debugs.Add($"Executando iteração {i + 1} do poeng");
+            _context.Debugs.Add($"Executing iteration {i + 1} of poeng");
             var result = await ExecuteBlockAsync_Internal(blockTokens);
             if (result != Diagnostics.Success)
                 return result;
@@ -275,6 +274,7 @@ public partial class NikoSharpParser
         ConsumeToken("do");
 
         List<string> blockTokens = CaptureBlockTokens();
+        int iterationCount = 0;
 
         foreach (SType element in (List<SType>)nikosList.Value)
         {
@@ -283,6 +283,13 @@ public partial class NikoSharpParser
             var result = await ExecuteBlockAsync_Internal(blockTokens);
             if (result != Diagnostics.Success)
                 return result;
+            
+            iterationCount++;
+            if (iterationCount > NikoSharpConfigs.Configurations.LanguageSettings.MaxIterations)
+            {
+                _context.Outputs.Add($"Warn: Number of iterations in 'while' limited to {NikoSharpConfigs.Configurations.LanguageSettings.MaxIterations}. Exiting the Loop.");
+                break;
+            }
         }
         return Diagnostics.Success;
     }
@@ -297,28 +304,30 @@ public partial class NikoSharpParser
     private async Task<(SType ResultVal, Diagnostics Diagnostic)> ParseMethodCallAsync()
     {
         await Task.CompletedTask;
-        string className = ConsumeToken("");
+        string className = ConsumeToken();
         ConsumeToken("::");
         string methodName = ConsumeToken();
         var args = ParseEncapsulation('(', ')');
         var evaluatedArgs = NikoSharpEvaluator.EvaluateExpression(args);
         if (evaluatedArgs.diagnostic != Diagnostics.Success)
             throw new ParseException(evaluatedArgs.diagnostic, evaluatedArgs.diagnosticMessage);
-
-        if (methodName == "out") //thissasasasahsuhauh
+        
+        if (className + methodName == "stdout") //thissasasasahsuhauh
         {
             _context.Outputs.Add(evaluatedArgs.resultValue.ToString());
             return (new NikosVoid(), Diagnostics.Success);
         }
 
         if (!_context.BlockStack.Peek().LocalVariables.TryGetValue(className, out var classInstance))
-            throw new ParseException(Diagnostics.UnlistedVariable, $"Class '{className}' não encontrada.");
+            throw new ParseException(Diagnostics.UnlistedVariable, $"Class '{className}' not found.");
         
         if (classInstance is not NikosTypeClass nikosClass)
-            throw new ParseException(Diagnostics.InvalidTypeException, $"'{className}' não é uma TypeClass.");
+            throw new ParseException(Diagnostics.InvalidTypeException, $"'{className}' isnt a TypeClass.");
         
         NikosClass targetClass = (NikosClass)nikosClass.Value;
         NikosMethod methodFound = targetClass.GetMethod(methodName);
+        if (methodFound is null)
+            throw new ParseException(Diagnostics.FunctionNotFound, $"'{methodName}' doesnt exists in '{className}' class.");
         
         //throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
         var result = ExecuteBlockAsync_Internal(methodFound.Code);
@@ -335,11 +344,11 @@ public partial class NikoSharpParser
         while (_position < _tokens.Length && _tokens[_position] == "EOL")
             _position++;
         if (_position >= _tokens.Length || _tokens[_position] == "EOF")
-            throw new ParseException(Diagnostics.SyntaxException, "Fim do arquivo inesperado.");
+            throw new ParseException(Diagnostics.SyntaxException, "Unexpected End of FIle.");
         
         var currentToken = CurrentToken();
         if (expected != null && currentToken != expected)
-            throw new ParseException(Diagnostics.SyntaxException, $"Expected: '{expected}', Got: '{currentToken}");
+            throw new ParseException(Diagnostics.SyntaxException, $"Expected: '{expected}', Got: '{currentToken}'");
 
         return _tokens[_position++];
     }
@@ -393,7 +402,7 @@ public partial class NikoSharpParser
                     if (_context.TryGetVariableValue(variableName, out var value))
                         result.Append(value);
                     else
-                        throw new ParseException(Diagnostics.UnlistedVariable, $"Variável '{variableName}' não encontrada");
+                        throw new ParseException(Diagnostics.UnlistedVariable, $"Variable '{variableName}' not found");
                 }
                 else
                     result.Append("${");
