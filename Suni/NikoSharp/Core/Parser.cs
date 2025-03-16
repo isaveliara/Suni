@@ -9,19 +9,21 @@ public partial class NikoSharpSystem
     public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync()
     {
         var parser = new NikoSharpParser(ContextData.Tokens, ContextData);
-
-        try{
-            var parseResult = await parser.ParseStatementAsync();
-
-            if (parseResult != Diagnostics.Success)
-                return (ContextData.Debugs, ContextData.Outputs, parseResult);
-        }
-        catch (ParseException ex)
+        Diagnostics result = Diagnostics.Success;
+        while (parser.CurrentToken() != "EOF")
         {
-            ContextData.LogDiagnostic(ex.Diagnostic, ex.Message);
-            return (ContextData.Debugs, ContextData.Outputs, ex.Diagnostic);
+            try
+            {
+                result = await parser.ParseStatementAsync();
+                if (result != Diagnostics.Success)
+                    return (ContextData.Debugs, ContextData.Outputs, result);
+            }
+            catch (ParseException ex)
+            {
+                ContextData.LogDiagnostic(ex.Diagnostic, ex.Message);
+                return (ContextData.Debugs, ContextData.Outputs, ex.Diagnostic);
+            }
         }
-        
         return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
     }
 }
@@ -54,8 +56,18 @@ public partial class NikoSharpParser
             return await ParseStatementAsync();
         }
 
+        if (PeekToken() == "::")
+        {
+            var result = await ParseMethodCallAsync();
+            return result.Diagnostic;
+        }
+
         if (IsType(current))
             return await ParseVariableDeclarationAsync();
+        
+        if (IsClass(current))
+            return await ClassEditing();
+            //TypeClass burrice = new . burrice verificar_coisas ({}) = if (true) do . exit . end end   
 
         switch (current)
         {
@@ -66,28 +78,35 @@ public partial class NikoSharpParser
             case "exit": return ParseExitStatement();
         }
 
-        if (PeekToken() == "::")
-        {
-            var result = await ParseMethodCallAsync();
-            
-            return result.Diagnostic;
-        }
-
         throw new ParseException(Diagnostics.SyntaxException, $"Token inesperado: {current}");
     }
 
     private async Task<Diagnostics> ParseVariableDeclarationAsync()
     {
         var type = ConsumeToken();
-        if (!Enum.TryParse(type, out STypes wantedType))
-            throw new ParseException(Diagnostics.InvalidTypeException, $"Type '{type}' is not a valid type.");
-        
         var identifier = ConsumeToken();
         ConsumeToken("=");
+
+        if (!Enum.TryParse(type, out STypes wantedType))
+            throw new ParseException(Diagnostics.InvalidTypeException, $"unknown exception");
+
+        //if its STypes.TypeClass, create a new class.
+        if (wantedType == STypes.TypeClass)
+        {
+            ConsumeToken("new"); //just to keep the syntax consistent.
+            NikosTypeClass typeClass = new NikosTypeClass(identifier);
+            _context.Debugs.Add($"Creating a new TypeClass: {identifier}");
+            if (_context.BlockStack.Peek().LocalVariables.ContainsKey(identifier))
+                throw new ParseException(Diagnostics.InvalidTypeException, $"class '{identifier}' already exists. Use a diffrent name!");
+            _context.BlockStack.Peek().LocalVariables[identifier] = typeClass;
+            return Diagnostics.Success;
+        }
+        //else, evaluate and store as a commum variable.
         var expression = ParseEncapsulation('(', ')');
         var resultEvaluation = NikoSharpEvaluator.EvaluateExpression(expression);
         
-        //checl diagnostic
+
+        //check diagnostic
         if (resultEvaluation.diagnostic != Diagnostics.Success)
             throw new ParseException(resultEvaluation.diagnostic, resultEvaluation.diagnosticMessage);
         //check typed result
@@ -97,6 +116,36 @@ public partial class NikoSharpParser
         _context.BlockStack.Peek().LocalVariables[identifier] = resultEvaluation.resultValue; //register in the scope//
         _context.Debugs.Add($"Variável declarada: {type} {identifier} = {expression}");
 
+        await Task.CompletedTask;
+        return Diagnostics.Success;
+    }
+
+    private async Task<Diagnostics> ClassEditing()
+    {
+        //syntax: classname methodname<args> = .....end
+        //or: classname methodname<args> out <returnType> = .....end
+        string className = ConsumeToken();
+        
+        if (!_context.BlockStack.Peek().LocalVariables.ContainsKey(className))
+            throw new ParseException(Diagnostics.UnlistedVariable, $"Class '{className}' não encontrada.");
+        if (_context.BlockStack.Peek().LocalVariables[className] is not NikosTypeClass existingClass)
+            throw new ParseException(Diagnostics.InvalidTypeException, $"'{className}' não é uma TypeClass.");
+
+        string methodName = ConsumeToken();
+        string args = ParseEncapsulation('<', '>');
+        ConsumeToken("=");
+        List<string> code = CaptureBlockTokens();
+        NikosMethod method = new NikosMethod
+        {
+            NameMethod = methodName,
+            Code = code,
+            ArgsValues = new NikosDict(new Dictionary<NikosStr, SType>()),
+            ReturnType = STypes.Void
+        };
+
+        NikosClass targetClass = (NikosClass)existingClass.Value;
+        targetClass.RegisterMethod(method);
+        
         await Task.CompletedTask;
         return Diagnostics.Success;
     }
@@ -248,21 +297,32 @@ public partial class NikoSharpParser
     private async Task<(SType ResultVal, Diagnostics Diagnostic)> ParseMethodCallAsync()
     {
         await Task.CompletedTask;
-        string className = ConsumeToken("std"); //ill keep this in this commit cuz im lazy now
+        string className = ConsumeToken("");
         ConsumeToken("::");
-        string method = ConsumeToken();
+        string methodName = ConsumeToken();
         var args = ParseEncapsulation('(', ')');
         var evaluatedArgs = NikoSharpEvaluator.EvaluateExpression(args);
         if (evaluatedArgs.diagnostic != Diagnostics.Success)
             throw new ParseException(evaluatedArgs.diagnostic, evaluatedArgs.diagnosticMessage);
 
-        if (method == "out")
+        if (methodName == "out") //thissasasasahsuhauh
         {
             _context.Outputs.Add(evaluatedArgs.resultValue.ToString());
             return (new NikosVoid(), Diagnostics.Success);
         }
 
-        throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
+        if (!_context.BlockStack.Peek().LocalVariables.TryGetValue(className, out var classInstance))
+            throw new ParseException(Diagnostics.UnlistedVariable, $"Class '{className}' não encontrada.");
+        
+        if (classInstance is not NikosTypeClass nikosClass)
+            throw new ParseException(Diagnostics.InvalidTypeException, $"'{className}' não é uma TypeClass.");
+        
+        NikosClass targetClass = (NikosClass)nikosClass.Value;
+        NikosMethod methodFound = targetClass.GetMethod(methodName);
+        
+        //throw new ParseException(Diagnostics.FunctionNotFound, $"Method not found: {className}::{method}");
+        var result = ExecuteBlockAsync_Internal(methodFound.Code);
+        return (new NikosVoid(), Diagnostics.Success);
     }
 
     private string ParseEncapsulation(char open, char close)
@@ -276,14 +336,15 @@ public partial class NikoSharpParser
             _position++;
         if (_position >= _tokens.Length || _tokens[_position] == "EOF")
             throw new ParseException(Diagnostics.SyntaxException, "Fim do arquivo inesperado.");
-
-        if (expected != null && CurrentToken() != expected)
-            throw new ParseException(Diagnostics.SyntaxException, $"Esperado: {expected}");
+        
+        var currentToken = CurrentToken();
+        if (expected != null && currentToken != expected)
+            throw new ParseException(Diagnostics.SyntaxException, $"Expected: '{expected}', Got: '{currentToken}");
 
         return _tokens[_position++];
     }
 
-    private string CurrentToken()
+    public string CurrentToken()
     {
         while (_position < _tokens.Length && _tokens[_position] == "EOL")
             _position++;
@@ -300,6 +361,14 @@ public partial class NikoSharpParser
     }
 
     private bool IsType(string token) => Enum.TryParse<STypes>(token, out _);
+    
+    private bool IsClass(string token)
+    {
+        if (_context.BlockStack.Peek().LocalVariables.ContainsKey(token))
+            if (_context.BlockStack.Peek().LocalVariables[token].Type == STypes.TypeClass)
+                return true;
+        return false;
+    }
 
     private string ResolveVariables(string expression)
     {

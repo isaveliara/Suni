@@ -10,7 +10,6 @@ public class EnvironmentDataContext
     public Stack<CodeBlock> BlockStack { get; set; } = new();
     public List<Dictionary<string, SType>> Variables { get; set; }
 
-    //auto-set
     public List<string> ErrorMessages { get; set; }
     public List<string> Debugs { get; set; }
     public List<string> Outputs { get; set; }
@@ -21,7 +20,6 @@ public class EnvironmentDataContext
         Variables = variables is not null? variables : new List<Dictionary<string, SType>> {
             new() { { "__version__", new NikosStr(SunClassBot.SuniV) } },
             new() { { "__time__", new NikosStr(DateTime.Now.ToString()) } },
-            //new() { { "__out__", new NikosFunction(new NikosGroup([new NikosVoid()]), "__out__", new NikosGroup([new NikosVoid()]), new NikosNil(), "std::out() -> s'hello there!'")} }
         };
 
         Debugs = new List<string>();

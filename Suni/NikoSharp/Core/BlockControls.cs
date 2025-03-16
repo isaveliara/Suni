@@ -50,13 +50,4 @@ public partial class NikoSharpParser{
         }
         return Diagnostics.Success;
     }
-
-    /// <summary>
-    /// Centralized version of ExecuteBlockAsync.
-    /// </summary>
-    private async Task<Diagnostics> ExecuteBlockAsync()
-    {
-        List<string> blockTokens = CaptureBlockTokens();
-        return await ExecuteBlockAsync_Internal(blockTokens);
-    }
 }

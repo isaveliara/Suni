@@ -47,7 +47,7 @@ public class NikosMethod
 {
     public string NameMethod { get; set; }
     
-    public string Code { get; set; }
+    public List<string> Code { get; set; }
     
     public NikosDict ArgsValues { get; set; } = new NikosDict(new Dictionary<NikosStr, SType>());
     public STypes ReturnType { get; set; } = STypes.Void;
