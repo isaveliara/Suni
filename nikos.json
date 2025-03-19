@@ -2,18 +2,10 @@
     "DefaultVariables": {
 
     },
-    "ExternalFunctions": [
+    "ExternalClasses": [
         {
-            "Key": "std::out",
-            "CsAssembly": "Suni.Suni.NikoSharp.NikoStandartLibrary",
-            "CsType": "Output",
-            "CsMethod": "Add"
-        },
-        {
-            "Key": "std::nothing",
-            "CsAssembly": "Suni.Suni.NikoSharp.NikoStandartLibrary",
-            "CsType": "Etc",
-            "CsMethod": "Nothing"
+            "CsAssembly": "Suni.Suni.NikoSharp.Core",
+            "CsType": "Std"
         }
     ],
 

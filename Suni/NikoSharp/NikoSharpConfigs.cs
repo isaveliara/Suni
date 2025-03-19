@@ -16,28 +16,28 @@ public static class NikoSharpConfigs
             if (Configurations == null)
                 throw new Exception("Configuração retornou null.");
 
-            foreach (var func in Configurations.ExternalFunctions)
+            foreach (var extClass in Configurations.ExternalClasses)
             {
-                string fullTypeName = $"{func.CsAssembly}.{func.CsType}";
+                string fullTypeName = $"{extClass.CsAssembly}.{extClass.CsType}";
                 Type type = Type.GetType(fullTypeName, throwOnError: false);
-                if (type == null)
-                {
-                    var assembly = Assembly.Load(func.CsAssembly);
+                if (type == null){
+                    var assembly = Assembly.Load(extClass.CsAssembly);
                     type = assembly.GetType(fullTypeName);
                 }
                 if (type == null)
                     throw new Exception($"Type {fullTypeName} not found.");
 
-                var method = type.GetMethod(func.CsMethod, BindingFlags.Public | BindingFlags.Static);
-                if (method == null)
-                    throw new Exception($"Method {func.CsMethod} not found in type {fullTypeName}.");
-
-                Delegate del = Delegate.CreateDelegate(typeof(Func<object[], object>), method);
-                Configurations.RegisteredFunctions[func.Key] = del;
+                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                {
+                    // Opcional: filtrar apenas os métodos que você deseja expor
+                    Delegate del = Delegate.CreateDelegate(typeof(Func<object[], object>), method);
+                    // Cria uma chave, por exemplo: "Output::Add"
+                    string key = $"{extClass.CsType}::{method.Name}";
+                    Configurations.RegisteredFunctions[key] = del;
+                }
             }
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex){
             Console.WriteLine($"Error: Cannot get .nikosproj config file. Message:\n{ex.Message}");
             throw;
         }
@@ -46,18 +46,16 @@ public static class NikoSharpConfigs
 
 public class NikosConfiguration //main class
 {
-    public List<ExternalFunctionEntry> ExternalFunctions { get; set; } = new List<ExternalFunctionEntry>();
+    public List<ExternalClassEntry> ExternalClasses { get; set; } = new List<ExternalClassEntry>();
     public LanguageSettings LanguageSettings { get; set; } = new LanguageSettings();
     
     public Dictionary<string, Delegate> RegisteredFunctions { get; set; } = new Dictionary<string, Delegate>();
 }
 
-public class ExternalFunctionEntry
+public class ExternalClassEntry
 {
-    public string Key { get; set; }
     public string CsAssembly { get; set; }
     public string CsType { get; set; }
-    public string CsMethod { get; set; }
 }
 
 public class LanguageSettings
