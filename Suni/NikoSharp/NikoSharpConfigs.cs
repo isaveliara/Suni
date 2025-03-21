@@ -38,7 +38,7 @@ public static class NikoSharpConfigs
             }
         }
         catch (Exception ex){
-            Console.WriteLine($"Error: Cannot get .nikosproj config file. Message:\n{ex.Message}");
+            Console.WriteLine($"Error: Cannot get .json config file. Message:\n{ex.Message}");
             throw;
         }
     }

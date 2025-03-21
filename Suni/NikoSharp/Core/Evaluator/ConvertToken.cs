@@ -10,7 +10,7 @@ partial class NikoSharpEvaluator
         if (bool.TryParse(token, out bool boolValue)) return new NikosBool(boolValue);
         if (token == "nil") return new NikosNil();
         if (token == "void") return new NikosVoid();
-        if (token.StartsWith("s'") && token.EndsWith('\'') && token.Length >= 3) return new NikosStr(token[2..^1]);
+        if (token.StartsWith('\'') && token.EndsWith('\'') && token.Length >= 2) return new NikosStr(token[ 1..^1]);
         Console.WriteLine(token);
         if (token.StartsWith('{') && token.EndsWith('}'))
         {

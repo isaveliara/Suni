@@ -12,7 +12,7 @@ public class NikosTypeClass : SType
         _value = new NikosClass(className);
     }
 
-    public override STypes Type => STypes.TypeClass;
+    public override STypes Type => STypes.Class;
     public override object Value => _value;
     
     public override string ToString()

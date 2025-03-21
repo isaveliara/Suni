@@ -73,8 +73,8 @@ partial class Tokens
             }
 
             if (!tokenFound)
-                //5. Check for s'...'. These tokens are Literals (string).
-                if (pos + 1 < len && expression[pos] == 's' && expression[pos + 1] == '\'')
+                //5. Check for '...'. These tokens are Literals (string).
+                if (pos + 1 < len && expression[pos] == '\'')
                 {
                     int end = pos + 2;
                     while (end < len && expression[end] != '\'') end++;
@@ -84,18 +84,6 @@ partial class Tokens
                         token = expression.Substring(pos, tokenLength);
                         tokenFound = true;
                     }
-                }
-
-            if (!tokenFound)
-                //6. Check for c'...'. These tokens are Literals (char).
-                if (pos + 3 < len &&
-                    expression[pos] == 'c' &&
-                    expression[pos + 1] == '\'' &&
-                    expression[pos + 3] == '\'')
-                {
-                    tokenLength = 4;
-                    token = expression.Substring(pos, tokenLength);
-                    tokenFound = true;
                 }
 
             if (!tokenFound)

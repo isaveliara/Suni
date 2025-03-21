@@ -4,30 +4,6 @@ using Suni.Suni.NikoSharp.Data;
 using Suni.Suni.NikoSharp.Data.Types;
 namespace Suni.Suni.NikoSharp.Core;
 
-public partial class NikoSharpSystem
-{
-    public async Task<(List<string> debugs, List<string> outputs, Diagnostics result)> ParseScriptAsync()
-    {
-        var parser = new NikoSharpParser(ContextData.Tokens, ContextData);
-        Diagnostics result = Diagnostics.Success;
-        while (parser.CurrentToken() != "EOF")
-        {
-            try
-            {
-                result = await parser.ParseStatementAsync();
-                if (result != Diagnostics.Success)
-                    return (ContextData.Debugs, ContextData.Outputs, result);
-            }
-            catch (ParseException ex)
-            {
-                ContextData.Outputs.Add($"{ex.Diagnostic}: {ex.Message}");
-                return (ContextData.Debugs, ContextData.Outputs, ex.Diagnostic);
-            }
-        }
-        return (ContextData.Debugs, ContextData.Outputs, Diagnostics.Success);
-    }
-}
-
 public partial class NikoSharpParser
 {
     private readonly string[] _tokens;
@@ -90,7 +66,7 @@ public partial class NikoSharpParser
             throw new ParseException(Diagnostics.InvalidTypeException, $"unknown exception");
 
         //if its STypes.TypeClass, create a new class.
-        if (wantedType == STypes.TypeClass)
+        if (wantedType == STypes.Class)
         {
             ConsumeToken("new"); //just to keep the syntax consistent.
             NikosTypeClass typeClass = new NikosTypeClass(identifier);
@@ -131,8 +107,9 @@ public partial class NikoSharpParser
             throw new ParseException(Diagnostics.InvalidTypeException, $"'{className}' isnt a TypeClass.");
 
         string methodName = ConsumeToken();
-        string args = ParseEncapsulation('<', '>');
         ConsumeToken("=");
+        ConsumeToken("function");
+        string args = ParseEncapsulation('(', ')');
         List<string> code = CaptureBlockTokens();
         NikosMethod method = new NikosMethod
         {
@@ -366,11 +343,11 @@ public partial class NikoSharpParser
     }
 
     private bool IsType(string token) => Enum.TryParse<STypes>(token, out _);
-    
+
     private bool IsClass(string token)
     {
         if (_context.BlockStack.Peek().LocalVariables.ContainsKey(token))
-            if (_context.BlockStack.Peek().LocalVariables[token].Type == STypes.TypeClass)
+            if (_context.BlockStack.Peek().LocalVariables[token].Type == STypes.Class)
                 return true;
         return false;
     }

@@ -7,8 +7,7 @@ public enum STypes
 {
     Nil, Void, Bool, Int, Float,
     Str, List, Group, Dict,
-    Error, Identifier,
-    TypeClass,
+    Error, Identifier, Class,
 }
 
 /// <summary>
