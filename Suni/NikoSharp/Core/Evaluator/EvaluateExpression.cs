@@ -69,12 +69,12 @@ partial class NikoSharpEvaluator
 ///examples of expressions:
     ///1 + 1                       | 2 (i think is wrong.)
     ///true && false               | False
-    ///s'hi' :: len == 2           | True
-    ///a ? s'osvald'               | True
-    ///a ? s'petter'               | False
-    ///s'Hello Worl':: len         | HELLO WORLD
-    ///s'zzzzzzzzzz':: len >= 10   | True
-    ///s'hel' + s'lo' == s'hello'  | True
-    ///s'a' + s'b' ? s'oiba'       | False
-    ///s'a' + s'b' ? s'oiab'       | True
+    ///'hi' :: len == 2           | True
+    ///a ? 'osvald'               | True
+    ///a ? 'petter'               | False
+    ///'Hello Worl':: len         | HELLO WORLD
+    ///'zzzzzzzzzz':: len >= 10   | True
+    ///'hel' + s'lo' == 'hello'  | True
+    ///'a' + 'b' ? 'oiba'       | False
+    ///'a' + 'b' ? 'oiab'       | True
     ///900 # s'hi'                 | Aleatory choices '900' or 'hi'

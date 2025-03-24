@@ -1,4 +1,5 @@
 namespace Suni.Suni.NikoSharp.Data;
+
 partial class Tokens
 {
     public static string[] Tokenize(string expression)

@@ -11,7 +11,7 @@ public class NikoSharpSystem
     public NikoSharpSystem(string script, EnvironmentDataContext contextData = null)
     {
         var tokenizedScript = Tokens.Tokenize(script);
-        Console.WriteLine($"code:\n    {string.Join("\n    ", tokenizedScript)}");
+        Console.WriteLine($"code:\n{Tokens.FormatTokens(tokenizedScript)}");
         if (contextData is not null){
             ContextData = contextData;
             ContextData.Tokens = tokenizedScript;

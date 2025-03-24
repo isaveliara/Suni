@@ -1,4 +1,5 @@
 namespace Suni.Suni.NikoSharp.Data;
+
 partial class Tokens
 {
     internal static int Precedence(string Operator)

@@ -9,7 +9,10 @@ partial class NikoSharpEvaluator
         var b = stackValues.Pop();
         var a = stackValues.Pop();
 
-        if (a is NikosIdentifier) return (Diagnostics.BadToken, $"At [{a.Value} {Operator} {b.Value}]: Syntax Error: left operand can't be an 'STypes.Indentifier'");
+        if (a is NikosIdentifier) //TODO:fix
+        {
+            return (Diagnostics.BadToken, $"At [{a.Value} {Operator} {b.Value}]: Syntax Error: left operand can't be an 'STypes.Indentifier'");
+        }
         if (b is NikosIdentifier identifier)
         {
             if (Operator == "::") //access property of
