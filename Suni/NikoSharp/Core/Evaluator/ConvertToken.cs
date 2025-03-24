@@ -48,9 +48,17 @@ partial class NikoSharpEvaluator
                 return new NikosList([.. elements.Select(e => ConvertToken(e, context))]);
         }
         
-        var identifierVal = new NikosIdentifier(token);
-        return identifierVal.Value is not null
-            ? identifierVal
-            : new NikosError(Diagnostics.BadToken, $"'{token}' is not a valid Token.");
+        //var identifierVal = new NikosIdentifier(token);
+        //return identifierVal.Value is not null
+        //    ? identifierVal
+        //    : new NikosError(Diagnostics.BadToken, $"'{token}' is not a valid Token.");
+
+        //get var value
+        if (context is null)
+            return new NikosError(Diagnostics.BadToken, $"'{token}' is not a valid Token or for some reason variables cannot be captured now.");
+        
+        if (context.TryGetVariableValue(token, out SType variableVal))
+            return variableVal;
+        return new NikosError(Diagnostics.UnlistedVariable, $"'{token}' is an unknown variable.");
     }
 }
